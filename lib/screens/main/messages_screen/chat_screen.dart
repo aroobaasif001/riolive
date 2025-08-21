@@ -267,11 +267,11 @@ class _ChatScreenState extends State<ChatScreen> {
                       child: Container(
                         margin: EdgeInsets.symmetric(
                           horizontal: _isTextFieldFocused
-                              ? (isSmallScreen ? 8 : 12)
-                              : (isSmallScreen ? 2 : 4),
+                              ? (isSmallScreen ? 4 : 6)
+                              : (isSmallScreen ? 1 : 2),
                         ),
                         padding: EdgeInsets.symmetric(
-                          horizontal: isSmallScreen ? 20 : 24,
+                          horizontal: isSmallScreen ? 16 : 20,
                           vertical: isSmallScreen ? 12 : 16,
                         ),
                         decoration: BoxDecoration(
