@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:riolive/screens/auth/signup_screen/sign_in_screen.dart';
 import 'package:riolive/screens/auth/signup_screen/verifyscreen/verification_screeen.dart';
+import 'package:riolive/screens/homescreenbottomnaviagtionbar/call_screen/call_screen.dart';
 import 'package:riolive/screens/homescreenbottomnaviagtionbar/homescreenbottomnaviagtionbar.dart';
 import 'package:riolive/screens/splashscreen/splash_screen.dart';
 
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Rio Live App',
       debugShowCheckedModeBanner: false,
-      home:HomeScreenBottomNaviagtionBar(),
+      home:CallScreen(),
     );
   }
 }
