@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import '../../../customwidgets/custombutton.dart';
-import '../../../customwidgets/customtext.dart';
-import '../../../customwidgets/customtextformfield.dart';
+import 'package:riolive/customwidgets/custombutton.dart';
+import 'package:riolive/customwidgets/customtext.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -40,10 +38,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/images/rgb_background.png"),
-            fit: BoxFit.cover,
-          ),
+          image: DecorationImage(image: AssetImage("assets/images/rgb_background.png"), fit: BoxFit.cover),
         ),
         child: SafeArea(
           child: SingleChildScrollView(
@@ -116,10 +111,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Widget _buildAppBar(BuildContext context, bool isSmallScreen) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: isSmallScreen ? 16.0 : 20.0,
-        vertical: 16.0,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: isSmallScreen ? 16.0 : 20.0, vertical: 16.0),
       child: Row(
         children: [
           GestureDetector(
@@ -130,11 +122,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 color: Colors.white.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(
-                Icons.arrow_back_ios,
-                color: Colors.white,
-                size: 20,
-              ),
+              child: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 20),
             ),
           ),
           Expanded(
@@ -166,15 +154,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               Container(
                 padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.6),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.camera_alt,
-                  color: Colors.white,
-                  size: 28,
-                ),
+                decoration: BoxDecoration(color: Colors.black.withOpacity(0.6), shape: BoxShape.circle),
+                child: const Icon(Icons.camera_alt, color: Colors.white, size: 28),
               ),
             ],
           ),
@@ -216,18 +197,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFFE3F2FD),
-                  Color(0xFFF3E5F5),
-                ],
+                colors: [Color(0xFFE3F2FD), Color(0xFFF3E5F5)],
               ),
               borderRadius: BorderRadius.circular(30),
               boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 6,
-                  offset: const Offset(0, 3),
-                ),
+                BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 6, offset: const Offset(0, 3)),
               ],
             ),
             child: Row(
@@ -236,14 +210,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   padding: const EdgeInsets.all(8),
                   child: assetIcon != null
                       ? Image.asset(
-                    assetIcon,
-                    width: isSmallScreen ? 22 : 24,
-                    height: isSmallScreen ? 22 : 24,
-                  )
-                      : Icon(
-                    icon,
-                    size: isSmallScreen ? 22 : 24,
-                  ),
+                          assetIcon,
+                          width: isSmallScreen ? 22 : 24,
+                          height: isSmallScreen ? 22 : 24,
+                        )
+                      : Icon(icon, size: isSmallScreen ? 22 : 24),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -275,7 +246,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ],
     );
   }
-
 
   Widget _buildAlbumSection(bool isSmallScreen) {
     return Column(
@@ -315,11 +285,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                   ],
                 ),
-                child: Icon(
-                  Icons.add,
-                  size: isSmallScreen ? 32 : 36,
-                  color: Colors.black54,
-                ),
+                child: Icon(Icons.add, size: isSmallScreen ? 32 : 36, color: Colors.black54),
               ),
             ),
 
@@ -356,11 +322,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             color: Colors.red.withOpacity(0.8),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Icon(
-                            Icons.close,
-                            color: Colors.white,
-                            size: 16,
-                          ),
+                          child: const Icon(Icons.close, color: Colors.white, size: 16),
                         ),
                       ),
                     ),

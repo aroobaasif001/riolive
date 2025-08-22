@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:riolive/customwidgets/customnavbar.dart';
-import 'package:riolive/screens/homescreenbottomnaviagtionbar/home_navbar_screens/call_screen/call_screen.dart';
-import 'package:riolive/screens/homescreenbottomnaviagtionbar/home_navbar_screens/live_Screen/live_screen.dart';
-import 'package:riolive/screens/homescreenbottomnaviagtionbar/home_navbar_screens/party_screen/party_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/home_navbar_screens/party_screen/party_screen.dart';
+
+import 'call_screen/call_screen.dart';
+import 'live_Screen/live_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,14 +23,13 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration:  BoxDecoration(
+        decoration: BoxDecoration(
           image: DecorationImage(
             image: selectedItem == 'Match'
                 ? AssetImage("assets/images/callscreenbgimage.png")
-            : selectedItem == "Live"
+                : selectedItem == "Live"
                 ? AssetImage("assets/images/hbg3.jpg")
-                : AssetImage("assets/images/hbg4.jpg")
-            ,
+                : AssetImage("assets/images/hbg4.jpg"),
             fit: BoxFit.cover,
           ),
         ),
@@ -51,11 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     : selectedItem == "Live"
                     ? 1
                     : 2,
-                children: const [
-                  MatchScreen(),
-                  LiveScreen(),
-                  PartyScreen(),
-                ],
+                children: const [MatchScreen(), LiveScreen(), PartyScreen()],
               ),
             ),
           ],

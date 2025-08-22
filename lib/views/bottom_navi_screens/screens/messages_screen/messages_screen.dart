@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../customwidgets/customtext.dart';
-import '../../../customwidgets/customcirclebutton.dart';
-import '../../../customwidgets/custombutton.dart';
+import 'package:riolive/customwidgets/customtext.dart';
+
 import 'chat_screen.dart';
 
 class MessagesScreen extends StatelessWidget {
@@ -16,10 +15,7 @@ class MessagesScreen extends StatelessWidget {
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/second_background.png'),
-            fit: BoxFit.fill,
-          ),
+          image: DecorationImage(image: AssetImage('assets/images/second_background.png'), fit: BoxFit.fill),
         ),
         child: SafeArea(
           child: Padding(
@@ -28,11 +24,7 @@ class MessagesScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Title
-                CustomText(
-                  text: 'Messages',
-                  fontSize: isSmallScreen ? 24 : 32,
-                  color: Colors.black87,
-                ),
+                CustomText(text: 'Messages', fontSize: isSmallScreen ? 24 : 32, color: Colors.black87),
                 SizedBox(height: isSmallScreen ? 25 : 35),
 
                 // Category Icons Section
@@ -44,40 +36,28 @@ class MessagesScreen extends StatelessWidget {
                       _buildCategoryItem(
                         imagePath: 'assets/icons/micon1.png',
                         label: 'Official',
-                        gradientColors: const [
-                          Color(0xFF9055FA),
-                          Color(0xFFD149FE),
-                        ],
+                        gradientColors: const [Color(0xFF9055FA), Color(0xFFD149FE)],
                         onTap: () {},
                         screenWidth: screenWidth,
                       ),
                       _buildCategoryItem(
                         imagePath: 'assets/icons/micon2.png',
                         label: 'Event',
-                        gradientColors: const [
-                          Color(0xFFFA66BD),
-                          Color(0xFFFEB05C),
-                        ],
+                        gradientColors: const [Color(0xFFFA66BD), Color(0xFFFEB05C)],
                         onTap: () {},
                         screenWidth: screenWidth,
                       ),
                       _buildCategoryItem(
                         imagePath: 'assets/icons/micon3.png',
                         label: 'Event',
-                        gradientColors: const [
-                          Color(0xFF2DBDFE),
-                          Color(0xFF1AE1FC),
-                        ],
+                        gradientColors: const [Color(0xFF2DBDFE), Color(0xFF1AE1FC)],
                         onTap: () {},
                         screenWidth: screenWidth,
                       ),
                       _buildCategoryItem(
                         imagePath: 'assets/icons/micon4.png',
                         label: 'Support',
-                        gradientColors: const [
-                          Color(0xFF70ED84),
-                          Color(0xFF88FB84),
-                        ],
+                        gradientColors: const [Color(0xFF70ED84), Color(0xFF88FB84)],
                         onTap: () {},
                         screenWidth: screenWidth,
                       ),
@@ -90,10 +70,7 @@ class MessagesScreen extends StatelessWidget {
                 // Messages List
                 Expanded(
                   child: ListView(
-                    padding: EdgeInsets.only(
-                      top: isSmallScreen ? 20 : 30,
-                      bottom: isSmallScreen ? 20 : 30,
-                    ),
+                    padding: EdgeInsets.only(top: isSmallScreen ? 20 : 30, bottom: isSmallScreen ? 20 : 30),
                     children: [
                       _buildMessageItem(
                         context: context,
@@ -175,11 +152,7 @@ class MessagesScreen extends StatelessWidget {
               ),
               borderRadius: BorderRadius.circular(isSmallScreen ? 20 : 24),
               boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
+                BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, 4)),
               ],
             ),
             child: ClipRRect(
@@ -218,8 +191,7 @@ class MessagesScreen extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                ChatScreen(contactName: name, profileImage: profileImage),
+            builder: (context) => ChatScreen(contactName: name, profileImage: profileImage),
           ),
         );
       },
@@ -230,11 +202,7 @@ class MessagesScreen extends StatelessWidget {
           color: Colors.white.withOpacity(0.3),
           borderRadius: BorderRadius.circular(isSmallScreen ? 16 : 20),
           boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
+            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2)),
           ],
         ),
         child: Row(
@@ -245,10 +213,7 @@ class MessagesScreen extends StatelessWidget {
               height: isSmallScreen ? 50 : 60,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                image: DecorationImage(
-                  image: AssetImage(profileImage),
-                  fit: BoxFit.cover,
-                ),
+                image: DecorationImage(image: AssetImage(profileImage), fit: BoxFit.cover),
               ),
             ),
             SizedBox(width: isSmallScreen ? 16 : 20),
@@ -296,9 +261,7 @@ class MessagesScreen extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: const Color(0xFF9558F8).withOpacity(0.7),
-                      borderRadius: BorderRadius.circular(
-                        isSmallScreen ? 14 : 16,
-                      ),
+                      borderRadius: BorderRadius.circular(isSmallScreen ? 14 : 16),
                       boxShadow: [
                         // Outer shadow only below
                         BoxShadow(
