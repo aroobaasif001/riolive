@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:riolive/screens/homescreenbottomnaviagtionbar/call_screen/live_Screen/live_screen.dart';
 
 class CustomNavBar extends StatefulWidget {
   @override
@@ -36,11 +38,22 @@ class _CustomNavBarState extends State<CustomNavBar> with TickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    // ---- MediaQuery values ----
+    final size = MediaQuery.of(context).size;
+    final double w = size.width;
+    final double h = size.height;
+
+    final double fontLarge = (w * 0.055).clamp(18.0, 22.0).toDouble();
+    final double fontSmall = (w * 0.045).clamp(16.0, 18.0).toDouble();
+    final double iconSize = (w * 0.05).clamp(18.0, 24.0).toDouble();
+    final double containerPadding = (w * 0.025).clamp(6.0, 12.0).toDouble();
+    // ---------------------------
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: EdgeInsets.symmetric(horizontal: w * 0.025),
       child: Container(
         color: Colors.transparent, // Background color for the navbar
-        padding: EdgeInsets.all(10),
+        padding: EdgeInsets.all(containerPadding),
         child: Row(
           children: [
             GestureDetector(
@@ -50,18 +63,18 @@ class _CustomNavBarState extends State<CustomNavBar> with TickerProviderStateMix
                 builder: (context, child) {
                   return Transform.translate(
                     offset: Offset(
-                      selectedItem == 'Match' ? 0.30 : 0.0, // No rightward movement for Match
-                      selectedItem == 'Match' ? _animation.value : 0, // Move upwards
+                      selectedItem == 'Match' ? 0.30 : 0.0,
+                      selectedItem == 'Match' ? _animation.value : 0,
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10), // Reduced horizontal padding
+                      padding: EdgeInsets.symmetric(horizontal: w * 0.025),
                       child: Stack(
                         clipBehavior: Clip.none,
                         children: [
                           Text(
                             'Match',
                             style: TextStyle(
-                              fontSize: selectedItem == 'Match' ? 22 : 18,
+                              fontSize: selectedItem == 'Match' ? fontLarge : fontSmall,
                               fontWeight: selectedItem == 'Match' ? FontWeight.bold : FontWeight.normal,
                             ),
                           ),
@@ -69,7 +82,7 @@ class _CustomNavBarState extends State<CustomNavBar> with TickerProviderStateMix
                             Positioned(
                               top: -12,
                               right: -15,
-                              child: Icon(Icons.star, color: Colors.black, size: 20),
+                              child: Icon(Icons.star, color: Colors.black, size: iconSize),
                             ),
                         ],
                       ),
@@ -81,24 +94,26 @@ class _CustomNavBarState extends State<CustomNavBar> with TickerProviderStateMix
             Row(
               children: [
                 GestureDetector(
-                  onTap: () => _onItemTap('Live'),
+                  onTap: () => {
+                    _onItemTap('Live'),
+                  },
                   child: AnimatedBuilder(
                     animation: _controller,
                     builder: (context, child) {
                       return Transform.translate(
                         offset: Offset(
-                          selectedItem == 'Live' ? 0.10 : 0.0, // Move rightwards for 'Live'
-                          selectedItem == 'Live' ? _animation.value : 0, // Move upwards
+                          selectedItem == 'Live' ? 0.10 : 0.0,
+                          selectedItem == 'Live' ? _animation.value : 0,
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10), // Reduced horizontal padding
+                          padding: EdgeInsets.symmetric(horizontal: w * 0.025),
                           child: Stack(
                             clipBehavior: Clip.none,
                             children: [
                               Text(
                                 'Live',
                                 style: TextStyle(
-                                  fontSize: selectedItem == 'Live' ? 22 : 18,
+                                  fontSize: selectedItem == 'Live' ? fontLarge : fontSmall,
                                   fontWeight: selectedItem == 'Live' ? FontWeight.bold : FontWeight.normal,
                                 ),
                               ),
@@ -106,7 +121,7 @@ class _CustomNavBarState extends State<CustomNavBar> with TickerProviderStateMix
                                 Positioned(
                                   top: -12,
                                   right: -15,
-                                  child: Icon(Icons.star, color: Colors.black, size: 20),
+                                  child: Icon(Icons.star, color: Colors.black, size: iconSize),
                                 ),
                             ],
                           ),
@@ -122,18 +137,18 @@ class _CustomNavBarState extends State<CustomNavBar> with TickerProviderStateMix
                     builder: (context, child) {
                       return Transform.translate(
                         offset: Offset(
-                          selectedItem == 'Party' ? 0.10 : 0.0, // Move rightwards for 'Party'
-                          selectedItem == 'Party' ? _animation.value : 0, // Move upwards
+                          selectedItem == 'Party' ? 0.10 : 0.0,
+                          selectedItem == 'Party' ? _animation.value : 0,
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10), // Reduced horizontal padding
+                          padding: EdgeInsets.symmetric(horizontal: w * 0.025),
                           child: Stack(
                             clipBehavior: Clip.none,
                             children: [
                               Text(
                                 'Party',
                                 style: TextStyle(
-                                  fontSize: selectedItem == 'Party' ? 22 : 18,
+                                  fontSize: selectedItem == 'Party' ? fontLarge : fontSmall,
                                   fontWeight: selectedItem == 'Party' ? FontWeight.bold : FontWeight.normal,
                                 ),
                               ),
@@ -141,7 +156,7 @@ class _CustomNavBarState extends State<CustomNavBar> with TickerProviderStateMix
                                 Positioned(
                                   top: -12,
                                   right: -15,
-                                  child: Icon(Icons.star, color: Colors.black, size: 20),
+                                  child: Icon(Icons.star, color: Colors.black, size: iconSize),
                                 ),
                             ],
                           ),
@@ -157,7 +172,33 @@ class _CustomNavBarState extends State<CustomNavBar> with TickerProviderStateMix
               onTap: () {
                 // Add your search action here
               },
-              child: Icon(Icons.search, size: 30),
+              child: Row(children: [
+                Container(
+                  height: h * 0.045,
+                  width: w * 0.09,
+                  decoration: BoxDecoration(
+                      color: Colors.white24,
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Center(
+                    child: Image(
+                      image: AssetImage('assets/icons/searchiconcolor.png'),
+                      height: h * 0.025,
+                      width: h * 0.025,
+                    ),
+                  ),
+                ),
+                SizedBox(width: w * 0.01),
+                Padding(
+                  padding: EdgeInsets.only(bottom: h * 0.025),
+                  child: Container(
+                    height: h * 0.05,
+                    width: w * 0.18,
+                    child: Center(
+                      child: Image(image: AssetImage('assets/images/textlogo.png')),
+                    ),
+                  ),
+                ),
+              ]),
             ),
           ],
         ),

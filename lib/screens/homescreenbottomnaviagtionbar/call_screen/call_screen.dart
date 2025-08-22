@@ -7,6 +7,26 @@ class CallScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ---- Responsive sizes via MediaQuery (only additions) ----
+    final size = MediaQuery.of(context).size;
+    final w = size.width;
+    final h = size.height;
+
+    final double spaceXS = (h * 0.012).clamp(6.0, 14.0);      // ~10
+    final double spaceMD = (h * 0.06).clamp(32.0, 56.0);       // ~50
+    final double spaceLG = (h * 0.08).clamp(44.0, 72.0);       // ~65
+    final double gap = (w * 0.012).clamp(4.0, 10.0);           // ~5 between diamond & text
+
+    final double logoSize = (w * 0.7).clamp(180.0, 340.0).toDouble(); // ~310
+    final double titleSize = (w * 0.06).clamp(18.0, 28.0).toDouble(); // ~24
+    final double priceSize = (w * 0.055).clamp(16.0, 26.0).toDouble(); // ~24
+
+    final double diamondH = (h * 0.025).clamp(16.0, 24.0).toDouble();  // ~20
+    final double diamondW = (diamondH * 1.35).toDouble();              // ~27
+
+    final double phoneSize = (w * 0.2).clamp(60.0, 100.0).toDouble();  // ~80
+    // ----------------------------------------------------------
+
     return SafeArea(
       child: Scaffold(
         body: Container(
@@ -15,30 +35,51 @@ class CallScreen extends StatelessWidget {
           decoration: const BoxDecoration(
             image: DecorationImage(
               image: AssetImage("assets/images/callscreenbgimage.png"),
-              fit: BoxFit.fill,
+              fit: BoxFit.cover,
             ),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(height: 20,),
               CustomNavBar(),
-              SizedBox(height: 97,),
-              Image(image: AssetImage('assets/images/CIRCLE LOGO.png'),height: 310,width: 310,),
-              SizedBox(height: 54,),
-              CustomText(text: 'Match Random Video Call',fontSize: 24,fontWeight: FontWeight.w700,color: Color(0xff5EBFEF),),
-              SizedBox(height: 57,),
+              SizedBox(height: spaceMD),
+              Image(
+                image: const AssetImage('assets/images/CIRCLE LOGO.png'),
+                height: logoSize,
+                width: logoSize,
+              ),
+              SizedBox(height: spaceXS),
+              CustomText(
+                text: 'Match Random Video Call',
+                fontSize: titleSize,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xff5EBFEF),
+              ),
+              SizedBox(height: spaceLG),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                Image(image: AssetImage('assets/icons/diamondicon.png'),height: 20,width: 27,),
-                SizedBox(width: 5,),
-                CustomText(text: '800/main',fontWeight: FontWeight.w600,fontSize: 24,color: Color(0xff60ED59),)
-              ],),
-              SizedBox(height: 41,),
-              Image(image: AssetImage('assets/icons/phoneicon.png'),height: 80,width: 80,),
-
+                  Image(
+                    image: const AssetImage('assets/icons/diamondicon.png'),
+                    height: diamondH,
+                    width: diamondW,
+                  ),
+                  SizedBox(width: gap),
+                  CustomText(
+                    text: '800/main',
+                    fontWeight: FontWeight.w600,
+                    fontSize: priceSize,
+                    color: const Color(0xff60ED59),
+                  )
+                ],
+              ),
+              SizedBox(height: spaceMD),
+              Image(
+                image: const AssetImage('assets/icons/phoneicon.png'),
+                height: phoneSize,
+                width: phoneSize,
+              ),
             ],
           ),
         ),
