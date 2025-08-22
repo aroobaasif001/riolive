@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:riolive/customwidgets/customtext.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/messages_screen/messages_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/moment&message/moment_message_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/profile_screen.dart';
 
 import '../../customwidgets/custombottomnavbar.dart';
@@ -20,12 +21,12 @@ class _BottomNaviScreenState extends State<BottomNaviScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedIndex = widget.initialIndex ?? 0;
+    _selectedIndex = widget.initialIndex ?? 1;
   }
 
   final List<Widget> screens = const [
     CustomText(text: 'Call screen'), // Index 0
-    CustomText(text: 'Search'), // Index 1
+    MomentMessageScreen(), // Index 1
     CustomText(text: 'Create'), // Index 2
     MessagesScreen(), // Index 3 - Messages Screen
     ProfileDashboardScreen(), // Index 4
@@ -41,6 +42,7 @@ class _BottomNaviScreenState extends State<BottomNaviScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        extendBody: true,
         body: screens[_selectedIndex],
         bottomNavigationBar: CustomBottomNavBar(
           currentIndex: _selectedIndex,
