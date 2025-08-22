@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'edit_profile_screen.dart';
+import 'level_screens/rich_level_screen.dart';
 
 class ProfileDashboardScreen extends StatelessWidget {
   const ProfileDashboardScreen({super.key});
@@ -281,61 +282,73 @@ class ProfileDashboardScreen extends StatelessWidget {
         mainAxisSpacing: 16,
         crossAxisSpacing: 16,
         children: items.map((e) {
-          return Container(
-            padding: const EdgeInsets.all(6),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: iconBoxSize,
-                  height: iconBoxSize,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        const Color(0xFFE8D5FF).withOpacity(0.7),
-                        const Color(0xFFF7D5F7).withOpacity(0.7),
-                        const Color(0xFFFFE5D5).withOpacity(0.7),
-                      ],
-                      stops: const [0.0, 0.5, 1.0],
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                        spreadRadius: 1,
+          return GestureDetector(
+            onTap: () {
+              // Handle navigation for specific grid items
+              if (e.label == "Level") {
+                Get.to(() => const RichLevelScreen());
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: iconBoxSize,
+                    height: iconBoxSize,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          const Color(0xFFE8D5FF).withOpacity(0.7),
+                          const Color(0xFFF7D5F7).withOpacity(0.7),
+                          const Color(0xFFFFE5D5).withOpacity(0.7),
+                        ],
+                        stops: const [0.0, 0.5, 1.0],
                       ),
-                    ],
-                  ),
-                  child: Center(
-                    child: e.icon is String
-                        ? Image.asset(e.icon, width: iconSize, height: iconSize)
-                        : Icon(
-                            e.icon as IconData,
-                            size: iconSize,
-                            color: Colors.white,
-                          ),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Flexible(
-                  child: Text(
-                    e.label,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.black,
-                      fontWeight: FontWeight.w500,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                          spreadRadius: 1,
+                        ),
+                      ],
                     ),
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 2,
+                    child: Center(
+                      child: e.icon is String
+                          ? Image.asset(
+                              e.icon,
+                              width: iconSize,
+                              height: iconSize,
+                            )
+                          : Icon(
+                              e.icon as IconData,
+                              size: iconSize,
+                              color: Colors.white,
+                            ),
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 6),
+                  Flexible(
+                    child: Text(
+                      e.label,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         }).toList(),

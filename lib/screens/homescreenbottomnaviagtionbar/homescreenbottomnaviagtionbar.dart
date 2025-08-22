@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:riolive/customwidgets/customtext.dart';
-import 'package:riolive/screens/homescreenbottomnaviagtionbar/call_screen/call_screen.dart';
 import 'package:riolive/screens/homescreenbottomnaviagtionbar/profile_screen/profile_screen.dart';
 
 import '../../customwidgets/custombottomnavbar.dart';
@@ -28,11 +27,11 @@ class _HomeScreenBottomNaviagtionBarState
   }
 
   final List<Widget> screens = const [
-    CallScreen(), // Index 0
+    CustomText(text: 'Call'), // Index 0
     CustomText(text: 'Search'), // Index 1
-    CustomText(text: 'Create'), // Index 2
+    CustomText(text: 'Crete'), // Index 2
     MessagesScreen(), // Index 3 - Messages Screen
-    CustomText(text: 'Profile'), // Index 4
+    ProfileDashboardScreen(), // Index 4 - Profile Screen
   ];
 
   void _onItemSelected(int index) {
