@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:riolive/customwidgets/customtext.dart';
-import 'package:riolive/screens/homescreenbottomnaviagtionbar/home_navbar_screens/home_navbar_screen.dart';
-
-
+import 'package:riolive/screens/homescreenbottomnaviagtionbar/call_screen/call_screen.dart';
+import 'package:riolive/screens/homescreenbottomnaviagtionbar/profile_screen/profile_screen.dart';
 
 import '../../customwidgets/custombottomnavbar.dart';
-import 'home_navbar_screens/call_screen/call_screen.dart';
 import 'messages_screen/messages_screen.dart';
 // import 'package:riolive/customwidgets/custom_bottom_nav_bar.dart'; // if needed
 
@@ -30,7 +28,7 @@ class _HomeScreenBottomNaviagtionBarState
   }
 
   final List<Widget> screens = const [
-    HomeScreen(), // Index 0
+    CallScreen(), // Index 0
     CustomText(text: 'Search'), // Index 1
     CustomText(text: 'Create'), // Index 2
     MessagesScreen(), // Index 3 - Messages Screen
