@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:gradient_borders/gradient_borders.dart';
 import 'package:riolive/customwidgets/custom_container.dart';
 import 'package:riolive/customwidgets/customtext.dart';
 
+import 'search_screen.dart';
 import 'tabs/follow_tab.dart';
 import 'tabs/square_tab.dart';
 import 'tabs/video_tab.dart';
-import 'search_screen.dart';
 
 class MomentMessageScreen extends StatefulWidget {
   const MomentMessageScreen({super.key});
@@ -65,25 +67,30 @@ class _MomentMessageScreenState extends State<MomentMessageScreen> {
                           });
                         },
                         child: isSelected
-                            ? CustomContainer(
-                                // Gradient border
-                                gradient: const LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [Color(0xffFFD964), Color(0xff6FFFA9)],
+                            ? Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(30),
+                                  border: GradientBoxBorder(
+                                    gradient: const LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [Color(0xffFFD964), Color(0xff6FFFA9)],
+                                    ),
+                                    width: 1.6,
+                                  ),
+                                  boxShadow: const [
+                                    BoxShadow(color: Color(0x3383C69F), blurRadius: 6, offset: Offset(0, 2)),
+                                  ],
                                 ),
-                                borderRadius: BorderRadius.circular(30),
-                                boxShadow: const [
-                                  BoxShadow(color: Color(0x3383C69F), blurRadius: 6, offset: Offset(0, 2)),
-                                ],
-                                padding: const EdgeInsets.all(1.6),
                                 child: CustomContainer(
                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                   borderRadius: BorderRadius.circular(28),
-                                  conColor: selectedButtonIndex == 1 ? Colors.transparent : const Color(0xFFFFFFFF),
+                                  conColor: selectedButtonIndex == 1
+                                      ? Colors.transparent
+                                      : const Color(0xFFFFFFFF),
                                   child: Center(
                                     child: CustomText(
-                                      text: buttonNames[index],
+                                      buttonNames[index],
                                       fontWeight: FontWeight.w700,
                                       fontSize: 14,
                                       color: selectedButtonIndex == 1 ? Colors.white : Colors.black,
@@ -97,7 +104,7 @@ class _MomentMessageScreenState extends State<MomentMessageScreen> {
                                 conColor: const Color(0x30000000),
                                 child: Center(
                                   child: CustomText(
-                                    text: buttonNames[index],
+                                    buttonNames[index],
                                     fontWeight: FontWeight.w600,
                                     fontSize: 14,
                                     color: Colors.white,
@@ -111,10 +118,7 @@ class _MomentMessageScreenState extends State<MomentMessageScreen> {
                 Spacer(),
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const SearchScreen()),
-                    );
+                    Get.to(() => const SearchScreen());
                   },
                   child: Image.asset('assets/icons/searchiconcolor.png', height: 22, width: 22),
                 ),

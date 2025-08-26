@@ -137,13 +137,13 @@ class _ChatScreenState extends State<ChatScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           CustomText(
-                            text: widget.contactName,
+                            widget.contactName,
                             fontSize: isSmallScreen ? 16 : 18,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),
                           CustomText(
-                            text: "Active 19m ago",
+                            "Active 19m ago",
                             fontSize: isSmallScreen ? 12 : 14,
                             color: Colors.black,
                           ),
@@ -336,7 +336,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       return Padding(
                         padding: EdgeInsets.only(bottom: isSmallScreen ? 4 : 6),
                         child: CustomText(
-                          text: line,
+                          line,
                           fontSize: isSmallScreen ? 14 : 16,
                           color: message.isMe ? Colors.white : Colors.black,
                         ),

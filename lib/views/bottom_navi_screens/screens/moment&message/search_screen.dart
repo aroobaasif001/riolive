@@ -62,15 +62,7 @@ class _SearchScreenState extends State<SearchScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: CustomText(text: 'Search', fontSize: 18, fontWeight: FontWeight.w600),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.tune, color: Colors.black),
-            onPressed: () {
-              // Show filter options
-            },
-          ),
-        ],
+        title: CustomText('Search', fontSize: 18, fontWeight: FontWeight.w600),
       ),
       body: Column(
         children: [
@@ -134,11 +126,13 @@ class _SearchScreenState extends State<SearchScreen> {
                         });
                       },
                       child: CustomContainer(
-                        conColor: isSelected ? const Color(0xffFFD964) : (Colors.grey[200] ?? Colors.grey.shade200),
+                        conColor: isSelected
+                            ? const Color(0xffFFD964)
+                            : (Colors.grey[200] ?? Colors.grey.shade200),
                         borderRadius: BorderRadius.circular(20),
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         child: CustomText(
-                          text: _filterOptions[index],
+                          _filterOptions[index],
                           color: isSelected ? Colors.black : (Colors.grey[700] ?? Colors.grey.shade700),
                           fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                         ),
@@ -171,13 +165,13 @@ class _SearchScreenState extends State<SearchScreen> {
                     Icon(Icons.search, size: 64, color: Colors.grey[400] ?? Colors.grey.shade400),
                     const SizedBox(height: 16),
                     CustomText(
-                      text: 'Search for something amazing',
+                      'Search for something amazing',
                       fontSize: 18,
                       color: Colors.grey[600] ?? Colors.grey.shade600,
                     ),
                     const SizedBox(height: 8),
                     CustomText(
-                      text: 'Find users, moments, videos, and hashtags',
+                      'Find users, moments, videos, and hashtags',
                       fontSize: 14,
                       color: Colors.grey[500] ?? Colors.grey.shade500,
                     ),
@@ -216,9 +210,9 @@ class _SearchScreenState extends State<SearchScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CustomText(text: result['name'], fontSize: 16, fontWeight: FontWeight.w600),
+                CustomText(result['name'], fontSize: 16, fontWeight: FontWeight.w600),
                 CustomText(
-                  text: '${result['followers']} followers',
+                  '${result['followers']} followers',
                   fontSize: 14,
                   color: Colors.grey[600] ?? Colors.grey.shade600,
                 ),
@@ -259,17 +253,13 @@ class _SearchScreenState extends State<SearchScreen> {
                 children: [
                   CircleAvatar(radius: 16, backgroundImage: AssetImage(result['avatar'])),
                   const SizedBox(width: 8),
-                  CustomText(text: result['user'], fontWeight: FontWeight.w600),
+                  CustomText(result['user'], fontWeight: FontWeight.w600),
                   const Spacer(),
-                  CustomText(
-                    text: result['time'],
-                    fontSize: 12,
-                    color: Colors.grey[600] ?? Colors.grey.shade600,
-                  ),
+                  CustomText(result['time'], fontSize: 12, color: Colors.grey[600] ?? Colors.grey.shade600),
                 ],
               ),
               const SizedBox(height: 8),
-              CustomText(text: result['caption']),
+              CustomText(result['caption']),
               const SizedBox(height: 8),
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
@@ -280,11 +270,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 children: [
                   Icon(Icons.favorite, color: Colors.red[400] ?? Colors.red.shade400, size: 16),
                   const SizedBox(width: 4),
-                  CustomText(
-                    text: result['likes'],
-                    fontSize: 12,
-                    color: Colors.grey[600] ?? Colors.grey.shade600,
-                  ),
+                  CustomText(result['likes'], fontSize: 12, color: Colors.grey[600] ?? Colors.grey.shade600),
                 ],
               ),
             ],
@@ -313,9 +299,9 @@ class _SearchScreenState extends State<SearchScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CustomText(text: result['tag'], fontSize: 16, fontWeight: FontWeight.w600),
+                CustomText(result['tag'], fontSize: 16, fontWeight: FontWeight.w600),
                 CustomText(
-                  text: '${result['posts']} posts',
+                  '${result['posts']} posts',
                   fontSize: 14,
                   color: Colors.grey[600] ?? Colors.grey.shade600,
                 ),
@@ -351,7 +337,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     color: Colors.black.withOpacity(0.7),
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  child: CustomText(text: result['duration'], fontSize: 10, color: Colors.white),
+                  child: CustomText(result['duration'], fontSize: 10, color: Colors.white),
                 ),
               ),
             ],
@@ -361,9 +347,9 @@ class _SearchScreenState extends State<SearchScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CustomText(text: result['user'], fontWeight: FontWeight.w600),
+                CustomText(result['user'], fontWeight: FontWeight.w600),
                 CustomText(
-                  text: '${result['views']} views',
+                  '${result['views']} views',
                   fontSize: 12,
                   color: Colors.grey[600] ?? Colors.grey.shade600,
                 ),

@@ -42,14 +42,14 @@ class _VideoTabState extends State<VideoTab> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
                       CustomText(
-                        text: '@dishi_007',
+                        '@dishi_007',
                         color: Colors.white,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
                       SizedBox(height: 6),
-                      CustomText(text: 'but share cant #foryou', color: Colors.white, fontSize: 12),
-                      CustomText(text: '#snapyourlife', color: Colors.white, fontSize: 12),
+                      CustomText('but share cant #foryou', color: Colors.white, fontSize: 12),
+                      CustomText('#snapyourlife', color: Colors.white, fontSize: 12),
                       SizedBox(height: 50),
                     ],
                   ),

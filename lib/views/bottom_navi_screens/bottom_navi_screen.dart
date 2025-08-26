@@ -25,9 +25,9 @@ class _BottomNaviScreenState extends State<BottomNaviScreen> {
   }
 
   final List<Widget> screens = const [
-    CustomText(text: 'Call screen'), // Index 0
+    CustomText('Call screen'), // Index 0
     MomentMessageScreen(), // Index 1
-    CustomText(text: 'Create'), // Index 2
+    CustomText('Create'), // Index 2
     MessagesScreen(), // Index 3
     ProfileDashboardScreen(), // Index 4
   ];
