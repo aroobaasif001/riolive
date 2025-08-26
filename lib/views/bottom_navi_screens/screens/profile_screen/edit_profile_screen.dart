@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:riolive/customwidgets/custombutton.dart';
 import 'package:riolive/customwidgets/customtext.dart';
+import 'dart:io';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -21,6 +23,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   final Color brandColor = const Color(0xFF9055FA);
 
+  final ImagePicker _picker = ImagePicker();
+  File? _profileImage;
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -38,16 +43,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          image: DecorationImage(image: AssetImage("assets/images/rgb_background.png"), fit: BoxFit.cover),
+          image: DecorationImage(
+            image: AssetImage("assets/images/rgb_background.png"),
+            fit: BoxFit.cover,
+          ),
         ),
         child: SafeArea(
           child: SingleChildScrollView(
-            // 🔥 Entire screen scrollable
             padding: EdgeInsets.all(isSmallScreen ? 16.0 : 20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // App Bar
                 _buildAppBar(context, isSmallScreen),
                 const SizedBox(height: 16),
 
@@ -111,7 +117,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Widget _buildAppBar(BuildContext context, bool isSmallScreen) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: isSmallScreen ? 16.0 : 20.0, vertical: 16.0),
+      padding: EdgeInsets.symmetric(
+        horizontal: isSmallScreen ? 16.0 : 20.0,
+        vertical: 16.0,
+      ),
       child: Row(
         children: [
           GestureDetector(
@@ -122,7 +131,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 color: Colors.white.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 20),
+              child: const Icon(
+                Icons.arrow_back_ios,
+                color: Colors.white,
+                size: 20,
+              ),
             ),
           ),
           Expanded(
@@ -150,12 +163,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             children: [
               CircleAvatar(
                 radius: isSmallScreen ? 50 : 60,
-                backgroundImage: const AssetImage("assets/images/avatar.png"),
+                backgroundImage: _profileImage != null
+                    ? FileImage(_profileImage!)
+                    : const AssetImage("assets/images/avatar.png")
+                          as ImageProvider,
               ),
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(color: Colors.black.withOpacity(0.6), shape: BoxShape.circle),
-                child: const Icon(Icons.camera_alt, color: Colors.white, size: 28),
+              GestureDetector(
+                onTap: _showImageSourceBottomSheet,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.6),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.camera_alt,
+                    color: Colors.white,
+                    size: 28,
+                  ),
+                ),
               ),
             ],
           ),
@@ -201,7 +226,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               borderRadius: BorderRadius.circular(30),
               boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 6, offset: const Offset(0, 3)),
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                ),
               ],
             ),
             child: Row(
@@ -285,7 +314,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                   ],
                 ),
-                child: Icon(Icons.add, size: isSmallScreen ? 32 : 36, color: Colors.black54),
+                child: Icon(
+                  Icons.add,
+                  size: isSmallScreen ? 32 : 36,
+                  color: Colors.black54,
+                ),
               ),
             ),
 
@@ -322,7 +355,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             color: Colors.red.withOpacity(0.8),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Icon(Icons.close, color: Colors.white, size: 16),
+                          child: const Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: 16,
+                          ),
                         ),
                       ),
                     ),
@@ -407,5 +444,168 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     Future.delayed(const Duration(seconds: 1), () {
       Get.back();
     });
+  }
+
+  void _showImageSourceBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Container(
+              margin: const EdgeInsets.only(top: 12, bottom: 8),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+
+            // Title
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: CustomText(
+                text: "Choose Image Source",
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: brandColor,
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Camera option
+            _buildBottomSheetOption(
+              icon: Icons.camera_alt,
+              title: "Take Photo",
+              subtitle: "Use camera to take a new photo",
+              onTap: () {
+                Navigator.pop(context);
+                _pickImage(ImageSource.camera);
+              },
+            ),
+
+            const Divider(height: 1, indent: 24, endIndent: 24),
+
+            // Gallery option
+            _buildBottomSheetOption(
+              icon: Icons.photo_library,
+              title: "Choose from Gallery",
+              subtitle: "Select an existing photo",
+              onTap: () {
+                Navigator.pop(context);
+                _pickImage(ImageSource.gallery);
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            // Cancel button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+              child: SizedBox(
+                width: double.infinity,
+                child: CustomButton(
+                  text: "Cancel",
+                  onPressed: () => Navigator.pop(context),
+                  backgroundColor: Colors.grey[200]!,
+                  textColor: Colors.grey[700]!,
+                  height: 48,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomSheetOption({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: brandColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: brandColor, size: 24),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios, color: Colors.grey[400], size: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: source,
+        imageQuality: 80,
+        maxWidth: 512,
+        maxHeight: 512,
+      );
+
+      if (image != null) {
+        setState(() {
+          _profileImage = File(image.path);
+        });
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to pick image: ${e.toString()}',
+        backgroundColor: Colors.red[600],
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+        duration: const Duration(seconds: 3),
+        borderRadius: 12,
+        margin: const EdgeInsets.all(16),
+      );
+    }
   }
 }

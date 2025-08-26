@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'rich_level_screen.dart';
+import 'level_navigation.dart';
 
 class WealthLevelScreen extends StatelessWidget {
   const WealthLevelScreen({super.key});
@@ -26,38 +25,7 @@ class WealthLevelScreen extends StatelessWidget {
             ),
 
             // Top Row Tabs (Wealth level | Rich level)
-            Row(
-              children: [
-                Expanded(
-                  child: Center(
-                    child: Text(
-                      "Wealth level",
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Center(
-                    child: GestureDetector(
-                      onTap: () {
-                        Get.to(() => const RichLevelScreen());
-                      },
-                      child: Text(
-                        "Rich level",
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.white70,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            const LevelNavigation(currentLevel: 'wealth'),
 
             // Card with user info
             Container(

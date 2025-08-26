@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'wealth_level_screen.dart';
+import 'level_navigation.dart';
 
 class RichLevelScreen extends StatelessWidget {
   const RichLevelScreen({super.key});
@@ -8,11 +7,10 @@ class RichLevelScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF070628), // Solid background color
+      backgroundColor: const Color(0xFF070628),
       body: SafeArea(
         child: Column(
           children: [
-            // App Bar Row (Back button only)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
@@ -26,35 +24,7 @@ class RichLevelScreen extends StatelessWidget {
             ),
 
             // Top Row Tabs (Rich level | Wealth level)
-            Row(
-              children: [
-                Expanded(
-                  child: Center(
-                    child: Text(
-                      "Rich level",
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Center(
-                    child: GestureDetector(
-                      onTap: () {
-                        Get.to(() => const WealthLevelScreen());
-                      },
-                      child: Text(
-                        "Wealth level",
-                        style: TextStyle(fontSize: 20, color: Colors.white70),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            const LevelNavigation(currentLevel: 'rich'),
 
             const SizedBox(height: 12),
 
