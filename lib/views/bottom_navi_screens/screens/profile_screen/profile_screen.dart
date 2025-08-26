@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'edit_profile_screen.dart';
 import 'level_screens/rich_level_screen.dart';
+import 'ranking_screens/ranking_main_screen.dart';
 
 class ProfileDashboardScreen extends StatelessWidget {
   const ProfileDashboardScreen({super.key});
@@ -284,9 +285,10 @@ class ProfileDashboardScreen extends StatelessWidget {
         children: items.map((e) {
           return GestureDetector(
             onTap: () {
-              // Handle navigation for specific grid items
               if (e.label == "Level") {
                 Get.to(() => const RichLevelScreen());
+              } else if (e.label == "Ranking List") {
+                Get.to(() => const RankingMainScreen());
               }
             },
             child: Container(
@@ -439,6 +441,6 @@ class _InfoCard extends StatelessWidget {
 // GridItem Model
 class _GridItem {
   final String label;
-  final dynamic icon; // Can be IconData or String (image path)
+  final dynamic icon;
   _GridItem(this.label, this.icon);
 }
