@@ -28,7 +28,7 @@ class _BottomNaviScreenState extends State<BottomNaviScreen> {
     CustomText(text: 'Call screen'), // Index 0
     MomentMessageScreen(), // Index 1
     CustomText(text: 'Create'), // Index 2
-    MessagesScreen(), // Index 3 - Messages Screen
+    MessagesScreen(), // Index 3
     ProfileDashboardScreen(), // Index 4
   ];
 
@@ -40,15 +40,11 @@ class _BottomNaviScreenState extends State<BottomNaviScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        extendBody: true,
-        body: screens[_selectedIndex],
-        bottomNavigationBar: CustomBottomNavBar(
-          currentIndex: _selectedIndex,
-          onItemSelected: _onItemSelected,
-        ),
-      ),
+    return Scaffold(
+      extendBody: true,
+      extendBodyBehindAppBar: true,
+      body: screens[_selectedIndex],
+      bottomNavigationBar: CustomBottomNavBar(currentIndex: _selectedIndex, onItemSelected: _onItemSelected),
     );
   }
 }
