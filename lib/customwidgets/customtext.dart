@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-enum AppFont { instrumentSans, lora }
+enum AppFont { instrumentSans, lora, poppins } // Added poppins to the enum
 
 class CustomText extends StatelessWidget {
   final String text;
@@ -53,11 +53,24 @@ class CustomText extends StatelessWidget {
   Widget build(BuildContext context) {
     final baseStyle = DefaultTextStyle.of(context).style;
 
-    final googleFont = fontType == AppFont.lora ? GoogleFonts.lora : GoogleFonts.instrumentSans;
+    // Added Poppins to the font selection logic
+    TextStyle googleFont;
+    switch (fontType) {
+      case AppFont.lora:
+        googleFont = GoogleFonts.lora();
+        break;
+      case AppFont.poppins:
+        googleFont = GoogleFonts.poppins();
+        break;
+      case AppFont.instrumentSans:
+      default:
+        googleFont = GoogleFonts.instrumentSans();
+        break;
+    }
 
     final mergedStyle = baseStyle
         .merge(
-          googleFont(
+          googleFont.copyWith(
             fontSize: fontSize,
             fontWeight: fontWeight,
             color: color,

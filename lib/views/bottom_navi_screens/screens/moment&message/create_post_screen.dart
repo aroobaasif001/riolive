@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:riolive/customwidgets/custom_container.dart';
 import 'package:riolive/customwidgets/customtext.dart';
 
@@ -21,14 +22,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     '#Topics you are interested in',
     '#Everyday life',
     '#SHOW YOURSELF',
-  ];
-
-  final List<Color> _topicColors = [
-    const Color(0xFF87CEEB), // Light blue
-    const Color(0xFFDDA0DD), // Light purple
-    const Color(0xFFDDA0DD), // Light purple
-    const Color(0xFF87CEEB), // Light blue
-    const Color(0xFFDDA0DD), // Light purple
   ];
 
   @override
@@ -94,11 +87,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       controller: _textController,
                       maxLines: 6,
                       maxLength: _maxCharacters,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: 'Say something to record this moment...',
                         border: InputBorder.none,
-                        hintStyle: TextStyle(color: Colors.grey, fontSize: 16),
-                        counterText: '', // Hide default counter
+                        hintStyle: GoogleFonts.poppins(fontSize: 16),
+                        counterText: '',
                       ),
                       style: const TextStyle(fontSize: 16, color: Colors.black),
                     ),
@@ -128,7 +121,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
               // Mentions Section
               Row(
@@ -136,8 +129,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   const CustomText(
                     '@ Mention',
                     fontSize: 16,
-                    fontWeight: FontWeight.w600,
-
+                    fontType: AppFont.poppins,
+                    fontWeight: FontWeight.w500,
                     color: Colors.black,
                   ),
                 ],
@@ -152,7 +145,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   const CustomText(
                     '# Recommended topics',
                     fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
+                    fontType: AppFont.poppins,
                     color: Colors.black,
                   ),
                   const SizedBox(height: 12),
@@ -169,14 +163,14 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                           _textController.text = currentText.isEmpty ? topic : '$currentText $topic';
                         },
                         child: CustomContainer(
-                          conColor: _topicColors[index],
                           borderRadius: BorderRadius.circular(20),
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          conColor: Color(0xffE6E7FC),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                           child: CustomText(
                             _recommendedTopics[index],
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: Colors.white,
+                            color: Color(0xff5956CB),
                           ),
                         ),
                       ),
@@ -188,36 +182,27 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               const Spacer(),
 
               // End Button
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                      colors: [
-                        Color(0xFF90EE90), // Light green
-                        Color(0xFFDDA0DD), // Light purple
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Post functionality
-                      Navigator.pop(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-                    ),
-                    child: const CustomText(
-                      'End',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+              CustomContainer(
+                height: 57,
+                width: 240,
+                borderRadius: BorderRadius.circular(28.5),
+                border: Border.all(color: Color(0xff29F29C)),
+                boxShadow: const [BoxShadow(color: Color(0x3383C69F), blurRadius: 6, offset: Offset(0, 2))],
+                child: MaterialButton(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(28.5)),
+                  padding: EdgeInsets.zero,
+                  onPressed: () {},
+                  child: CustomContainer(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    borderRadius: BorderRadius.circular(28),
+                    conColor: Colors.grey.withOpacity(0.3),
+                    child: Center(
+                      child: CustomText(
+                        'End',
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),

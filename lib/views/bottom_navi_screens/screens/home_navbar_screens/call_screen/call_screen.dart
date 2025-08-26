@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:riolive/customwidgets/custom_circle.dart';
 import 'package:riolive/customwidgets/customtext.dart';
 
 class MatchScreen extends StatelessWidget {
@@ -6,62 +7,62 @@ class MatchScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ---- Responsive sizes via MediaQuery ----
-    final size = MediaQuery.of(context).size;
-    final w = size.width;
-    final h = size.height;
-
-    final double spaceXS = (h * 0.012).clamp(6.0, 14.0); // ~10
-    final double spaceMD = (h * 0.06).clamp(32.0, 56.0); // ~50
-    final double spaceLG = (h * 0.08).clamp(44.0, 72.0); // ~65
-    final double gap = (w * 0.012).clamp(4.0, 10.0); // ~5 between diamond & text
-
-    final double logoSize = (w * 0.7).clamp(180.0, 340.0).toDouble(); // ~310
-    final double titleSize = (w * 0.06).clamp(18.0, 28.0).toDouble(); // ~24
-    final double priceSize = (w * 0.055).clamp(16.0, 26.0).toDouble(); // ~24
-
-    final double diamondH = (h * 0.025).clamp(16.0, 24.0).toDouble(); // ~20
-    final double diamondW = (diamondH * 1.35).toDouble(); // ~27
-
-    final double phoneSize = (w * 0.2).clamp(60.0, 100.0).toDouble(); // ~80
-
     return Scaffold(
       extendBodyBehindAppBar: true, // Makes the body extend behind the AppBar
       backgroundColor: Colors.transparent,
-      // AppBar has been removed from here
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(height: 50),
-          Image(image: const AssetImage('assets/images/CIRCLE LOGO.png'), height: logoSize, width: logoSize),
-          SizedBox(height: spaceXS),
+          CustomCircle(
+            centerImg: 'assets/images/girl_img2.png',
+            topLeftImg: 'assets/images/girl_img2.png',
+            topRightImg: 'assets/images/girl_img2.png',
+            centerLeftImg: 'assets/images/girl_img2.png',
+            centerRightImg: 'assets/images/girl_img2.png',
+            bottomLeftImg: 'assets/images/girl_img2.png',
+            bottomRightImg: 'assets/images/girl_img2.png',
+          ),
+          SizedBox(height: 40),
           CustomText(
             'Match Random Video Call',
-            fontSize: titleSize,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xff5EBFEF),
+            color: Color(0xff5EBFEF),
+            fontSize: 26,
+            fontWeight: FontWeight.bold,
+            fontType: AppFont.poppins,
           ),
-          SizedBox(height: spaceLG),
+          SizedBox(height: 40),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image(
-                image: const AssetImage('assets/icons/diamondicon.png'),
-                height: diamondH,
-                width: diamondW,
-              ),
-              SizedBox(width: gap),
+              Image(image: AssetImage('assets/icons/diamondicon.png'), height: 20, width: 27),
               CustomText(
                 '800/min',
-                fontWeight: FontWeight.w600,
-                fontSize: priceSize,
-                color: const Color(0xff60ED59),
+                color: Color(0xff60ED59),
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+                fontType: AppFont.poppins,
               ),
             ],
           ),
-          SizedBox(height: spaceMD),
-          Image(image: const AssetImage('assets/icons/phoneicon.png'), height: phoneSize, width: phoneSize),
+          SizedBox(height: 40),
+          Material(
+            color: Colors.transparent, // background transparent
+            shape: const CircleBorder(),
+            child: InkWell(
+              customBorder: const CircleBorder(),
+              onTap: () {},
+              child: Container(
+                height: 80,
+                width: 80,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white, // 👈 agar background color chahiye
+                ),
+                padding: const EdgeInsets.all(8), // thoda spacing image k liye
+                child: Image.asset('assets/icons/phoneicon.png', fit: BoxFit.contain),
+              ),
+            ),
+          ),
         ],
       ),
     );

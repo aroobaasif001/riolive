@@ -1,14 +1,14 @@
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:riolive/customwidgets/customtext.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/messages_screen/messages_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/moment&message/moment_message_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/profile_screen.dart';
 
-import '../../customwidgets/custombottomnavbar.dart';
+import 'screens/home_navbar_screens/home_navbar_screen.dart';
 
 class BottomNaviScreen extends StatefulWidget {
   final int? initialIndex;
-
   const BottomNaviScreen({super.key, this.initialIndex});
 
   @override
@@ -18,33 +18,55 @@ class BottomNaviScreen extends StatefulWidget {
 class _BottomNaviScreenState extends State<BottomNaviScreen> {
   late int _selectedIndex;
 
+  // Keep your screens as before (you can replace the placeholder CustomText screens later)
+  final List<Widget> _screens = [
+    HomeScreen(), // 0
+    const MomentMessageScreen(), // 1
+    const CustomText('Create'), // 2
+    const MessagesScreen(), // 3
+    const ProfileDashboardScreen(), // 4
+  ];
+
   @override
   void initState() {
     super.initState();
-    _selectedIndex = widget.initialIndex ?? 1;
+    final idx = widget.initialIndex ?? 1;
+    _selectedIndex = idx.clamp(0, _screens.length - 1);
   }
 
-  final List<Widget> screens = const [
-    CustomText('Call screen'), // Index 0
-    MomentMessageScreen(), // Index 1
-    CustomText('Create'), // Index 2
-    MessagesScreen(), // Index 3
-    ProfileDashboardScreen(), // Index 4
-  ];
-
   void _onItemSelected(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    if (index == _selectedIndex) return;
+    setState(() => _selectedIndex = index);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Let content extend under the curved bar for the floating effect
       extendBody: true,
       extendBodyBehindAppBar: true,
-      body: screens[_selectedIndex],
-      bottomNavigationBar: CustomBottomNavBar(currentIndex: _selectedIndex, onItemSelected: _onItemSelected),
+      // Keep the current tab state alive while switching
+      body: IndexedStack(index: _selectedIndex, children: _screens),
+      // Curved bottom nav (inspired by your first snippet)
+      bottomNavigationBar: CurvedNavigationBar(
+        height: 65,
+        index: _selectedIndex,
+        items: <Widget>[
+          // 🔁 Replace these asset paths with your own if different
+          Image.asset("assets/icons/CartoonParrotbottom1.png", width: 32, height: 32), // Call
+          Image.asset("assets/icons/bottom2.png", width: 32, height: 32), // Moment
+          Image.asset("assets/icons/bottom3.png", width: 32, height: 32), // Create
+          Image.asset("assets/icons/bottom4.png", width: 32, height: 32), // Messages
+          Image.asset("assets/icons/bottom5.png", width: 32, height: 32), // Profile
+        ],
+        color: Colors.grey.withOpacity(0.5), // Bar color
+        buttonBackgroundColor: Colors.grey.withOpacity(0.5), // Selected bubble
+        backgroundColor: Colors.transparent, // So body shows behind
+        animationCurve: Curves.easeInOut,
+        animationDuration: const Duration(milliseconds: 600),
+        onTap: _onItemSelected,
+        letIndexChange: (index) => true,
+      ),
     );
   }
 }

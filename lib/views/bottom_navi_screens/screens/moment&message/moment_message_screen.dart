@@ -30,7 +30,44 @@ class _MomentMessageScreenState extends State<MomentMessageScreen> {
       floatingActionButton: selectedButtonIndex == 2
           ? Padding(
               padding: const EdgeInsets.only(bottom: 50),
-              child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [_floatingButtons()]),
+              child: CustomContainer(
+                width: 100,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CustomContainer(
+                          height: 40,
+                          width: 40,
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            image: AssetImage('assets/icons/video.png'),
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                        CustomContainer(
+                          height: 38,
+                          width: 38,
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            image: AssetImage('assets/icons/photo.png'),
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 14),
+                    CustomContainer(
+                      height: 49,
+                      width: 49,
+                      shape: BoxShape.circle,
+                      image: DecorationImage(image: AssetImage('assets/icons/camera.png'), fit: BoxFit.fill),
+                    ),
+                  ],
+                ),
+              ),
             )
           : null,
       body: Stack(
@@ -127,52 +164,6 @@ class _MomentMessageScreenState extends State<MomentMessageScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  // ==== Floating Buttons ====
-  Widget _floatingButtons() {
-    Widget ringButton(
-      IconData icon, {
-      double outer = 56,
-      double inner = 44,
-      Color outerColor = const Color(0xFFEDEDED),
-      Color iconColor = const Color(0xFF2E7CF6),
-    }) {
-      return Container(
-        height: outer,
-        width: outer,
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: outerColor,
-          border: Border.all(color: Colors.white, width: 2),
-          boxShadow: const [BoxShadow(color: Color(0x1A000000), blurRadius: 8, offset: Offset(0, 4))],
-        ),
-        child: Center(
-          child: Container(
-            height: inner,
-            width: inner,
-            decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-            child: Icon(icon, color: iconColor, size: inner * 0.55),
-          ),
-        ),
-      );
-    }
-
-    return Column(
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ringButton(Icons.play_arrow_rounded, outer: 56, inner: 40, iconColor: const Color(0xFF29A2FF)),
-            const SizedBox(width: 12),
-            ringButton(Icons.photo_camera_rounded, outer: 56, inner: 40, iconColor: const Color(0xFFFFB74D)),
-          ],
-        ),
-        const SizedBox(height: 8),
-        ringButton(Icons.blur_circular_rounded, outer: 72, inner: 56, iconColor: const Color(0xFF29A2FF)),
-      ],
     );
   }
 }
