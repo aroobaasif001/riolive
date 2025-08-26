@@ -1,6 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:riolive/customwidgets/custom_container.dart';
 import 'package:riolive/customwidgets/customtext.dart';
+
+import '../create_post_screen.dart';
 
 class SquarePost {
   final String userName;
@@ -46,71 +50,88 @@ class SquareTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<SquarePost> data = posts ?? _sample;
-    return Padding(
-      padding: EdgeInsets.only(top: 8, left: 18, right: 18, bottom: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: 80),
-          CustomText(text: 'Moments', fontSize: 16, fontWeight: FontWeight.w600),
-          Expanded(
-            child: ListView.builder(
-              itemCount: data.length,
-              itemBuilder: (context, index) {
-                final post = data[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: CustomContainer(
-                    borderRadius: BorderRadius.circular(15),
-                    conColor: Colors.white,
-                    boxShadow: const [
-                      BoxShadow(color: Color(0x22000000), blurRadius: 8, offset: Offset(0, 4)),
-                    ],
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: CircleAvatar(backgroundImage: AssetImage(post.avatarAsset), radius: 16),
-                            title: Text(post.userName, style: const TextStyle(fontWeight: FontWeight.w700)),
-                            trailing: const Icon(Icons.more_vert),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(post.caption ?? "", style: const TextStyle(color: Colors.black87)),
-                          const SizedBox(height: 8),
-                          _buildMedia(post.imageAssets, fillSingle: index == 0),
-                          const SizedBox(height: 10),
-                          CustomContainer(
-                            conColor: const Color(0xFFF3F5F7),
-                            borderRadius: BorderRadius.circular(14),
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    const Icon(Icons.favorite_rounded, color: Colors.red, size: 28),
-                                    const SizedBox(width: 16),
-                                    Image.asset('assets/icons/comment.png', height: 24),
-                                    const SizedBox(width: 16),
-                                    Image.asset('assets/icons/share.png', height: 22),
-                                  ],
-                                ),
-                                CustomText(text: post.timeAgo, fontSize: 11, color: Colors.grey),
-                              ],
+    return CustomContainer(
+      image: DecorationImage(image: AssetImage('assets/images/m&mBackground.png'), fit: BoxFit.fill),
+      child: Padding(
+        padding: EdgeInsets.only(top: 8, left: 18, right: 18, bottom: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 80),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                CustomText('Moments', fontSize: 16, fontWeight: FontWeight.w600),
+                InkWell(
+                  onTap: () {
+                    Get.to(() => const CreatePostScreen());
+                  },
+                  child: Icon(CupertinoIcons.plus),
+                ),
+              ],
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: data.length,
+                itemBuilder: (context, index) {
+                  final post = data[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 15),
+                    child: CustomContainer(
+                      borderRadius: BorderRadius.circular(15),
+                      conColor: Colors.white,
+                      boxShadow: const [
+                        BoxShadow(color: Color(0x22000000), blurRadius: 8, offset: Offset(0, 4)),
+                      ],
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: CircleAvatar(
+                                backgroundImage: AssetImage(post.avatarAsset),
+                                radius: 16,
+                              ),
+                              title: Text(post.userName, style: const TextStyle(fontWeight: FontWeight.w700)),
+                              trailing: const Icon(Icons.more_vert),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 4),
+                            Text(post.caption ?? "", style: const TextStyle(color: Colors.black87)),
+                            const SizedBox(height: 8),
+                            _buildMedia(post.imageAssets, fillSingle: index == 0),
+                            const SizedBox(height: 10),
+                            CustomContainer(
+                              conColor: const Color(0xFFF3F5F7),
+                              borderRadius: BorderRadius.circular(14),
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.favorite_rounded, color: Colors.red, size: 28),
+                                      const SizedBox(width: 16),
+                                      Image.asset('assets/icons/comment.png', height: 24),
+                                      const SizedBox(width: 16),
+                                      Image.asset('assets/icons/share.png', height: 22),
+                                    ],
+                                  ),
+                                  CustomText(post.timeAgo, fontSize: 11, color: Colors.grey),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

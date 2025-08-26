@@ -12,7 +12,7 @@ class FollowTab extends StatelessWidget {
         return Container(
           color: Colors.black,
           child: const Center(
-            child: CustomText(text: 'Follow', color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+            child: CustomText('Follow', color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
           ),
         );
       },

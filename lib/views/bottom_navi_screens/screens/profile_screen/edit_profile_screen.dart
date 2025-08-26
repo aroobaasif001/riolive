@@ -128,7 +128,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           Expanded(
             child: Center(
               child: CustomText(
-                text: "Edit Profile",
+                "Edit Profile",
                 fontSize: isSmallScreen ? 20 : 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -252,7 +252,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CustomText(
-          text: "Album ($_albumCount/$_maxAlbumItems)",
+          "Album ($_albumCount/$_maxAlbumItems)",
           fontSize: isSmallScreen ? 14 : 16,
           fontWeight: FontWeight.w600,
           color: Colors.white,

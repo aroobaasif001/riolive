@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:riolive/customwidgets/custombutton.dart';
 import 'package:riolive/customwidgets/customtext.dart';
+
 import '../../../../customwidgets/customOtpbubblesbar.dart';
-import 'package:flutter/services.dart';
-import 'package:riolive/customwidgets/customOtpbubblesbar.dart';
 
 class VerificationScreeen extends StatelessWidget {
   const VerificationScreeen({super.key});
@@ -51,10 +50,14 @@ class VerificationScreeen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(height: 138,),
-                        CustomText(text: 'Verify',fontSize: 36,fontWeight: FontWeight.w600,),
-                        CustomText(text: 'Please enter the 4-digit code\n         sent to your email',fontSize: 16,fontWeight: FontWeight.w500,),
-                        SizedBox(height: 41,),
+                        SizedBox(height: 138),
+                        CustomText('Verify', fontSize: 36, fontWeight: FontWeight.w600),
+                        CustomText(
+                          'Please enter the 4-digit code\n         sent to your email',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        SizedBox(height: 41),
                         OtpBubblesInput(
                           length: 4,
                           diameter: 62,
@@ -63,14 +66,16 @@ class VerificationScreeen extends StatelessWidget {
                             // verify ya next step yahan
                           },
                         ),
-                        SizedBox(height: 42,),
-                        CustomButton(
-                          height: 57,
-                          width: 207,
-                          text: 'Submit', onPressed: () {
-                        },),
-                        SizedBox(height: 34,),
-                        CustomText(text: 'Resend OTP',fontWeight: FontWeight.w600,fontSize: 22,color: Color(0xffFFFFFF),letterSpacing: 1,)
+                        SizedBox(height: 42),
+                        CustomButton(height: 57, width: 207, text: 'Submit', onPressed: () {}),
+                        SizedBox(height: 34),
+                        CustomText(
+                          'Resend OTP',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 22,
+                          color: Color(0xffFFFFFF),
+                          letterSpacing: 1,
+                        ),
                       ],
                     ),
                   ),

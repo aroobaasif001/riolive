@@ -24,7 +24,7 @@ class MessagesScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Title
-                CustomText(text: 'Messages', fontSize: isSmallScreen ? 24 : 32, color: Colors.black87),
+                CustomText('Messages', fontSize: isSmallScreen ? 24 : 32, color: Colors.black87),
                 SizedBox(height: isSmallScreen ? 25 : 35),
 
                 // Category Icons Section
@@ -165,7 +165,7 @@ class MessagesScreen extends StatelessWidget {
           ),
           SizedBox(height: isSmallScreen ? 8 : 12),
           CustomText(
-            text: label,
+            label,
             fontSize: isSmallScreen ? 12 : 14,
             fontWeight: FontWeight.w500,
             color: Colors.black87,
@@ -224,14 +224,14 @@ class MessagesScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CustomText(
-                    text: name,
+                    name,
                     fontSize: isSmallScreen ? 16 : 18,
                     fontWeight: FontWeight.w600,
                     color: Colors.black87,
                   ),
                   SizedBox(height: isSmallScreen ? 4 : 6),
                   CustomText(
-                    text: message,
+                    message,
                     fontSize: isSmallScreen ? 14 : 16,
                     fontWeight: FontWeight.w400,
                     color: Colors.black,
@@ -247,7 +247,7 @@ class MessagesScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 CustomText(
-                  text: time,
+                  time,
                   fontSize: isSmallScreen ? 12 : 14,
                   fontWeight: FontWeight.w400,
                   color: Colors.black,
@@ -274,7 +274,7 @@ class MessagesScreen extends StatelessWidget {
                     child: Stack(
                       children: [
                         CustomText(
-                          text: unreadCount.toString(),
+                          unreadCount.toString(),
                           fontSize: isSmallScreen ? 12 : 14,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
