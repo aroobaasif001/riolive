@@ -64,7 +64,7 @@ class SquareTab extends StatelessWidget {
                 CustomText('Moments', fontSize: 16, fontWeight: FontWeight.w600),
                 InkWell(
                   onTap: () {
-                    Get.to(() => const CreatePostScreen());
+                    //Get.to(() => const CreatePostScreen());
                   },
                   child: Icon(CupertinoIcons.plus),
                 ),

@@ -476,7 +476,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: CustomText(
-                text: "Choose Image Source",
+                "Choose Image Source",
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: brandColor,
