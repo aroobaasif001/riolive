@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
-
 import '../../../../customwidgets/customtext.dart';
+import '../../../../customwidgets/customtextformfield.dart';
 
 class ChatScreen extends StatefulWidget {
   final String contactName;
   final String profileImage;
 
-  const ChatScreen({super.key, required this.contactName, required this.profileImage});
+  const ChatScreen({
+    super.key,
+    required this.contactName,
+    required this.profileImage,
+  });
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -17,16 +21,18 @@ class _ChatScreenState extends State<ChatScreen> {
   final FocusNode _messageFocusNode = FocusNode();
   final List<ChatMessage> _messages = [];
   bool _isTextFieldFocused = false;
+  bool _showExtraIcons = false; // 👈 toggle for expandable icons
 
   @override
   void initState() {
     super.initState();
     _messageFocusNode.addListener(_onFocusChange);
-    // Add sample messages to match screenshot
+
+    // Sample messages
     _messages.addAll([
       ChatMessage(text: "Hello there!", isMe: false, time: "2:58 PM"),
       ChatMessage(
-        text: "I was looking on Internet and I saw this Webflow template from you guys!",
+        text: "I was looking on Internet and I saw this Webflow template!",
         isMe: false,
         time: "2:58 PM",
       ),
@@ -37,25 +43,17 @@ class _ChatScreenState extends State<ChatScreen> {
         hasImage: true,
         imageUrl: "assets/images/backgrondimage.png",
       ),
-      ChatMessage(text: " Financelab X - Webflow Ecommerce Website Template", isMe: false, time: "2:59 PM"),
       ChatMessage(
-        text:
-            " We should catch up soon!We should catch up soon!We should catch up soon!We should catch up soon!",
+        text: " Financelab X - Webflow Ecommerce Website Template",
+        isMe: false,
+        time: "2:59 PM",
+      ),
+      ChatMessage(
+        text: "We should catch up soon!We should catch up soon!",
         isMe: false,
         time: "2:59 PM",
       ),
       ChatMessage(text: "Hi there! Nice to meet you!", isMe: true, time: "2:59 PM"),
-      ChatMessage(
-        text: "I'm John and today I'm going to help you to find your perfect Webflow Template 🙋‍♀️",
-        isMe: true,
-        time: "3:00 PM",
-      ),
-      ChatMessage(
-        text:
-            "We should catch up soon!We should catch up soon!We should catch up soon!We should catch up soon!",
-        isMe: false,
-        time: "3:01 PM",
-      ),
     ]);
   }
 
@@ -84,7 +82,13 @@ class _ChatScreenState extends State<ChatScreen> {
   void _sendMessage() {
     if (_messageController.text.trim().isNotEmpty) {
       setState(() {
-        _messages.add(ChatMessage(text: _messageController.text.trim(), isMe: true, time: _getCurrentTime()));
+        _messages.add(
+          ChatMessage(
+            text: _messageController.text.trim(),
+            isMe: true,
+            time: _getCurrentTime(),
+          ),
+        );
       });
       _messageController.clear();
     }
@@ -93,13 +97,15 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
     final isSmallScreen = screenWidth < 600;
 
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          image: DecorationImage(image: AssetImage('assets/images/second_background.png'), fit: BoxFit.fill),
+          image: DecorationImage(
+            image: AssetImage('assets/images/second_background.png'),
+            fit: BoxFit.fill,
+          ),
         ),
         child: SafeArea(
           child: Column(
@@ -124,7 +130,11 @@ class _ChatScreenState extends State<ChatScreen> {
                   children: [
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
-                      child: Icon(Icons.arrow_back, color: Colors.black, size: isSmallScreen ? 24 : 28),
+                      child: Icon(
+                        Icons.arrow_back,
+                        color: Colors.black,
+                        size: isSmallScreen ? 24 : 28,
+                      ),
                     ),
                     SizedBox(width: isSmallScreen ? 16 : 20),
                     CircleAvatar(
@@ -152,8 +162,15 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                     Container(
                       padding: EdgeInsets.all(isSmallScreen ? 8 : 10),
-                      decoration: BoxDecoration(color: Colors.black, shape: BoxShape.circle),
-                      child: Icon(Icons.info_outline, color: Colors.white, size: isSmallScreen ? 20 : 22),
+                      decoration: const BoxDecoration(
+                        color: Colors.black,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.info_outline,
+                        color: Colors.white,
+                        size: isSmallScreen ? 20 : 22,
+                      ),
                     ),
                   ],
                 ),
@@ -188,77 +205,85 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 child: Row(
                   children: [
-                    // Side icons - only show when text field is not focused
-                    if (!_isTextFieldFocused) ...[
-                      // Grid icon
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(Icons.grid_view, color: Colors.black, size: isSmallScreen ? 24 : 28),
+                    // "+" main icon
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _showExtraIcons = !_showExtraIcons;
+                        });
+                      },
+                      icon: Icon(
+                        Icons.add_circle_outline,
+                        color: Colors.black,
+                        size: isSmallScreen ? 28 : 30,
                       ),
-                      // Camera icon
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          Icons.camera_alt_outlined,
-                          color: Colors.black,
-                          size: isSmallScreen ? 24 : 28,
-                        ),
-                      ),
-                      // Gallery icon
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(Icons.image_outlined, color: Colors.black, size: isSmallScreen ? 24 : 28),
-                      ),
-                      // Microphone icon
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(Icons.mic_outlined, color: Colors.black, size: isSmallScreen ? 24 : 28),
-                      ),
-                    ],
-                    // Message input field
+                    ),
+
+                    // Expandable icons
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      child: _showExtraIcons
+                          ? Row(
+                        key: const ValueKey("icons"),
+                        children: [
+                          IconButton(
+                            onPressed: () {},
+                            icon: Icon(
+                              Icons.camera_alt_outlined,
+                              color: Colors.black,
+                              size: isSmallScreen ? 24 : 28,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () {},
+                            icon: Icon(
+                              Icons.image_outlined,
+                              color: Colors.black,
+                              size: isSmallScreen ? 24 : 28,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () {},
+                            icon: Icon(
+                              Icons.mic_outlined,
+                              color: Colors.black,
+                              size: isSmallScreen ? 24 : 28,
+                            ),
+                          ),
+                        ],
+                      )
+                          : const SizedBox.shrink(),
+                    ),
+
+                    // Message input (custom field)
                     Expanded(
-                      child: Container(
-                        margin: EdgeInsets.symmetric(
-                          horizontal: _isTextFieldFocused ? (isSmallScreen ? 4 : 6) : (isSmallScreen ? 1 : 2),
-                        ),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: isSmallScreen ? 16 : 20,
-                          vertical: isSmallScreen ? 12 : 16,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[100],
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: _messageController,
-                                focusNode: _messageFocusNode,
-                                decoration: const InputDecoration.collapsed(
-                                  hintText: "Message",
-                                  hintStyle: TextStyle(color: Colors.grey, fontSize: 16),
-                                ),
-                                onSubmitted: (_) => _sendMessage(),
-                              ),
+                      child: Padding(
+                        padding:
+                        EdgeInsets.symmetric(horizontal: isSmallScreen ? 6 : 8),
+                        child: CustomTextFormField(
+                          hintText: "Message",
+                          controller: _messageController,
+                          showDivider: false,
+                          suffix: IconButton(
+                            onPressed: () {},
+                            icon: Icon(
+                              Icons.emoji_emotions_outlined,
+                              color: const Color(0xFF9557F9),
+                              size: isSmallScreen ? 24 : 28,
                             ),
-                            // Emoji icon inside message field
-                            IconButton(
-                              onPressed: () {},
-                              icon: Icon(
-                                Icons.emoji_emotions_outlined,
-                                color: const Color(0xFF9557F9),
-                                size: isSmallScreen ? 24 : 28,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
-                    // Send icon
+
+                    // Send button
                     IconButton(
                       onPressed: _sendMessage,
-                      icon: Icon(Icons.send, color: Colors.black, size: isSmallScreen ? 24 : 28),
+                      icon: Icon(
+                        Icons.send,
+                        color: Colors.black,
+                        size: isSmallScreen ? 24 : 28,
+                      ),
                     ),
                   ],
                 ),
@@ -281,17 +306,19 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Profile picture for received messages
             if (!message.isMe) ...[
-              CircleAvatar(radius: isSmallScreen ? 16 : 20, backgroundImage: AssetImage(widget.profileImage)),
+              CircleAvatar(
+                radius: isSmallScreen ? 16 : 20,
+                backgroundImage: AssetImage(widget.profileImage),
+              ),
               SizedBox(width: isSmallScreen ? 8 : 12),
             ],
-
-            // Message bubble
             Flexible(
               child: Container(
                 padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
-                constraints: BoxConstraints(maxWidth: screenWidth * (isSmallScreen ? 0.7 : 0.6)),
+                constraints: BoxConstraints(
+                  maxWidth: screenWidth * (isSmallScreen ? 0.7 : 0.6),
+                ),
                 decoration: BoxDecoration(
                   color: message.isMe
                       ? const Color(0xFF9558F8).withOpacity(0.9)
@@ -346,14 +373,19 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
             ),
-
-            // Share icon for received messages
             if (!message.isMe) ...[
               SizedBox(width: isSmallScreen ? 8 : 12),
               Container(
                 padding: EdgeInsets.all(isSmallScreen ? 8 : 10),
-                decoration: BoxDecoration(color: Colors.grey[200], shape: BoxShape.circle),
-                child: Icon(Icons.share, color: Colors.grey, size: isSmallScreen ? 16 : 18),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.share,
+                  color: Colors.grey,
+                  size: isSmallScreen ? 16 : 18,
+                ),
               ),
             ],
           ],

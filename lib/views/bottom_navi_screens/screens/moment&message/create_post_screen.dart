@@ -47,7 +47,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: CustomContainer(
-        image: DecorationImage(image: AssetImage('assets/images/m&mBackground.png'), fit: BoxFit.fill),
+        image: DecorationImage(
+          image: AssetImage('assets/images/m&mBackground.png'),
+          fit: BoxFit.fill,
+        ),
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: SafeArea(
           child: Column(
@@ -57,7 +60,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 children: [
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.arrow_back, color: Colors.black, size: 24),
+                    child: const Icon(
+                      Icons.arrow_back,
+                      color: Colors.black,
+                      size: 24,
+                    ),
                   ),
                   const Spacer(),
                   GestureDetector(
@@ -96,7 +103,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       style: const TextStyle(fontSize: 16, color: Colors.black),
                     ),
                     const SizedBox(height: 8),
-                    CustomText('$_characterCount/$_maxCharacters', fontSize: 12, color: Colors.grey),
+                    CustomText(
+                      '$_characterCount/$_maxCharacters',
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
                   ],
                 ),
               ),
@@ -115,7 +126,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(12),
                         onTap: () {},
-                        child: const Center(child: Icon(CupertinoIcons.plus, size: 32, color: Colors.grey)),
+                        child: const Center(
+                          child: Icon(
+                            CupertinoIcons.plus,
+                            size: 32,
+                            color: Colors.grey,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -160,12 +177,17 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                           // Add topic to text
                           final topic = _recommendedTopics[index];
                           final currentText = _textController.text;
-                          _textController.text = currentText.isEmpty ? topic : '$currentText $topic';
+                          _textController.text = currentText.isEmpty
+                              ? topic
+                              : '$currentText $topic';
                         },
                         child: CustomContainer(
                           borderRadius: BorderRadius.circular(20),
                           conColor: Color(0xffE6E7FC),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
                           child: CustomText(
                             _recommendedTopics[index],
                             fontSize: 14,
@@ -187,13 +209,24 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 width: 240,
                 borderRadius: BorderRadius.circular(28.5),
                 border: Border.all(color: Color(0xff29F29C)),
-                boxShadow: const [BoxShadow(color: Color(0x3383C69F), blurRadius: 6, offset: Offset(0, 2))],
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x3383C69F),
+                    blurRadius: 6,
+                    offset: Offset(0, 2),
+                  ),
+                ],
                 child: MaterialButton(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(28.5)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadiusGeometry.circular(28.5),
+                  ),
                   padding: EdgeInsets.zero,
                   onPressed: () {},
                   child: CustomContainer(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     borderRadius: BorderRadius.circular(28),
                     conColor: Colors.grey.withOpacity(0.3),
                     child: Center(

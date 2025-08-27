@@ -4,8 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 class CustomTextFormField extends StatelessWidget {
   final String hintText;
-  final Widget? prefix;   // 👈 ab ye Icon ya Image dono ho sakta hai
-  final Widget? suffix;   // 👈 same suffix bhi widget
+  final Widget? prefix; // 👈 ab ye Icon ya Image dono ho sakta hai
+  final Widget? suffix; // 👈 same suffix bhi widget
   final TextEditingController? controller;
   final bool obscureText;
   final TextInputType keyboardType;
@@ -56,9 +56,7 @@ class CustomTextFormField extends StatelessWidget {
       child: Row(
         children: [
           // 👈 Prefix (Icon ya Image dono)
-          if (prefix != null) ...[
-            prefix!,
-          ],
+          if (prefix != null) ...[prefix!],
 
           // 👈 Divider (only if prefix exists + showDivider = true)
           if (prefix != null && showDivider) ...[
