@@ -39,71 +39,74 @@ class ProfileDashboardScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         // Badges row
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Image.asset(
-                                  "assets/images/banner.png",
-                                  width: 60,
-                                  height: 40,
-                                ),
-                                const Text(
-                                  "23",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
-                            const SizedBox(width: 8),
-                            Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Image.asset(
-                                  "assets/images/banner.png",
-                                  width: 60,
-                                  height: 40,
-                                ),
-                                const Text(
-                                  "11",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
-                            const SizedBox(width: 8),
-                            Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Image.asset(
-                                  "assets/images/banner.png",
-                                  width: 60,
-                                  height: 40,
-                                ),
-                                const Text(
-                                  "VIP",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
-                          ],
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Stack(
+                    children: [
+                      Image.asset(
+                        "assets/images/one.png",
+                        width: 60,
+                        height: 40,
+                      ),
+                      const Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          "23",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        const SizedBox(height: 16),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 8),
+                  Stack(
+                    children: [
+                      Image.asset(
+                        "assets/images/banner.png",
+                        width: 60,
+                        height: 40,
+                      ),
+                      const Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          "11",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 8),
+                  Stack(
+                    children: [
+                      Image.asset(
+                        "assets/images/three.png",
+                        width: 60,
+                        height: 40,
+                      ),
+                      const Align(
+                        alignment: Alignment.bottomRight,
+                        child: Text(
+                          "VIP",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
                         const Text(
                           "Wamiqa Jain",
                           style: TextStyle(
