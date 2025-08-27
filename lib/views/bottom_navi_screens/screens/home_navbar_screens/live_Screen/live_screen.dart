@@ -17,7 +17,7 @@ class _LiveScreenState extends State<LiveScreen> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
       child: Column(
         children: [
           SingleChildScrollView(
@@ -68,7 +68,7 @@ class _LiveScreenState extends State<LiveScreen> {
         });
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 23, vertical: 3),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28),
           gradient: LinearGradient(
@@ -81,15 +81,15 @@ class _LiveScreenState extends State<LiveScreen> {
             width: selected ? 3 : 0,
           ),
           boxShadow: [
-            BoxShadow(color: Colors.white.withOpacity(0.7), offset: const Offset(-4, -4), blurRadius: 10),
+            BoxShadow(color: Colors.white.withOpacity(0.7),),
             BoxShadow(color: Colors.black.withOpacity(0.15), offset: const Offset(6, 6), blurRadius: 12),
           ],
         ),
         child: Text(
           text,
           style: TextStyle(
-            fontSize: 24,
-            fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+            fontSize: 16,
+            fontWeight: selected ? FontWeight.w600 : null,
             color: const Color(0xFF2F2F2F),
             letterSpacing: 0.2,
           ),

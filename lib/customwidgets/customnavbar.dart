@@ -43,7 +43,6 @@ class _CustomNavBarState extends State<CustomNavBar>
     final fontSmall = (w * 0.045).clamp(16.0, 18.0).toDouble();
 
     return Container(
-
       color: Colors.transparent, // ✅ No background
       padding: EdgeInsets.symmetric(horizontal: w * 0.025, vertical: 20),
       child: Row(
@@ -53,7 +52,18 @@ class _CustomNavBarState extends State<CustomNavBar>
           _buildNavItem("Live", fontLarge, fontSmall),
           _buildNavItem("Party", fontLarge, fontSmall),
           const Spacer(),
-          const Icon(Icons.search, size: 20, color: Colors.black),
+          Row(children: [
+            Container(
+              height: 32,
+              width: 36,
+              decoration: BoxDecoration(
+                borderRadius:  BorderRadius.circular(10),
+                color: Colors.white24
+              ),
+              child: Center(child: Image(image: AssetImage('assets/icons/searchiconcolor.png'),height: 22,width: 22,),),
+            ),
+            Image(image: AssetImage('assets/images/textlogo.png'),height: 40,width: 70,)
+          ],),
         ],
       ),
     );
@@ -71,7 +81,7 @@ class _CustomNavBarState extends State<CustomNavBar>
               widget.selectedItem == label ? _animation.value : 0,
             ),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20), // Increased padding here
+              padding: const EdgeInsets.symmetric(horizontal: 10), // Increased padding here
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
