@@ -14,7 +14,13 @@ class _SearchScreenState extends State<SearchScreen> {
   String _searchQuery = '';
   int _selectedFilterIndex = 0;
 
-  final List<String> _filterOptions = ['All', 'Users', 'Moments', 'Videos', 'Hashtags'];
+  final List<String> _filterOptions = [
+    'All',
+    'Users',
+    'Moments',
+    'Videos',
+    'Hashtags',
+  ];
 
   // Dummy search results
   final List<Map<String, dynamic>> _searchResults = [
@@ -130,11 +136,18 @@ class _SearchScreenState extends State<SearchScreen> {
                             ? const Color(0xffFFD964)
                             : (Colors.grey[200] ?? Colors.grey.shade200),
                         borderRadius: BorderRadius.circular(20),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         child: CustomText(
                           _filterOptions[index],
-                          color: isSelected ? Colors.black : (Colors.grey[700] ?? Colors.grey.shade700),
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                          color: isSelected
+                              ? Colors.black
+                              : (Colors.grey[700] ?? Colors.grey.shade700),
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w400,
                         ),
                       ),
                     ),
@@ -162,7 +175,11 @@ class _SearchScreenState extends State<SearchScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.search, size: 64, color: Colors.grey[400] ?? Colors.grey.shade400),
+                    Icon(
+                      Icons.search,
+                      size: 64,
+                      color: Colors.grey[400] ?? Colors.grey.shade400,
+                    ),
                     const SizedBox(height: 16),
                     CustomText(
                       'Search for something amazing',
@@ -204,13 +221,20 @@ class _SearchScreenState extends State<SearchScreen> {
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
         children: [
-          CircleAvatar(radius: 25, backgroundImage: AssetImage(result['avatar'])),
+          CircleAvatar(
+            radius: 25,
+            backgroundImage: AssetImage(result['avatar']),
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CustomText(result['name'], fontSize: 16, fontWeight: FontWeight.w600),
+                CustomText(
+                  result['name'],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
                 CustomText(
                   '${result['followers']} followers',
                   fontSize: 14,
@@ -222,13 +246,20 @@ class _SearchScreenState extends State<SearchScreen> {
           ElevatedButton(
             onPressed: () {
               setState(() {
-                _searchResults[index]['isFollowing'] = !_searchResults[index]['isFollowing'];
+                _searchResults[index]['isFollowing'] =
+                    !_searchResults[index]['isFollowing'];
               });
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: result['isFollowing'] ? Colors.grey[300] : const Color(0xffFFD964),
-              foregroundColor: result['isFollowing'] ? Colors.grey[700] : Colors.black,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              backgroundColor: result['isFollowing']
+                  ? Colors.grey[300]
+                  : const Color(0xffFFD964),
+              foregroundColor: result['isFollowing']
+                  ? Colors.grey[700]
+                  : Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
             ),
             child: Text(result['isFollowing'] ? 'Following' : 'Follow'),
           ),
@@ -243,7 +274,13 @@ class _SearchScreenState extends State<SearchScreen> {
       child: CustomContainer(
         conColor: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: const [BoxShadow(color: Color(0x1A000000), blurRadius: 8, offset: Offset(0, 2))],
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x1A000000),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Column(
@@ -251,11 +288,18 @@ class _SearchScreenState extends State<SearchScreen> {
             children: [
               Row(
                 children: [
-                  CircleAvatar(radius: 16, backgroundImage: AssetImage(result['avatar'])),
+                  CircleAvatar(
+                    radius: 16,
+                    backgroundImage: AssetImage(result['avatar']),
+                  ),
                   const SizedBox(width: 8),
                   CustomText(result['user'], fontWeight: FontWeight.w600),
                   const Spacer(),
-                  CustomText(result['time'], fontSize: 12, color: Colors.grey[600] ?? Colors.grey.shade600),
+                  CustomText(
+                    result['time'],
+                    fontSize: 12,
+                    color: Colors.grey[600] ?? Colors.grey.shade600,
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -263,14 +307,27 @@ class _SearchScreenState extends State<SearchScreen> {
               const SizedBox(height: 8),
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.asset(result['image'], height: 120, width: double.infinity, fit: BoxFit.cover),
+                child: Image.asset(
+                  result['image'],
+                  height: 120,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
               ),
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Icon(Icons.favorite, color: Colors.red[400] ?? Colors.red.shade400, size: 16),
+                  Icon(
+                    Icons.favorite,
+                    color: Colors.red[400] ?? Colors.red.shade400,
+                    size: 16,
+                  ),
                   const SizedBox(width: 4),
-                  CustomText(result['likes'], fontSize: 12, color: Colors.grey[600] ?? Colors.grey.shade600),
+                  CustomText(
+                    result['likes'],
+                    fontSize: 12,
+                    color: Colors.grey[600] ?? Colors.grey.shade600,
+                  ),
                 ],
               ),
             ],
@@ -299,7 +356,11 @@ class _SearchScreenState extends State<SearchScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CustomText(result['tag'], fontSize: 16, fontWeight: FontWeight.w600),
+                CustomText(
+                  result['tag'],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
                 CustomText(
                   '${result['posts']} posts',
                   fontSize: 14,
@@ -326,18 +387,30 @@ class _SearchScreenState extends State<SearchScreen> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.asset(result['thumbnail'], height: 60, width: 80, fit: BoxFit.cover),
+                child: Image.asset(
+                  result['thumbnail'],
+                  height: 60,
+                  width: 80,
+                  fit: BoxFit.cover,
+                ),
               ),
               Positioned(
                 bottom: 4,
                 right: 4,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.7),
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  child: CustomText(result['duration'], fontSize: 10, color: Colors.white),
+                  child: CustomText(
+                    result['duration'],
+                    fontSize: 10,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ],

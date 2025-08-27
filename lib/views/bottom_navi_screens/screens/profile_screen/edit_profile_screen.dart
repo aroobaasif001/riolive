@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:riolive/customwidgets/custombutton.dart';
 import 'package:riolive/customwidgets/customtext.dart';
+import 'package:riolive/customwidgets/custom_container.dart';
+import 'package:riolive/customwidgets/customtextformfield.dart';
 import 'dart:io';
 
 class EditProfileScreen extends StatefulWidget {
@@ -41,12 +43,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final isSmallScreen = size.width < 400;
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/images/rgb_background.png"),
-            fit: BoxFit.cover,
-          ),
+      body: CustomContainer(
+        image: const DecorationImage(
+          image: AssetImage("assets/images/rgb_background.png"),
+          fit: BoxFit.cover,
         ),
         child: SafeArea(
           child: SingleChildScrollView(
@@ -202,40 +202,36 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        CustomText(
           label,
-          style: TextStyle(
-            fontSize: isSmallScreen ? 14 : 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
+          fontSize: isSmallScreen ? 14 : 16,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
         ),
         const SizedBox(height: 8),
         GestureDetector(
           onTap: onTap,
-          child: Container(
+          child: CustomContainer(
             padding: EdgeInsets.symmetric(
               horizontal: isSmallScreen ? 12 : 16,
               vertical: isSmallScreen ? 10 : 14,
             ),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFFE3F2FD), Color(0xFFF3E5F5)],
-              ),
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 6,
-                  offset: const Offset(0, 3),
-                ),
-              ],
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFFE3F2FD), Color(0xFFF3E5F5)],
             ),
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 6,
+                offset: const Offset(0, 3),
+              ),
+            ],
             child: Row(
               children: [
-                Container(
+                CustomContainer(
                   padding: const EdgeInsets.all(8),
                   child: assetIcon != null
                       ? Image.asset(

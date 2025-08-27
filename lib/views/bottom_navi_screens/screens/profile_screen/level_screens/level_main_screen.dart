@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'level_controller.dart';
 import 'rich_level_screen.dart';
 import 'wealth_level_screen.dart';
+import '../../../../../customwidgets/custom_container.dart';
+import '../../../../../customwidgets/customcirclebutton.dart';
 
 class LevelMainScreen extends StatelessWidget {
   final int initialPage;
@@ -35,9 +37,15 @@ class LevelMainScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                  CustomCircleButton(
+                    size: 40,
+                    backgroundColor: Colors.white.withOpacity(0.1),
                     onPressed: () => Navigator.pop(context),
+                    child: const Icon(
+                      Icons.arrow_back_ios,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                   ),
                 ],
               ),

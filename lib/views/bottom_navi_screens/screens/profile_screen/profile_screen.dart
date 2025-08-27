@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'customer_service/customer_service_screen.dart';
 import 'edit_profile_screen.dart';
 import 'level_screens/rich_level_screen.dart';
 import 'ranking_screens/ranking_main_screen.dart';
@@ -46,7 +47,7 @@ class ProfileDashboardScreen extends StatelessWidget {
                               alignment: Alignment.center,
                               children: [
                                 Image.asset(
-                                  "assets/images/banner.png",
+                                  "assets/images/one.png",
                                   width: 60,
                                   height: 40,
                                 ),
@@ -86,7 +87,7 @@ class ProfileDashboardScreen extends StatelessWidget {
                               alignment: Alignment.center,
                               children: [
                                 Image.asset(
-                                  "assets/images/banner.png",
+                                  "assets/images/three.png",
                                   width: 60,
                                   height: 40,
                                 ),
@@ -248,7 +249,7 @@ class ProfileDashboardScreen extends StatelessWidget {
 
                 _buildGridSection([
                   _GridItem("Level", "assets/icons/picon19.png"),
-                  _GridItem("Customer Service", "assets/icons/picon20.png"),
+                  _GridItem("Customer", "assets/icons/picon20.png"),
                   _GridItem("Settings", "assets/icons/picon21.png"),
                   _GridItem("About Rio Live", "assets/icons/picon22.png"),
                   _GridItem("Invite User", "assets/icons/picon15.png"),
@@ -289,6 +290,8 @@ class ProfileDashboardScreen extends StatelessWidget {
                 Get.to(() => const RichLevelScreen());
               } else if (e.label == "Ranking List") {
                 Get.to(() => const RankingMainScreen());
+              } else if (e.label == "Customer") {
+                Get.to(() => const ContactCustomerServiceScreen());
               }
             },
             child: Container(

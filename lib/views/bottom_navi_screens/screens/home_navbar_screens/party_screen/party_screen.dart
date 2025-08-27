@@ -28,7 +28,7 @@ class PartyScreen extends StatelessWidget {
             children: [
               ClipOval(
                 child: Image.asset(
-                  "assets/images/user.png", // replace with user image
+                  "assets/images/avatar.png", // replace with user image
                   height: 48,
                   width: 48,
                   fit: BoxFit.cover,

@@ -54,13 +54,24 @@ class FamilyRankingContent extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const Text(
-                        "15000",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(
+                            "assets/icons/crown.png",
+                            width: 16,
+                            height: 16,
+                          ),
+                          const SizedBox(width: 4),
+                          const Text(
+                            "15000",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 40),
                     ],
@@ -89,13 +100,24 @@ class FamilyRankingContent extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const Text(
-                        "25000",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(
+                            "assets/icons/crown.png",
+                            width: 18,
+                            height: 18,
+                          ),
+                          const SizedBox(width: 4),
+                          const Text(
+                            "25000",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 60),
                     ],
@@ -124,13 +146,24 @@ class FamilyRankingContent extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const Text(
-                        "12000",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(
+                            "assets/icons/crown.png",
+                            width: 16,
+                            height: 16,
+                          ),
+                          const SizedBox(width: 4),
+                          const Text(
+                            "12000",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 40),
                     ],
@@ -152,31 +185,70 @@ class FamilyRankingContent extends StatelessWidget {
                 itemCount: 6,
                 itemBuilder: (context, index) {
                   return Container(
-                    margin: const EdgeInsets.symmetric(vertical: 6),
+                    margin: const EdgeInsets.symmetric(vertical: 8),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
-                      vertical: 12,
+                      vertical: 14,
                     ),
                     decoration: BoxDecoration(
-                      color: Color(0xFF122533),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        // Deep outer shadow for elevation
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.6),
+                          spreadRadius: 0,
+                          blurRadius: 12,
+                          offset: Offset(0, 6),
+                        ),
+                        // Ambient shadow
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.4),
+                          spreadRadius: 0,
+                          blurRadius: 24,
+                          offset: Offset(0, 12),
+                        ),
+                        // Inner shadow effect (top-left subtle light)
+                        BoxShadow(
+                          color: Color(0xFF163043).withOpacity(0.6),
+                          spreadRadius: -2,
+                          blurRadius: 8,
+                          offset: Offset(-2, -2),
+                        ),
+                        // Inner shadow effect (bottom-right dark)
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.5),
+                          spreadRadius: -2,
+                          blurRadius: 8,
+                          offset: Offset(2, 2),
+                        ),
+                      ],
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color(0xFF122533).withOpacity(0.85),
+                          Color(0xFF0A1B26).withOpacity(0.9),
+                          Color(0xFF051219),
+                        ],
+                        stops: [0.0, 0.6, 1.0],
+                      ),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
                           children: [
-                            CircleAvatar(
-                              backgroundImage: AssetImage(
-                                "assets/images/avatar.png",
-                              ),
-                              radius: 18,
+                            Image.asset(
+                              "assets/images/frame.png",
+                              width: 36,
+                              height: 36,
+                              fit: BoxFit.cover,
                             ),
                             const SizedBox(width: 12),
                             Text(
                               index == 5
-                                  ? "My Family"
-                                  : "Family Clan${index + 4}👨‍👩‍👧‍👦",
+                                  ? "Me"
+                                  : "Jenny Wilson${index + 4}🔥",
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -184,12 +256,23 @@ class FamilyRankingContent extends StatelessWidget {
                             ),
                           ],
                         ),
-                        Text(
-                          index == 5 ? "45k" : "${65 - index * 5}k",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.asset(
+                              "assets/icons/crown.png",
+                              width: 14,
+                              height: 14,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              index == 5 ? "45k" : "${65 - index * 5}k",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

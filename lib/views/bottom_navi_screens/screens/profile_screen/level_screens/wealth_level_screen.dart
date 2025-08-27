@@ -37,11 +37,22 @@ class WealthLevelContent extends StatelessWidget {
               children: [
                 Image.asset('assets/icons/crown.png', width: 60, height: 60),
                 const SizedBox(height: 8),
-                const CustomText(
-                  "Wamiqa Jain",
-                  fontSize: 18,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const CustomText(
+                      "Wamiqa Jain",
+                      fontSize: 18,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    const SizedBox(width: 8),
+                    Image.asset(
+                      'assets/levels/lvl7.png',
+                      width: 45,
+                      height: 30,
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 8),
                 const Row(
@@ -93,7 +104,7 @@ class WealthLevelContent extends StatelessWidget {
           _infoCard(
             title: "What are Host levels?",
             description:
-                "Host level: According to the number of gifts and coins you get , 1 Coin = 1 Experience Value",
+            "Host level: According to the number of gifts and coins you get , 1 Coin = 1 Experience Value",
           ),
 
           const SizedBox(height: 12),
@@ -106,7 +117,7 @@ class WealthLevelContent extends StatelessWidget {
               spacing: 12,
               runSpacing: 12,
               children: List.generate(10, (index) {
-                final levels = [1, 5, 10, 20, 30, 40, 50, 60, 70, 80];
+                final levels = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
                 return _wealthLevelCard(levels[index]);
               }),
             ),
@@ -193,24 +204,11 @@ class WealthLevelContent extends StatelessWidget {
         ),
       ],
       child: Center(
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Image.asset('assets/images/banner.png', width: 50, height: 35),
-            CustomText(
-              '$level',
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              shadows: [
-                const Shadow(
-                  color: Colors.black54,
-                  offset: Offset(1, 1),
-                  blurRadius: 2,
-                ),
-              ],
-            ),
-          ],
+        child: Image.asset(
+          'assets/levels/lvl$level.png', // 👈 your new level icons
+          width: 55,
+          height: 55,
+          fit: BoxFit.contain,
         ),
       ),
     );

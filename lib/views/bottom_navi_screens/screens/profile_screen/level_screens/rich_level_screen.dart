@@ -48,7 +48,7 @@ class RichLevelContent extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Image.asset(
-                      'assets/images/banner.png',
+                      'assets/levels/lvl7.png',
                       width: 45,
                       height: 30,
                     ),
@@ -104,12 +104,12 @@ class RichLevelContent extends StatelessWidget {
           _infoCard(
             title: "What are Rich levels?",
             description:
-                "User level: According to the number of gifts send & get Exp. 1 Diamond = 1 Experience Value.",
+            "User level: According to the number of gifts send & get Exp. 1 Diamond = 1 Experience Value.",
           ),
           _infoCard(
             title: "How to improve your wealth level?",
             description:
-                "Rich level is determined by experience values, lucky gifts 10 diamond = 1 Experience value; luxury gifts 1 diamond = 1 Experience value.",
+            "Rich level is determined by experience values, lucky gifts 10 diamond = 1 Experience value; luxury gifts 1 diamond = 1 Experience value.",
           ),
 
           const SizedBox(height: 12),
@@ -122,9 +122,9 @@ class RichLevelContent extends StatelessWidget {
               spacing: 12,
               runSpacing: 12,
               children: List.generate(10, (index) {
-                final levels = [1, 6, 11, 21, 31, 41, 51, 61, 71, 81];
-                return _richLevelCard(levels[index]);
+                return _richLevelCard(index + 1); // levels 1 → 10
               }),
+
             ),
           ),
           const SizedBox(height: 20),
@@ -209,24 +209,11 @@ class RichLevelContent extends StatelessWidget {
         ),
       ],
       child: Center(
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Image.asset('assets/images/banner.png', width: 50, height: 35),
-            CustomText(
-              '$level',
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              shadows: [
-                const Shadow(
-                  color: Colors.black54,
-                  offset: Offset(1, 1),
-                  blurRadius: 2,
-                ),
-              ],
-            ),
-          ],
+        child: Image.asset(
+          'assets/levels/lvl$level.png',
+          width: 55,
+          height: 55,
+          fit: BoxFit.contain,
         ),
       ),
     );
