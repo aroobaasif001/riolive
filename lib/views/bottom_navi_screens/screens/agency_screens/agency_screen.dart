@@ -32,12 +32,12 @@ class CustomImageButton extends StatelessWidget {
             child: Image.asset(
               backgroundImagePath,
               width: double.infinity,
-              height: 120,
+              height: 180,
               fit: BoxFit.cover,
             ),
           ),
           Positioned(
-            left: 16,
+            left: 140,
             child: Image.asset(iconImagePath, width: width),
           ),
           Positioned(
@@ -60,7 +60,7 @@ class AgencyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double verticalSpacing =
-        MediaQuery.of(context).size.height * 0.02; // 🔹 kam gap
+        MediaQuery.of(context).size.height * 0.03; // 🔹 kam gap
     return Scaffold(
       appBar: AppBar(
         title: const CustomText(
@@ -85,7 +85,7 @@ class AgencyScreen extends StatelessWidget {
           gradient: CustomGradient.mainBackground,
         ),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.only(top: 90),
+          padding: const EdgeInsets.only(top: 100),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start, // 🔹 top align
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -93,8 +93,8 @@ class AgencyScreen extends StatelessWidget {
               // Become an agent
               CustomImageButton(
                 label: 'Become a agent',
-                backgroundImagePath: 'assets/icons/agent_image.png',
-                iconImagePath: 'assets/icons/img_1.png',
+                backgroundImagePath: 'assets/images/agency1.png',
+                iconImagePath: 'assets/images/icone1.png',
                 onTap: () {},
                 imagePath: null,
                 width: 48,
@@ -104,8 +104,8 @@ class AgencyScreen extends StatelessWidget {
               // Join Agency
               CustomImageButton(
                 label: 'Join Agency',
-                backgroundImagePath: 'assets/icons/agent_image3.png',
-                iconImagePath: 'assets/icons/img_1.png',
+                backgroundImagePath: 'assets/images/agency2.png',
+                iconImagePath: 'assets/images/icone1.png',
                 onTap: () {},
                 imagePath: null,
                 width: 48,
@@ -115,11 +115,11 @@ class AgencyScreen extends StatelessWidget {
               // Become a coin seller
               CustomImageButton(
                 label: 'Become a coin seller',
-                backgroundImagePath: 'assets/icons/img.png',
-                iconImagePath: 'assets/icons/img_1.png',
+                backgroundImagePath: 'assets/images/agency3.png',
+                iconImagePath: 'assets/images/icone1.png',
                 onTap: () {},
                 imagePath: null,
-                width: 50,
+                width: 48,
               ),
             ],
           ),
