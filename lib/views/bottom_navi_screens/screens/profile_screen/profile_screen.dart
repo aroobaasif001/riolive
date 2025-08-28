@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/agency_screens/agency_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/settings_screen/settings_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/verification_screen/verification_screen.dart';
+import 'about_riolive_screen/about_screen.dart';
 import 'customer_service/customer_service_screen.dart';
+import 'customer_support/customer_support_screen.dart';
 import 'edit_profile_screen.dart';
 import 'level_screens/rich_level_screen.dart';
 import 'ranking_screens/ranking_main_screen.dart';
@@ -292,6 +297,18 @@ class ProfileDashboardScreen extends StatelessWidget {
                 Get.to(() => const RankingMainScreen());
               } else if (e.label == "Customer") {
                 Get.to(() => const ContactCustomerServiceScreen());
+              } else if (e.label == "Verification") {
+                Get.to(() => const AuthenticationScreen());
+              } else if (e.label == "Official Support") {
+                Get.to(() => const SupportScreen());
+              } else if (e.label == "About Rio Live") {
+                Get.to(() => const AboutRioScreen());
+              } else if (e.label == "Settings") {
+                Get.to(() => const SettingsScreen());
+              } else if (e.label == "Settings") {
+                Get.to(() => const SettingsScreen());
+              } else if (e.label == "Agency Management") {
+                Get.to(() => AgencyScreen());
               }
             },
             child: Container(

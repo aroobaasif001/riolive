@@ -59,7 +59,7 @@ class CustomButton extends StatelessWidget {
           child: Text(
             text,
             style: GoogleFonts.inter(
-              fontSize: screenWidth * 0.05, // Responsive size
+              fontSize: screenWidth * 0.05,
               fontWeight: FontWeight.w600,
               color: textColor,
             ),
