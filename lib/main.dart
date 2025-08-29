@@ -65,6 +65,8 @@ class _AppStartupState extends State<AppStartup> {
       AppUrl.token = token;
       // Log the response for debugging
       final users = response['user'];
+      AppUrl.user_name = response['user']['username'];
+
       // final id = users['riolive_id'];
       print("API Response: $response");
       print(response['status']);

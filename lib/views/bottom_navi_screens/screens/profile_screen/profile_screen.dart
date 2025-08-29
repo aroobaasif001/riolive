@@ -112,8 +112,8 @@ class ProfileDashboardScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        const Text(
-                          "Wamiqa Jain",
+                        Text(
+                          "${AppUrl.user_name}",
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,

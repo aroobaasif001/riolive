@@ -33,6 +33,8 @@ class SignUpController extends GetxController {
         try {
           final data = jsonDecode(res.body) as Map<String, dynamic>;
           AppUrl.riolive_id = data['user']['riolive_id'];
+          AppUrl.user_name = data['user']['username'];
+
           print(AppUrl.riolive_id);
         } catch (_) {
           // parsing failure shouldn't block OTP send
