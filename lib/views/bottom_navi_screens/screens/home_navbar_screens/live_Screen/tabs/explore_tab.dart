@@ -113,7 +113,7 @@ class _ExploreTabState extends State<ExploreTab> {
           sliver: SliverGrid(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 0.78,
+              mainAxisExtent: 230,
               mainAxisSpacing: 12,
               crossAxisSpacing: 12,
             ),
@@ -124,10 +124,15 @@ class _ExploreTabState extends State<ExploreTab> {
               return Column(
                 children: [
                   CustomContainer(
-                    height: 30,
+                    height: 159,
+                    padding: EdgeInsets.symmetric(vertical: 5,horizontal: 10),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(25),
+                      topRight: Radius.circular(25),
+                    ),
                     image: DecorationImage(image: AssetImage(img), fit: BoxFit.fill),
-
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         CustomContainer(
@@ -163,25 +168,24 @@ class _ExploreTabState extends State<ExploreTab> {
                     ),
                   ),
                   CustomContainer(
+                    height: 35,
                     width: double.infinity,
-                    padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFEDEAFF),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              '$name 🥰',
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontWeight: FontWeight.w700),
-                            ),
+                    padding: EdgeInsets.symmetric(horizontal: 11),
+                    conColor: const Color(0x306517DA),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(25),
+                      bottomRight: Radius.circular(25),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            '$name 🥰',
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontWeight: FontWeight.w700),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -190,103 +194,6 @@ class _ExploreTabState extends State<ExploreTab> {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _LiveCard extends StatelessWidget {
-  final String imagePath;
-  final String name;
-  final String viewers;
-  const _LiveCard({required this.imagePath, required this.name, required this.viewers});
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 4)),
-          ],
-        ),
-        child: Column(
-          children: [
-            Expanded(
-              child: Stack(
-                children: [
-                  Positioned.fill(child: Image.asset(imagePath, fit: BoxFit.cover)),
-                  Positioned(
-                    left: 8,
-                    top: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.redAccent,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Text(
-                        'Live',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    right: 8,
-                    top: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.black54,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.favorite, color: Colors.pinkAccent, size: 14),
-                          const SizedBox(width: 4),
-                          Text(
-                            viewers,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEDEAFF),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        '$name 🥰',
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

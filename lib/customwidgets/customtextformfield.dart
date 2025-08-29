@@ -10,6 +10,10 @@ class CustomTextFormField extends StatelessWidget {
   final bool obscureText;
   final TextInputType keyboardType;
   final bool showDivider;
+  final double height; // Custom height
+  final double width;  // Custom width
+  final EdgeInsetsGeometry padding; // Custom padding
+  final Color hintTextColor; // Custom hintText color
 
   const CustomTextFormField({
     super.key,
@@ -20,6 +24,10 @@ class CustomTextFormField extends StatelessWidget {
     this.obscureText = false,
     this.keyboardType = TextInputType.text,
     this.showDivider = true,
+    this.height = 50.0, // Default height
+    this.width = 300.0, // Default width
+    this.padding = const EdgeInsets.symmetric(horizontal: 16.0), // Default padding
+    this.hintTextColor = Colors.black38, // Default hintText color
   });
 
   @override
@@ -27,9 +35,9 @@ class CustomTextFormField extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Container(
-      height: screenWidth * 0.14,
-      width: screenWidth * 0.85,
-      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
+      height: height, // Use custom height
+      width: width, // Use custom width
+      padding: padding, // Use custom padding
       decoration: fb.BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(40),
@@ -84,7 +92,7 @@ class CustomTextFormField extends StatelessWidget {
                 hintStyle: GoogleFonts.inter(
                   fontSize: screenWidth * 0.034,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black38,
+                  color: hintTextColor, // Use custom hintText color
                 ),
                 border: InputBorder.none,
                 suffixIcon: suffix,

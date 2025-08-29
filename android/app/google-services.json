@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "365063805445",
+    "project_id": "riolive-8ae12",
+    "storage_bucket": "riolive-8ae12.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:365063805445:android:a3afea219606e0d15dda6c",
+        "android_client_info": {
+          "package_name": "com.riolive.riolive"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "365063805445-r7sviporun365k0pn2b57vdvpmnhhbu1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBe-ceq3Mr1byv3gks2k0gY1IaWqkqobF4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "365063805445-r7sviporun365k0pn2b57vdvpmnhhbu1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
