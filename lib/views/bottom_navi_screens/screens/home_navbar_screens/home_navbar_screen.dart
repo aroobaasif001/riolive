@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:riolive/customwidgets/customnavbar.dart';
-import 'package:riolive/views/bottom_navi_screens/screens/home_navbar_screens/party_screen/party_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/home_navbar_screens/party_screen/party_tab.dart';
 
 import '../../../../utile/app_url.dart';
 import 'call_screen/call_screen.dart';

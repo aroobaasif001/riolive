@@ -30,7 +30,7 @@ class _BottomNaviScreenState extends State<BottomNaviScreen> {
   @override
   void initState() {
     super.initState();
-    final idx = widget.initialIndex ?? 1;
+    final idx = widget.initialIndex ?? 0;
     _selectedIndex = idx.clamp(0, _screens.length - 1);
   }
 

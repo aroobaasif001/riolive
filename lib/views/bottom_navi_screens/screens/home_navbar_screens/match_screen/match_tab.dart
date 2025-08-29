@@ -2,17 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:riolive/customwidgets/custom_circle.dart';
 import 'package:riolive/customwidgets/customtext.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/home_navbar_screens/match_screen/video_call_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/home_navbar_screens/call_screen/video_call_screen/video_call_screen.dart'
     hide CallController;
 
-import '../../../../../controller/random_call_controller.dart';
-import '../../../../../utile/app_url.dart';
-
-class MatchScreen extends StatelessWidget {
+class MatchTab extends StatelessWidget {
   final String token;
-  MatchScreen({super.key, required this.token});
-
-  final CallController _callController = Get.put(CallController());
+  const MatchTab({super.key,required this.token});
 
   @override
   Widget build(BuildContext context) {

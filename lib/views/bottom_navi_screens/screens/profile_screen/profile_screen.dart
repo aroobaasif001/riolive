@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/agency_screens/agency_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/settings_screen/settings_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/verification_screen/verification_screen.dart';
-
 import '../../../../utile/app_url.dart';
 import 'about_riolive_screen/about_screen.dart';
 import 'customer_service/customer_service_screen.dart';
@@ -244,7 +243,6 @@ class ProfileDashboardScreen extends StatelessWidget {
 
                 _buildGridSection([
                   _GridItem("Agency Management", "assets/icons/picon13.png"),
-
                   _GridItem("Add Host", "assets/icons/picon14.png"),
                   _GridItem("Invite Agent", "assets/icons/picon15.png"),
                   _GridItem("Official Support", "assets/icons/picon16.png"),
@@ -301,7 +299,7 @@ class ProfileDashboardScreen extends StatelessWidget {
               } else if (e.label == "Customer") {
                 Get.to(() => const ContactCustomerServiceScreen());
               } else if (e.label == "Verification") {
-                Get.to(() => const AuthenticationScreen());
+                Get.to(() => const VerificationScreen());
               } else if (e.label == "Official Support") {
                 Get.to(() => const SupportScreen());
               } else if (e.label == "About Rio Live") {

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:riolive/customwidgets/custom_gradient_button.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/agency_screens/agency_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/verification_screen/redirected_screens/bind_screen.dart';
@@ -8,8 +7,10 @@ import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/verific
 import '../JoinAgency_Screen/JoinAgencyScreen.dart';
 // ✅ import custom button
 
-class AuthenticationScreen extends StatelessWidget {
-  const AuthenticationScreen({super.key});
+import '../../../../../customwidgets/customtext.dart';
+
+class VerificationScreen extends StatelessWidget {
+  const VerificationScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +43,7 @@ class AuthenticationScreen extends StatelessWidget {
                     Expanded(
                       child: Center(
                         child: CustomText(
-                          text: "Authentication",
+                          "Authentication",
                           fontSize: size.width * 0.05,
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
@@ -62,14 +63,13 @@ class AuthenticationScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         CustomText(
-                          text: "My Authentication",
+                          "My Authentication",
                           fontSize: size.width * 0.05,
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
                         ),
                         const SizedBox(height: 20),
                         CustomText(
-                          text:
                           "To protect you and other \naccount security, we \nrecommend you to complete\nverification.",
                           fontSize: size.width * 0.035,
                           color: Colors.black54,
@@ -97,13 +97,7 @@ class AuthenticationScreen extends StatelessWidget {
                   subtitle: "Please complete real person ...",
                   buttonText: "Go",
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                        const Faceauthenticationscreen(),
-                      ),
-                    );
+                    Get.to(() => Faceauthenticationscreen());
                   },
                 ),
                 _buildAuthCard(
@@ -113,12 +107,7 @@ class AuthenticationScreen extends StatelessWidget {
                   subtitle: "Please bind mobile number...",
                   buttonText: "Bind",
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const BindPhoneScreen(),
-                      ),
-                    );
+                    Get.to(() => BindPhoneScreen());
                   },
                 ),
                 _buildAuthCard(
@@ -147,13 +136,13 @@ class AuthenticationScreen extends StatelessWidget {
 
   /// 🔹 Auth Card Widget
   Widget _buildAuthCard(
-      BuildContext context, {
-        required String imageAsset,
-        required String title,
-        required String subtitle,
-        required String buttonText,
-        required VoidCallback onPressed,
-      }) {
+    BuildContext context, {
+    required String imageAsset,
+    required String title,
+    required String subtitle,
+    required String buttonText,
+    required VoidCallback onPressed,
+  }) {
     final size = MediaQuery.of(context).size;
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -162,73 +151,28 @@ class AuthenticationScreen extends StatelessWidget {
         color: const Color(0xffF0EEF4),
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 6, offset: const Offset(0, 3)),
         ],
       ),
       child: Row(
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Image.asset(
-              imageAsset,
-              width: 44,
-              height: 44,
-              fit: BoxFit.cover,
-            ),
+            child: Image.asset(imageAsset, width: 44, height: 44, fit: BoxFit.cover),
           ),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CustomText(
-                  text: title,
-                  fontSize: size.width * 0.04,
-                  fontWeight: FontWeight.w600,
-                ),
+                CustomText(title, fontSize: size.width * 0.04, fontWeight: FontWeight.w600),
                 const SizedBox(height: 4),
-                CustomText(
-                  text: subtitle,
-                  fontSize: size.width * 0.032,
-                  color: Colors.black54,
-                ),
+                CustomText(subtitle, fontSize: size.width * 0.032, color: Colors.black54),
               ],
             ),
           ),
           CustomGradientButton(text: buttonText, onPressed: onPressed),
         ],
-      ),
-    );
-  }
-}
-
-/// 🔥 Custom Text Widget (inside same file)
-class CustomText extends StatelessWidget {
-  final String text;
-  final double fontSize;
-  final FontWeight? fontWeight;
-  final Color? color;
-
-  const CustomText({
-    Key? key,
-    required this.text,
-    required this.fontSize,
-    this.fontWeight,
-    this.color,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: TextStyle(
-        fontSize: fontSize,
-        fontWeight: fontWeight ?? FontWeight.normal,
-        color: color ?? Colors.black,
       ),
     );
   }
