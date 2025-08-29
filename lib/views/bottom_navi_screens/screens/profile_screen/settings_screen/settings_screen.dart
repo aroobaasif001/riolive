@@ -1,9 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
+import 'package:http/http.dart' as http;
+import 'package:riolive/utile/app_url.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../../../customwidgets/customtext.dart';
+import '../../../../../controller/signin_controller.dart';
+import '../../../../splashscreen/splash_screen.dart';
 import 'account_security_screen/account_security_screen.dart';
+
+/// ✅ Custom Text
+class CustomText extends StatelessWidget {
+  final String text;
+  final double fontSize;
+  final FontWeight fontWeight;
+  final Color color;
+
+  const CustomText({
+    super.key,
+    required this.text,
+    this.fontSize = 12,
+    this.fontWeight = FontWeight.w400,
+    this.color = Colors.black,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        color: color,
+      ),
+    );
+  }
+}
 
 /// ✅ Custom App Bar
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -16,7 +47,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       title: CustomText(
-         title,
+        text: title,
         fontSize: 16,
         fontWeight: FontWeight.w600,
         color: Colors.black,
@@ -30,7 +61,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
     );
   }
-
 
   @override
   Size get preferredSize => const Size.fromHeight(45);
@@ -102,7 +132,7 @@ class CustomListItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CustomText(
-                     title,
+                    text: title,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: Colors.black,
@@ -113,7 +143,7 @@ class CustomListItem extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(top: 2.0),
                       child: CustomText(
-                         subtitle!,
+                        text: subtitle!,
                         fontSize: 12,
                         color: Colors.red,
                       ),
@@ -121,16 +151,13 @@ class CustomListItem extends StatelessWidget {
                 ],
               ),
             ),
-            if (subtitle != null &&
-                subtitle!.isNotEmpty &&
-                rightAlignSubtitle)
-              CustomText(
-                 subtitle!,
-                fontSize: 12,
-                color: Colors.black54,
-              ),
-            const Icon(Icons.arrow_forward_ios,
-                size: 14, color: Colors.black54),
+            if (subtitle != null && subtitle!.isNotEmpty && rightAlignSubtitle)
+              CustomText(text: subtitle!, fontSize: 12, color: Colors.black54),
+            const Icon(
+              Icons.arrow_forward_ios,
+              size: 14,
+              color: Colors.black54,
+            ),
           ],
         ),
       ),
@@ -159,7 +186,7 @@ class CustomToggleItem extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           CustomText(
-             title,
+            text: title,
             fontSize: 14,
             fontWeight: FontWeight.w500,
             color: Colors.black,
@@ -193,7 +220,7 @@ class CustomLogoutButton extends StatelessWidget {
       child: TextButton(
         onPressed: onPressed,
         child: const CustomText(
-           "Log Out",
+          text: "Log Out",
           fontSize: 20,
 
           fontWeight: FontWeight.w600,
@@ -213,6 +240,17 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  late SignInController _signInController; // Declare the controller
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _signInController = Get.put(
+      SignInController(),
+    ); // Initialize SignInController
+  }
+
   bool pipEnabled = true;
 
   @override
@@ -277,13 +315,50 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             const SizedBox(height: 40),
             CustomLogoutButton(
-              onPressed: () {
-                // Add logout logic here
+              onPressed: () async {
+                logout();
               },
             ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> logout() async {
+    try {
+      final token = await _signInController.getToken();
+
+      if (token == null || token.isEmpty) {
+        Get.snackbar("Error", "No token found. Please login again.");
+        Get.offAll(() => const SplashScreen()); // or SignUpScreen
+        return;
+      }
+
+      final response = await http.post(
+        Uri.parse(AppUrl.logout),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token', // header me token
+        },
+      );
+
+      debugPrint("Logout status: ${response.statusCode}");
+      debugPrint("Logout body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        // ✅ Successful logout
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('auth_token'); // remove saved token
+
+        Get.snackbar("Success", "Logged out successfully!");
+        Get.offAll(() => const SplashScreen()); // ya SignUpScreen
+      } else {
+        Get.snackbar("Error", "Logout failed: ${response.statusCode}");
+      }
+    } catch (e, st) {
+      debugPrint("Logout error: $e\n$st");
+      Get.snackbar("Error", "Something went wrong: $e");
+    }
   }
 }

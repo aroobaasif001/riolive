@@ -10,6 +10,8 @@ import 'package:riolive/views/splashscreen/splash_screen.dart';
 import 'controller/signin_controller.dart'; // Import the SignInController
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized(); // <-- IMPORTANT
+
   runApp(const MyApp());
 }
 
@@ -49,17 +51,25 @@ class _AppStartupState extends State<AppStartup> {
   }
 
   Future<void> _checkStayLoggedIn() async {
-    final token = await _signInController
+    var token = await _signInController
         .getToken(); // Retrieve the token from SharedPreferences
     print("token");
     print(token);
-
+    // token = '';
     if (token != null && token.isNotEmpty) {
       final response = await _stayLogin(token); // Pass token to stayLogin API
 
+      print(response['user']['riolive_id']);
+      // setState(() {});
+      AppUrl.riolive_id = response['user']['riolive_id'];
+      AppUrl.token = token;
       // Log the response for debugging
+      final users = response['user'];
+      // final id = users['riolive_id'];
       print("API Response: $response");
       print(response['status']);
+      print(users);
+
       if (!mounted) return;
 
       if (response['status'] == 'success') {
@@ -83,18 +93,18 @@ class _AppStartupState extends State<AppStartup> {
   Future<Map<String, dynamic>> _stayLogin(String token) async {
     try {
       final response = await http
-          .post(
+          .get(
             Uri.parse(AppUrl.stayLogin), // stayLogin POST API URL
             headers: {
               'Content-Type': 'application/json',
-              // 'Authorization': 'Bearer $token', // header me token
+              'Authorization': 'Bearer $token', // header me token
             },
-            body: jsonEncode({
-              "token": token
-                  .toString(), // body me bhi bhejna ho sakta hai (depends on API requirement)
-            }),
+            // body: jsonEncode({
+            //   "token": token
+            //       .toString(), // body me bhi bhejna ho sakta hai (depends on API requirement)
+            // }),
           )
-          .timeout(const Duration(seconds: 5));
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);

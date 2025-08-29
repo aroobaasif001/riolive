@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-import '../../../../customwidgets/customtext.dart';
+import '../profile_screen/JoinAgency_Screen/JoinAgencyScreen.dart';
 import '../profile_screen/about_riolive_screen/about_screen.dart';
 
 class CustomImageButton extends StatelessWidget {
@@ -8,7 +9,7 @@ class CustomImageButton extends StatelessWidget {
   final String backgroundImagePath;
   final String iconImagePath;
   final String? imagePath;
-  final VoidCallback onTap;
+  final void Function()? onTap;
   final double width;
 
   const CustomImageButton({
@@ -16,7 +17,7 @@ class CustomImageButton extends StatelessWidget {
     required this.label,
     required this.backgroundImagePath,
     required this.iconImagePath,
-    required this.onTap,
+    this.onTap,
     this.imagePath,
     this.width = 50,
   });
@@ -44,7 +45,7 @@ class CustomImageButton extends StatelessWidget {
           Positioned(
             bottom: 16,
             child: CustomText(
-               label,
+              text: label,
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: Colors.white,
@@ -65,7 +66,7 @@ class AgencyScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const CustomText(
-           'Agency',
+          text: 'Agency',
           fontSize: 20,
           fontWeight: FontWeight.bold,
           color: Colors.black,
@@ -107,7 +108,9 @@ class AgencyScreen extends StatelessWidget {
                 label: 'Join Agency',
                 backgroundImagePath: 'assets/images/agency2.png',
                 iconImagePath: 'assets/images/icone1.png',
-                onTap: () {},
+                onTap: () {
+                  Get.to(()=> JoinAgencyScreen());
+                },
                 imagePath: null,
                 width: 48,
               ),
@@ -126,6 +129,67 @@ class AgencyScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// =========================
+/// 🔥 Custom Widgets (inside this file)
+/// =========================
+
+/// Custom Text Widget
+class CustomText extends StatelessWidget {
+  final String text;
+  final double fontSize;
+  final FontWeight fontWeight;
+  final Color color;
+  final TextAlign textAlign;
+
+  const CustomText({
+    super.key,
+    required this.text,
+    required this.fontSize,
+    this.fontWeight = FontWeight.normal,
+    this.color = Colors.black,
+    this.textAlign = TextAlign.start,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      textAlign: textAlign,
+      style: TextStyle(
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        color: color,
+      ),
+    );
+  }
+}
+
+/// Custom Image Widget
+class CustomImage extends StatelessWidget {
+  final String path;
+  final double width;
+  final double height;
+  final BoxFit fit;
+
+  const CustomImage({
+    super.key,
+    required this.path,
+    this.width = 50,
+    this.height = 50,
+    this.fit = BoxFit.cover,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(
+      path,
+      width: width,
+      height: height,
+      fit: fit,
     );
   }
 }
