@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:riolive/views/auth/signup_screen/signup_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utile/app_url.dart';
@@ -16,7 +17,6 @@ class SignInController extends GetxController {
   RxString errorMessage = ''.obs;
 
   // get http => null; // For displaying error messages
-
   Future<void> signIn() async {
     try {
       isLoading.value = true; // Set loading to true when request starts
@@ -31,14 +31,20 @@ class SignInController extends GetxController {
         // If login is successful, parse the response
         final data = jsonDecode(response.body);
         final token = data['token']; // Extract token from response
+        AppUrl.riolive_id = data['user']['riolive_id'];
 
         // Save the token in SharedPreferences
         _saveToken(token);
+        AppUrl.token = token;
+
+        print(response.statusCode);
 
         Get.snackbar('Success', 'Login successful!');
         Get.offAll(() => BottomNaviScreen()); // Navigate to the home screen
       } else {
+        print(response.statusCode);
         errorMessage.value = 'Failed to login. Status: ${response.statusCode}';
+        Get.to(() => SignUpScreen());
       }
     } catch (e) {
       errorMessage.value = 'Error: $e';
