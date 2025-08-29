@@ -3,18 +3,18 @@ import 'package:get/get.dart';
 import 'package:riolive/customwidgets/custombutton.dart';
 import 'package:riolive/customwidgets/customtextformfield.dart';
 import 'package:riolive/customwidgets/termsagreement.dart';
+import 'package:riolive/views/splashscreen/splash_screen.dart';
 
-import '../../../controller/signin_controller.dart';
-import '../../splashscreen/splash_screen.dart';
+import '../../../controller/signup_controller.dart';
 
-class SignInScreen extends StatelessWidget {
-  const SignInScreen({super.key});
+class SignUpScreen extends StatelessWidget {
+  const SignUpScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final signInController = Get.put(
-      SignInController(),
-    ); // Initialize SignInController
+    final signUpController = Get.put(
+      SignUpController(),
+    ); // Initialize SignUpController
 
     return SafeArea(
       child: Scaffold(
@@ -36,7 +36,7 @@ class SignInScreen extends StatelessWidget {
                   alignment: Alignment.topLeft,
                   child: InkWell(
                     onTap: () {
-                      Get.to(() => const SplashScreen());
+                      Get.to(() => SplashScreen());
                     },
                     child: Image(
                       image: AssetImage('assets/icons/backarrow.png'),
@@ -53,7 +53,7 @@ class SignInScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 25),
                 CustomTextFormField(
-                  controller: signInController.email,
+                  controller: signUpController.email,
                   hintText: 'Enter your email or phone number...',
                   prefix: Image(
                     image: AssetImage('assets/icons/emailicon.png'),
@@ -63,7 +63,7 @@ class SignInScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 16),
                 CustomTextFormField(
-                  controller: signInController.password,
+                  controller: signUpController.password,
                   hintText: 'Enter Password',
                   prefix: Image(
                     image: AssetImage('assets/icons/passwordicon.png'),
@@ -72,15 +72,16 @@ class SignInScreen extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 110),
+                // Show the loading indicator or the button
                 Obx(() {
-                  return signInController.isLoading.value
+                  return signUpController.isLoading.value
                       ? CircularProgressIndicator() // Show loading indicator
                       : CustomButton(
                           height: 57,
                           width: 386,
-                          text: 'Next',
+                          text: 'SignUp',
                           onPressed:
-                              signInController.signIn, // Call the signIn method
+                              signUpController.signUp, // Call the signUp method
                         );
                 }),
                 SizedBox(height: 16),
@@ -88,9 +89,9 @@ class SignInScreen extends StatelessWidget {
                 SizedBox(height: 20),
                 // Display error message if any
                 Obx(() {
-                  return signInController.errorMessage.value.isNotEmpty
+                  return signUpController.errorMessage.value.isNotEmpty
                       ? Text(
-                          signInController.errorMessage.value,
+                          signUpController.errorMessage.value,
                           style: TextStyle(color: Colors.red),
                         )
                       : SizedBox();
