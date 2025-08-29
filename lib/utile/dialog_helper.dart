@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
+import '../customwidgets/custom_container.dart';
 import '../customwidgets/customtext.dart';
 
 class DialogHelper {
@@ -417,155 +418,174 @@ void openTopSearchDialog(BuildContext context) {
   );
 }
 //day task box
-class TaskDialog extends StatelessWidget {
-  final String imagePath = 'assets/images/daytaskimage.png'; // Path to your background image
 
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent, // Transparent dialog background
-      child: Stack(
-        children: [
-          // Blurred background behind the dialog
-          Positioned.fill(
-            child: BackdropFilter(
-              filter: ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0), // Apply blur
-              child: Container(
-                color: Colors.black.withOpacity(0), // Keep it transparent
-              ),
-            ),
-          ),
-
-          // Column to stack text, image, and content
-          Column(
-            mainAxisSize: MainAxisSize.min, // Make the dialog take minimum space
+/// Top-anchored country dialog (matches your screenshot)
+void showCountryDialogTop(BuildContext context) {
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: 'country-dialog',
+    barrierColor: Colors.black.withOpacity(.0), // CHANGED: slight dim so bg is visible
+    transitionDuration: const Duration(milliseconds: 220),
+    pageBuilder: (ctx, a1, a2) {
+      // pill chip
+      Widget chip(String label, String flagPath, {bool highlighted = false}) {
+        final Color txt = highlighted ? const Color(0xFF1C2B74) : const Color(0xFF202124);
+        return CustomContainer(
+          conColor: Colors.white,
+          height: 26,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: Colors.white.withOpacity(.75), width: 1),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // Text "Day 2 task" at the top of the dialog
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Text(
-                  "Day 2 task",
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    shadows: [
-                      Shadow(
-                        offset: Offset(1.0, 1.0),
-                        blurRadius: 2.0,
-                        color: Colors.black.withOpacity(0.7),
-                      ),
-                    ],
-                  ),
+              CustomContainer(
+                height: 16, width: 16,
+                borderRadius: BorderRadius.circular(11),
+                conColor: Colors.white,
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withOpacity(.30),
+                      blurRadius: 20, offset: const Offset(5, 2))],
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(11),
+                  child: Image.asset(flagPath, fit: BoxFit.cover),
                 ),
               ),
-
-              // Background image with fixed size
-              Container(
-                height: 425, // Fixed height of 425
-                width: 350, // Fixed width of 350
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage(imagePath),
-                    fit: BoxFit.fill, // Ensure the image covers the container
-                  ),
-                ),
-                child: Stack(children: [
-                  Positioned(
-                    top: 50,
-                    left: 20,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start, // Ensure left-aligned
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start, // Align row to start
-                          children: [
-                            CustomText(
-                              'Require',
-                              fontSize: 19,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                            SizedBox(width: 5), // Add space between text and image
-                            Image(
-                              image: AssetImage('assets/icons/diamond_icon 2 1.png'),
-                              height: 17,
-                              width: 17,
-                            ),
-                            SizedBox(width: 5), // Add space between image and text
-                            CustomText(
-                              'x50',
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ],
-                        ), // Add space between rows
-                        Padding(
-                          padding: const EdgeInsets.only(left: 2),
-                          child: Row(
-                            children: [
-                              Image(
-                                image: AssetImage('assets/icons/About_24.png'),
-                                height: 12,
-                                width: 12,
-                              ),
-                              SizedBox(width: 2),
-                              CustomText(
-                                'Need to be completed in 3 days',
-                                fontSize: 9,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  Positioned(
-                    top: 115,
-                      right:-3 ,
-                      child: Container(
-                    height: 72,
-                    width: 310,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(image: AssetImage('assets/images/Union.png',))
-                    ),
-                  )),
-
-
-                ],),
-              ),
-
-              // Cross icon at the top-right corner to close the dialog
-              Positioned(
-                right: 5,
-                top: 5,
-                child: IconButton(
-                  icon: Image.asset('assets/icons/crossicon.png', height: 19, width: 19),
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Close the dialog
-                  },
-                ),
+              const SizedBox(width: 10),
+              CustomText(
+                label,
+                color: txt,
+                fontWeight: FontWeight.w400,
+                fontSize: 12,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                shadows: const [],
               ),
             ],
           ),
-        ],
-      ),
-    );
-  }
-}
-void showTaskDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    barrierDismissible: true, // Allow tapping outside to dismiss the dialog
-    builder: (BuildContext context) {
-      return TaskDialog(); // Show the TaskDialog
+        );
+      }
+
+      final BorderRadius cardRadius = const BorderRadius.only(
+        bottomLeft: Radius.circular(12),
+        bottomRight: Radius.circular(12),
+      );
+
+      final dialogCard = ClipRRect(
+        borderRadius: cardRadius,
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 70),
+            child: CustomContainer(
+              height: 380,
+              width: MediaQuery.of(ctx).size.width, // full width
+              padding: const EdgeInsets.symmetric(vertical: 20,horizontal: 5), // no horizontal padding
+              borderRadius: cardRadius,
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft, end: Alignment.bottomRight,
+                colors: [Color(0xA0FFFFFF), Color(0x80FFFFFF), Color(0x66E6EAFF)],
+              ),
+              border: Border.all(color: Colors.white.withOpacity(.35), width: 1),
+              boxShadow: [BoxShadow(color: Colors.black.withOpacity(.26), blurRadius: 24, offset: const Offset(0, 12))],
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomText(
+                      'Recent',
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: false,
+                      shadows: const [],
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 16, runSpacing: 14,
+                      children: [
+                        chip('Afghanistan', 'assets/icons/flagicon.png'),
+                        chip('Albania', 'assets/icons/flagicon.png'),
+                        chip('Algeria', 'assets/icons/flagicon.png'),
+                        chip('India', 'assets/icons/flagicon.png'),
+                      ],
+                    ),
+                    const SizedBox(height: 22),
+                    CustomText(
+                      'Country list',
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: false,
+                      shadows: const [],
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 16, runSpacing: 14,
+                      children: [
+                        chip('Afghanistan', 'assets/icons/flagicon.png'),
+                        chip('Philippines', 'assets/icons/flagicon.png', highlighted: true),
+                        chip('Algeria', 'assets/icons/flagicon.png'),
+                        chip('India', 'assets/icons/flagicon.png'),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      // Wrap in Dialog (transparent) to keep constraints & animations nice
+      return Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: EdgeInsets.zero,
+        elevation: 0,
+        child: Stack(
+          children: [
+            // ⬇️ Background blur with subtle dark tint (so screen is slightly visible)
+            Positioned.fill(
+              child: BackdropFilter(
+                filter: ui.ImageFilter.blur(sigmaX: 3, sigmaY: 3), // CHANGED: lighter blur for slight visibility
+                child: Container(color: Colors.black.withOpacity(0.08)), // CHANGED: subtle tint
+              ),
+            ),
+            Align(
+              alignment: Alignment.topCenter,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 14),
+                child: dialogCard,
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+    transitionBuilder: (ctx, anim, _, child) {
+      final a = CurvedAnimation(parent: anim, curve: Curves.easeOutCubic);
+      return SlideTransition(
+        position: Tween<Offset>(begin: const Offset(0, -0.06), end: Offset.zero).animate(a),
+        child: child,
+      );
     },
   );
 }
+
+
+
+
+
+
+
+
+
 
 
 

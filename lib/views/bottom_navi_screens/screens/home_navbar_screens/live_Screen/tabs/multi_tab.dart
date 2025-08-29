@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:riolive/customwidgets/customcirclebutton.dart';
 import 'package:riolive/customwidgets/customtext.dart';
+import 'package:riolive/customwidgets/custom_container.dart';
+
+import '../../../../../../utile/dialog_helper.dart';
 
 class MultiTab extends StatelessWidget {
   const MultiTab({super.key});
@@ -15,8 +18,7 @@ class MultiTab extends StatelessWidget {
     // 2 columns on phones, 3 on tablets
     final columns = isTablet ? 3 : 2;
 
-    return Container(
-      decoration: const BoxDecoration(),
+    return CustomContainer(
       child: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -39,10 +41,10 @@ class MultiTab extends StatelessWidget {
                   return _ProfileCard(
                     profile: _profiles[i],
                     scale: scale,
-                    showBadge: isRightCard,   // right-only
-                    showCoins: isRightCard,   // right-only
-                    forceTitle: forcedTitle,          // <- set titles as requested
-                    forceLocation: forcedLocation,    // <- set location same for both
+                    showBadge: isRightCard, // right-only
+                    showCoins: isRightCard, // right-only
+                    forceTitle: forcedTitle, // <- set titles as requested
+                    forceLocation: forcedLocation, // <- set location same for both
                   );
                 },
                 childCount: _profiles.length,
@@ -79,8 +81,16 @@ class _HeaderBar extends StatelessWidget {
           flagAsset: 'assets/icons/flagicon.png',
         ),
         const Spacer(),
-        CustomCircleButton(child:Image(image: AssetImage('assets/icons/multiicon.png'),height: 10,width: 12,) , onPressed: () {
-        },size: 25,
+        CustomCircleButton(
+          child: const Image(
+            image: AssetImage('assets/icons/multiicon.png'),
+            height: 10,
+            width: 12,
+          ),
+          onPressed: () {
+            showCountryDialogTop(context);
+          },
+          size: 25,
         )
       ],
     );
@@ -104,26 +114,21 @@ class _CountryChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Container(
+      child: CustomContainer(
         height: 27,
         width: 105,
         padding: EdgeInsets.symmetric(horizontal: 5 * scale, vertical: 2 * scale),
-        decoration: BoxDecoration(
-          color: const Color(0xFF747F89),
-          borderRadius: BorderRadius.circular(28 * scale),
-          border: Border.all(color: Colors.black.withOpacity(0.20), width: 1),
-        ),
+        conColor: Colors.white38,
+        borderRadius: BorderRadius.circular(28 * scale),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           _FlagBadge(diameter: 20 * scale, emoji: emoji, flagAsset: flagAsset),
           SizedBox(width: 10 * scale),
-          Text(
+          CustomText(
             label,
-            style: TextStyle(
-              color: const Color(0xFF1D1D1F),
-              fontWeight: FontWeight.w600,
-              fontSize: 11 * scale,
-              letterSpacing: 0.1,
-            ),
+            color: const Color(0xFF1D1D1F),
+            fontWeight: FontWeight.w600,
+            fontSize: 11 * scale,
+            letterSpacing: 0.1,
           ),
         ]),
       ),
@@ -151,9 +156,9 @@ class _FlagBadge extends StatelessWidget {
           fit: BoxFit.cover,
         )
             : Center(
-          child: Text(
+          child: CustomText(
             emoji ?? '',
-            style: TextStyle(fontSize: diameter * 0.72),
+            fontSize: diameter * 0.72,
           ),
         ),
       ),
@@ -203,13 +208,11 @@ class _ProfileCard extends StatelessWidget {
                 Image.asset(profile.imageUrl, fit: BoxFit.cover),
 
                 const Positioned.fill(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.center,
-                        colors: [Colors.black45, Colors.transparent],
-                      ),
+                  child: CustomContainer(
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.center,
+                      colors: [Colors.black45, Colors.transparent],
                     ),
                   ),
                 ),
@@ -218,24 +221,19 @@ class _ProfileCard extends StatelessWidget {
                   Positioned(
                     top: 10 * scale,
                     left: 10 * scale,
-                    child: Container(
+                    child: CustomContainer(
                       height: 19,
                       width: 66,
-                      padding: EdgeInsets.symmetric(horizontal: 3 * scale, vertical: 1 * scale),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF151515).withOpacity(0.75),
-                        borderRadius: BorderRadius.circular(10 * scale),
-                      ),
+                      conColor: const Color(0xFF151515).withOpacity(0.75),
+                      borderRadius: BorderRadius.circular(10 * scale),
                       child: Row(mainAxisSize: MainAxisSize.min, children: [
-                        Text('🥰', style: TextStyle(fontSize: 8 * scale)),
+                        CustomText('🥰', fontSize: 8 * scale),
                         SizedBox(width: 3 * scale),
-                        Text(
+                        CustomText(
                           'Sentimental',
-                          style: TextStyle(
-                            color: const Color(0xFF40FF00),
-                            fontWeight: FontWeight.w500,
-                            fontSize: 8 * scale,
-                          ),
+                          color: const Color(0xFF40FF00),
+                          fontWeight: FontWeight.w500,
+                          fontSize: 8 * scale,
                         ),
                       ]),
                     ),
@@ -245,16 +243,17 @@ class _ProfileCard extends StatelessWidget {
                   Positioned(
                     top: 10 * scale,
                     right: 10 * scale,
-                    child: Text(
+                    child: CustomText(
                       '${profile.coins}',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13 * scale,
-                        shadows: const [
-                          Shadow(color: Colors.black45, blurRadius: 2, offset: Offset(0, 1))
-                        ],
-                      ),
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13 * scale,
+                      shadows: const [
+                        Shadow(
+                            color: Colors.black45,
+                            blurRadius: 2,
+                            offset: Offset(0, 1))
+                      ],
                     ),
                   ),
 
@@ -264,11 +263,11 @@ class _ProfileCard extends StatelessWidget {
                   bottom: 10 * scale,
                   child: _AvatarStack(
                     urls: profile.peers,
-                    size: 33,             // exact 33 px avatar
-                    step: 29,             // small gap/overlap
+                    size: 33, // exact 33 px avatar
+                    step: 29, // small gap/overlap
                     avatarBorderWidth: 1, // border width 1 around avatars
                     reactionAsset: 'assets/icons/fi_1791293.png',
-                    reactionSize: 8,      // exact 8 px reaction image
+                    reactionSize: 8, // exact 8 px reaction image
                   ),
                 ),
               ],
@@ -279,29 +278,25 @@ class _ProfileCard extends StatelessWidget {
         SizedBox(height: 8 * scale),
 
         // Title — 12px, weight 500
-        Text(
+        CustomText(
           titleText,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 12 * scale,
-            fontWeight: FontWeight.w500,
-          ),
+          color: Colors.black,
+          fontSize: 12 * scale,
+          fontWeight: FontWeight.w500,
         ),
 
         SizedBox(height: 4 * scale),
 
         // Location — 12px, weight 400
-        Text(
+        CustomText(
           locationText,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 12 * scale,
-            fontWeight: FontWeight.w400,
-          ),
+          color: Colors.black,
+          fontSize: 12 * scale,
+          fontWeight: FontWeight.w400,
         ),
       ],
     );
@@ -340,17 +335,14 @@ class _AvatarStack extends StatelessWidget {
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  Container(
+                  CustomContainer(
                     width: size,
                     height: size,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: avatarBorderWidth),
-                      image: DecorationImage(
-                        // CHANGED: use assets for peers
-                        image: AssetImage(urls[i]),
-                        fit: BoxFit.cover,
-                      ),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: avatarBorderWidth),
+                    image: DecorationImage(
+                      image: AssetImage(urls[i]),
+                      fit: BoxFit.cover,
                     ),
                   ),
                   // small reaction image (no border)

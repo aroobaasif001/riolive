@@ -2,31 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 
+import '../../../../../customwidgets/customtext.dart';
 import 'account_security_screen/account_security_screen.dart';
-
-/// ✅ Custom Text
-class CustomText extends StatelessWidget {
-  final String text;
-  final double fontSize;
-  final FontWeight fontWeight;
-  final Color color;
-
-  const CustomText({
-    super.key,
-    required this.text,
-    this.fontSize = 12,
-    this.fontWeight = FontWeight.w400,
-    this.color = Colors.black,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: TextStyle(fontSize: fontSize, fontWeight: fontWeight, color: color),
-    );
-  }
-}
 
 /// ✅ Custom App Bar
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -39,7 +16,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       title: CustomText(
-        text: title,
+         title,
         fontSize: 16,
         fontWeight: FontWeight.w600,
         color: Colors.black,
@@ -125,7 +102,7 @@ class CustomListItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CustomText(
-                    text: title,
+                     title,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: Colors.black,
@@ -136,7 +113,7 @@ class CustomListItem extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(top: 2.0),
                       child: CustomText(
-                        text: subtitle!,
+                         subtitle!,
                         fontSize: 12,
                         color: Colors.red,
                       ),
@@ -148,7 +125,7 @@ class CustomListItem extends StatelessWidget {
                 subtitle!.isNotEmpty &&
                 rightAlignSubtitle)
               CustomText(
-                text: subtitle!,
+                 subtitle!,
                 fontSize: 12,
                 color: Colors.black54,
               ),
@@ -182,7 +159,7 @@ class CustomToggleItem extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           CustomText(
-            text: title,
+             title,
             fontSize: 14,
             fontWeight: FontWeight.w500,
             color: Colors.black,
@@ -216,7 +193,7 @@ class CustomLogoutButton extends StatelessWidget {
       child: TextButton(
         onPressed: onPressed,
         child: const CustomText(
-          text: "Log Out",
+           "Log Out",
           fontSize: 20,
 
           fontWeight: FontWeight.w600,

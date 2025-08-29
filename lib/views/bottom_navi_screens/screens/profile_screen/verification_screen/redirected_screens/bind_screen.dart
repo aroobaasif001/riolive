@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../customwidgets/custom_gradient_button.dart';
+import '../../../../../../customwidgets/customtext.dart';
 
 class BindPhoneScreen extends StatelessWidget {
   const BindPhoneScreen({Key? key}) : super(key: key);
@@ -44,7 +45,7 @@ class BindPhoneScreen extends StatelessWidget {
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24.0),
                 child: CustomText(
-                  text: 'Bind a Phone',
+                  'Bind a Phone',
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
@@ -119,36 +120,6 @@ class BindPhoneScreen extends StatelessWidget {
 /// 🔥 Custom Widgets
 /// =========================
 
-/// Custom Text Widget
-class CustomText extends StatelessWidget {
-  final String text;
-  final double fontSize;
-  final FontWeight fontWeight;
-  final Color color;
-  final TextAlign textAlign;
-
-  const CustomText({
-    super.key,
-    required this.text,
-    required this.fontSize,
-    this.fontWeight = FontWeight.normal,
-    this.color = Colors.black,
-    this.textAlign = TextAlign.start,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      textAlign: textAlign,
-      style: GoogleFonts.poppins(
-        fontSize: fontSize,
-        fontWeight: fontWeight,
-        color: color,
-      ),
-    );
-  }
-}
 
 /// Custom Image Widget
 class CustomImage extends StatelessWidget {

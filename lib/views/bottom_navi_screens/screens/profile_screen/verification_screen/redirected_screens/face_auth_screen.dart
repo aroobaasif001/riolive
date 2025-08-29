@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../../../customwidgets/custom_gradient_button.dart';
+import '../../../../../../customwidgets/customtext.dart';
 
 class Faceauthenticationscreen extends StatelessWidget {
   const Faceauthenticationscreen({Key? key}) : super(key: key);
@@ -49,7 +50,7 @@ class Faceauthenticationscreen extends StatelessWidget {
                   const SizedBox(height: 20),
 
                   const CustomText(
-                    text: "Please upload a clear photo of yourself first",
+                     "Please upload a clear photo of yourself first",
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                     color: Colors.black87,
@@ -103,7 +104,7 @@ class Faceauthenticationscreen extends StatelessWidget {
                           ),
                         ),
                         child: const CustomText(
-                          text: "Upload a photo of yourself",
+                           "Upload a photo of yourself",
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: Color(0xFF9055FA),
@@ -111,7 +112,7 @@ class Faceauthenticationscreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       CustomGradientButton(
-                          text: "Start To Certificate",
+                           text: "Start To Certificate",
                           width: double.infinity,
                           height: 50,
                           onPressed: () {}
@@ -138,41 +139,12 @@ class Faceauthenticationscreen extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         CustomText(
-          text: label,
+           label,
           fontSize: 14,
           fontWeight: FontWeight.w400,
           textAlign: TextAlign.center,
         ),
       ],
-    );
-  }
-}
-class CustomText extends StatelessWidget {
-  final String text;
-  final double fontSize;
-  final FontWeight fontWeight;
-  final Color color;
-  final TextAlign textAlign;
-
-  const CustomText({
-    super.key,
-    required this.text,
-    required this.fontSize,
-    this.fontWeight = FontWeight.normal,
-    this.color = Colors.black,
-    this.textAlign = TextAlign.start,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      textAlign: textAlign,
-      style: TextStyle(
-        fontSize: fontSize,
-        fontWeight: fontWeight,
-        color: color,
-      ),
     );
   }
 }

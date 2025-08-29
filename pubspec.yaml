@@ -49,6 +49,7 @@ dependencies:
 
 
   firebase_core: ^4.0.0
+  circle_flags: ^5.0.0
 
 dev_dependencies:
   flutter_test:
