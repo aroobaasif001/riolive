@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:riolive/customwidgets/custom_gradient_button.dart';
 
 class CustomText extends StatelessWidget {
   final String text;
@@ -18,7 +19,11 @@ class CustomText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: TextStyle(fontSize: fontSize, fontWeight: fontWeight, color: color),
+      style: TextStyle(
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        color: color,
+      ),
     );
   }
 }
@@ -34,10 +39,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         alignment: Alignment.center,
         child: Text(
           title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),
       backgroundColor: const Color(0xFFB6F2E3),
@@ -87,10 +89,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
         isExpanded: true,
         underline: const SizedBox(),
         items: widget.items
-            .map((e) => DropdownMenuItem(
-          value: e,
-          child: Text(e),
-        ))
+            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
             .toList(),
         onChanged: (value) {
           setState(() {
@@ -100,10 +99,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
             widget.onChanged!(value);
           }
         },
-        style: const TextStyle(
-          fontSize: 14,
-          color: Colors.black,
-        ),
+        style: const TextStyle(fontSize: 14, color: Colors.black),
         dropdownColor: const Color(0xFFB6F2E3),
       ),
     );
@@ -134,10 +130,7 @@ class CustomInputField extends StatelessWidget {
       child: TextField(
         maxLines: maxLines,
         keyboardType: keyboardType,
-        decoration: InputDecoration(
-          hintText: hint,
-          border: InputBorder.none,
-        ),
+        decoration: InputDecoration(hintText: hint, border: InputBorder.none),
       ),
     );
   }
@@ -176,54 +169,6 @@ class CustomUploadSection extends StatelessWidget {
   }
 }
 
-class CustomSubmitButton extends StatelessWidget {
-  final String text;
-  final VoidCallback onPressed;
-
-  const CustomSubmitButton({Key? key, required this.text, required this.onPressed}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF8EC2FB), Color(0xFFE496FF)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.10),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          elevation: 0,
-          padding: EdgeInsets.zero,
-          minimumSize: const Size(double.infinity, 50),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-          ),
-        ),
-        child: Text(
-          text,
-          style: const TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class ContactCustomerServiceScreen extends StatelessWidget {
   const ContactCustomerServiceScreen({Key? key}) : super(key: key);
 
@@ -244,25 +189,52 @@ class ContactCustomerServiceScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Problem Type', style: TextStyle(fontSize: 16, color: Colors.black)),
+              const Text(
+                'Problem Type',
+                style: TextStyle(fontSize: 16, color: Colors.black),
+              ),
               CustomDropdown(
                 hint: "Please select the problem type",
                 items: ['Recharge', 'Withdraw', 'Report', 'App issue', 'Other'],
-                onChanged: (value) {
-                },
+                onChanged: (value) {},
               ),
-              const Text('Please Describe your issue', style: TextStyle(fontSize: 16, color: Colors.black)),
-              CustomInputField(hint: "Please Describe your issue......", maxLines: 5),
-              const Text('Upload photo', style: TextStyle(fontSize: 16, color: Colors.black)),
+              const Text(
+                'Please Describe your issue',
+                style: TextStyle(fontSize: 16, color: Colors.black),
+              ),
+              CustomInputField(
+                hint: "Please Describe your issue......",
+                maxLines: 5,
+              ),
+              const Text(
+                'Upload photo',
+                style: TextStyle(fontSize: 16, color: Colors.black),
+              ),
               const CustomUploadSection(),
               const SizedBox(height: 16),
-              const Text('Phone', style: TextStyle(fontSize: 16, color: Colors.black)),
-              CustomInputField(hint: "Phone", keyboardType: TextInputType.phone),
-              const Text('Gmail', style: TextStyle(fontSize: 16, color: Colors.black)),
-              CustomInputField(hint: "Gmail", keyboardType: TextInputType.emailAddress),
+              const Text(
+                'Phone',
+                style: TextStyle(fontSize: 16, color: Colors.black),
+              ),
+              CustomInputField(
+                hint: "Phone",
+                keyboardType: TextInputType.phone,
+              ),
+              const Text(
+                'Gmail',
+                style: TextStyle(fontSize: 16, color: Colors.black),
+              ),
+              CustomInputField(
+                hint: "Gmail",
+                keyboardType: TextInputType.emailAddress,
+              ),
               const SizedBox(height: 24),
-              CustomSubmitButton(text: "Submit", onPressed: () {
-              }),
+              CustomGradientButton(
+                  text: "Submit",
+                  width: double.infinity,
+                  height: 50,
+                  onPressed: () {}
+              ),
             ],
           ),
         ),
