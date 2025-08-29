@@ -242,6 +242,7 @@ class ProfileDashboardScreen extends StatelessWidget {
 
                 _buildGridSection([
                   _GridItem("Agency Management", "assets/icons/picon13.png"),
+
                   _GridItem("Add Host", "assets/icons/picon14.png"),
                   _GridItem("Invite Agent", "assets/icons/picon15.png"),
                   _GridItem("Official Support", "assets/icons/picon16.png"),
