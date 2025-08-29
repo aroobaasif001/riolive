@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:riolive/customwidgets/custom_circle.dart';
 import 'package:riolive/customwidgets/customtext.dart';
 
+import '../../../../../utile/dialog_helper.dart';
+
 class MatchScreen extends StatelessWidget {
   const MatchScreen({super.key});
 
@@ -50,7 +52,9 @@ class MatchScreen extends StatelessWidget {
             shape: const CircleBorder(),
             child: InkWell(
               customBorder: const CircleBorder(),
-              onTap: () {},
+              onTap: () {
+                showTaskDialog(context); // Show the TaskDialog
+              },
               child: Container(
                 height: 80,
                 width: 80,

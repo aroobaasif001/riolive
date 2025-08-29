@@ -1,63 +1,92 @@
 import 'package:flutter/material.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/home_navbar_screens/party_screen/tabs/all_tab.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/home_navbar_screens/party_screen/tabs/friends_tab.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/customer_service/customer_service_screen.dart';
 
-class PartyScreen extends StatelessWidget {
+class PartyScreen extends StatefulWidget {
   const PartyScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final List<Color> colors = [
-      Colors.pink.shade200,
-      Colors.green.shade200,
-      Colors.orange.shade200,
-      Colors.purple.shade200,
-      Colors.blue.shade200,
-    ];
+  State<PartyScreen> createState() => _PartyScreenState();
+}
 
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 70),
-      itemCount: colors.length,
-      itemBuilder: (context, index) {
-        return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(12),
+class _PartyScreenState extends State<PartyScreen> {
+    int _selectedIndex = 0; // Default: All
+
+    @override
+    Widget build(BuildContext context) {
+
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: Row(
+                children: [
+                  _buildChip('All', _selectedIndex == 0),
+                  const SizedBox(width: 10),
+                  _buildChip('Friends', _selectedIndex == 1),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            Expanded(child: _buildSelectedTab()),
+          ],
+        ),
+      );
+
+
+    }
+    Widget _buildChip(String text, bool selected) {
+      return GestureDetector(
+        onTap: () {
+          setState(() {
+            if (text == 'All') _selectedIndex = 0;
+            if (text == 'Friends') _selectedIndex = 1;
+          });
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 23, vertical: 3),
           decoration: BoxDecoration(
-            color: colors[index],
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            children: [
-              ClipOval(
-                child: Image.asset(
-                  "assets/images/avatar.png", // replace with user image
-                  height: 48,
-                  width: 48,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text("Rajesh Kumar",
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text("Welcome Everyone",
-                      style: TextStyle(color: Colors.black54)),
-                ],
-              ),
-              const Spacer(),
-              Row(
-                children: const [
-                  Icon(Icons.card_giftcard, size: 18, color: Colors.green),
-                  SizedBox(width: 4),
-                  Text("10",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.black)),
-                ],
-              )
+            borderRadius: BorderRadius.circular(28),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [const Color(0xFFC6F7C8).withOpacity(0.85), const Color(0xFFA8F0B0).withOpacity(0.85)],
+            ),
+            border: Border.all(
+              color: selected ? const Color(0xFFEFEA97) : Colors.transparent,
+              width: selected ? 3 : 0,
+            ),
+            boxShadow: [
+              BoxShadow(color: Colors.white.withOpacity(0.7),),
+              BoxShadow(color: Colors.black.withOpacity(0.15), offset: const Offset(6, 6), blurRadius: 12),
             ],
           ),
-        );
-      },
-    );
-  }
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: selected ? FontWeight.w600 : null,
+              color: const Color(0xFF2F2F2F),
+              letterSpacing: 0.2,
+            ),
+          ),
+        ),
+      );
+    }
+    Widget _buildSelectedTab() {
+      switch (_selectedIndex) {
+        case 0:
+          return const AllTab();
+        case 1:
+          return const FriendsTab();
+        default:
+          return const AllTab();
+      }
+    }
+
 }
