@@ -4,13 +4,13 @@ import 'package:get/get.dart';
 
 import '../../../../../../controller/random_call_controller.dart';
 
-class VideoCallScreen extends StatefulWidget {
+class VideoCallScreen extends StatelessWidget {
   final String token;
   final String callId;
   final String channelName;
   final String agoraToken;
 
-  const VideoCallScreen({
+  VideoCallScreen({
     super.key,
     required this.token,
     required this.callId,
@@ -18,113 +18,112 @@ class VideoCallScreen extends StatefulWidget {
     required this.agoraToken,
   });
 
-  @override
-  State<VideoCallScreen> createState() => _VideoCallScreenState();
-}
-
-class _VideoCallScreenState extends State<VideoCallScreen> {
-  final CallController _controller = CallController();
-  int? _remoteUid;
-  bool _isReady = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _init();
-  }
-
-  Future<void> _init() async {
-    await _controller.initAgora(
-      channelName: widget.channelName,
-      agoraToken: widget.agoraToken,
-      onRemoteJoined: (uid) => setState(() => _remoteUid = uid),
-      onRemoteLeft: (uid) => setState(() => _remoteUid = null),
-    );
-    setState(() => _isReady = true); // Agora engine ready
-  }
-
-  @override
-  void dispose() {
-    _controller.leaveChannel();
-    super.dispose();
-  }
+  final CallController controller = Get.put(CallController());
 
   @override
   Widget build(BuildContext context) {
-    if (!_isReady || _controller.engine == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
+    controller.initAgora(channelName: channelName, agoraToken: agoraToken);
 
-    return Scaffold(
-      body: SafeArea(
-        child: Stack(
-          children: [
-            // Remote user
-            _remoteUid != null
-                ? AgoraVideoView(
-                    controller: VideoViewController.remote(
-                      rtcEngine: _controller.engine!,
-                      canvas: VideoCanvas(uid: _remoteUid),
-                      connection: RtcConnection(channelId: widget.channelName),
+    return Obx(() {
+      if (!controller.isReady.value || controller.engine == null) {
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      }
+
+      return Scaffold(
+        body: SafeArea(
+          child: Stack(
+            children: [
+              // Remote user
+              controller.remoteUid.value != null
+                  ? AgoraVideoView(
+                      controller: VideoViewController.remote(
+                        rtcEngine: controller.engine!,
+                        canvas: VideoCanvas(uid: controller.remoteUid.value),
+                        connection: RtcConnection(channelId: channelName),
+                      ),
+                    )
+                  : const Center(child: Text("Waiting for remote user...")),
+
+              // Local preview
+              Positioned(
+                top: 40,
+                left: 20,
+                width: 120,
+                height: 160,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: AgoraVideoView(
+                    controller: VideoViewController(
+                      rtcEngine: controller.engine!,
+                      canvas: const VideoCanvas(uid: 0),
                     ),
-                  )
-                : const Center(child: Text("Waiting for remote user...")),
-
-            // Local preview (top-left corner)
-            Positioned(
-              top: 40,
-              left: 20,
-              width: 120,
-              height: 160,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: AgoraVideoView(
-                  controller: VideoViewController(
-                    rtcEngine: _controller.engine!,
-                    canvas: const VideoCanvas(uid: 0),
                   ),
                 ),
               ),
-            ),
 
-            // End Call Button (center bottom)
-            Positioned(
-              bottom: 40,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    shape: const CircleBorder(),
-                    padding: const EdgeInsets.all(20),
-                    backgroundColor: Colors.red,
-                  ),
-                  onPressed: () async {
-                    final success = await _controller.endCall(
-                      widget.token,
-                      widget.callId,
-                    );
+              // Call controls
+              Positioned(
+                bottom: 40,
+                left: 0,
+                right: 0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    // Mute/Unmute
+                    FloatingActionButton(
+                      backgroundColor: Colors.blue,
+                      onPressed: () => controller.muteUnmute(),
+                      child: Obx(
+                        () => Icon(
+                          controller.isMuted.value ? Icons.mic_off : Icons.mic,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
 
-                    if (success) {
-                      Get.snackbar("Call", "Call ended successfully");
-                    } else {
-                      Get.snackbar("Error", "Failed to end call");
-                    }
+                    // End Call
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: const CircleBorder(),
+                        padding: const EdgeInsets.all(20),
+                        backgroundColor: Colors.red,
+                      ),
+                      onPressed: () async {
+                        final success = await controller.endCall(token, callId);
 
-                    await _controller.leaveChannel();
-                    Get.back();
-                  },
-                  child: const Icon(
-                    Icons.call_end,
-                    size: 40,
-                    color: Colors.white,
-                  ),
+                        if (success) {
+                          Get.back();
+                          Get.snackbar("Call", "Call ended successfully");
+                        } else {
+                          Get.snackbar("Error", "Failed to end call");
+                        }
+
+                        await controller.leaveChannel();
+                        Get.back();
+                      },
+                      child: const Icon(
+                        Icons.call_end,
+                        size: 40,
+                        color: Colors.white,
+                      ),
+                    ),
+
+                    // Switch Camera
+                    FloatingActionButton(
+                      backgroundColor: Colors.orange,
+                      onPressed: () => controller.switchCamera(),
+                      child: const Icon(
+                        Icons.cameraswitch,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 }

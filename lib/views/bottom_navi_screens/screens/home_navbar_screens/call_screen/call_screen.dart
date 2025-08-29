@@ -7,10 +7,10 @@ import 'package:riolive/views/bottom_navi_screens/screens/home_navbar_screens/ca
 import '../../../../../controller/random_call_controller.dart';
 
 class MatchScreen extends StatelessWidget {
-  final String token; // 👈 pass login token
+  final String token;
   MatchScreen({super.key, required this.token});
 
-  final CallController _callController = CallController();
+  final CallController _callController = Get.put(CallController());
 
   @override
   Widget build(BuildContext context) {
@@ -63,15 +63,10 @@ class MatchScreen extends StatelessWidget {
               customBorder: const CircleBorder(),
               onTap: () async {
                 final response = await _callController.startCall(token);
-                print(response);
                 if (response != null) {
                   final callId = response['call']['id'].toString();
-                  print(callId);
-                  final channelName = 'test';
-
-                  ///response['channelName']
+                  final channelName = 'test'; // or response['channelName']
                   final agoraToken = response['agora']['callerToken'];
-                  print(agoraToken);
 
                   Get.to(
                     () => VideoCallScreen(

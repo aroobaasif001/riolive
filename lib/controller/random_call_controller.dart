@@ -2,41 +2,26 @@ import 'dart:convert';
 
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
 
 import '../utile/app_url.dart';
 
-class CallController {
-  static const String appId =
-      "747241138f01491291af0d34b78a5e9c"; // Replace with Agora App ID
+class CallController extends GetxController {
+  static const String appId = "747241138f01491291af0d34b78a5e9c";
+
   RtcEngine? engine;
 
-  Future<bool> endCall(String token, String callId) async {
-    try {
-      final res = await http.post(
-        Uri.parse("${AppUrl.endVideoCall}$callId"),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
+  // Reactive states
+  var remoteUid = RxnInt(); // nullable int
+  var isReady = false.obs;
+  var isMuted = false.obs;
 
-      debugPrint("EndCall status: ${res.statusCode}");
-      debugPrint("EndCall body: ${res.body}");
-
-      return res.statusCode == 200;
-    } catch (e) {
-      debugPrint("EndCall error: $e");
-      return false;
-    }
-  }
-
+  // Init Agora
   Future<void> initAgora({
     required String channelName,
     required String agoraToken,
-    required Function(int) onRemoteJoined,
-    required Function(int) onRemoteLeft,
   }) async {
     await [Permission.microphone, Permission.camera].request();
 
@@ -45,16 +30,11 @@ class CallController {
 
     engine?.registerEventHandler(
       RtcEngineEventHandler(
-        onJoinChannelSuccess: (connection, elapsed) {
-          debugPrint("Local joined: ${connection.channelId}");
+        onUserJoined: (connection, uid, elapsed) {
+          remoteUid.value = uid;
         },
-        onUserJoined: (connection, remoteUid, elapsed) {
-          debugPrint("Remote user joined: $remoteUid");
-          onRemoteJoined(remoteUid);
-        },
-        onUserOffline: (connection, remoteUid, reason) {
-          debugPrint("Remote left: $remoteUid");
-          onRemoteLeft(remoteUid);
+        onUserOffline: (connection, uid, reason) {
+          remoteUid.value = null;
         },
       ),
     );
@@ -68,11 +48,26 @@ class CallController {
       uid: 0,
       options: const ChannelMediaOptions(),
     );
+
+    isReady.value = true;
   }
 
   Future<void> leaveChannel() async {
     await engine?.leaveChannel();
     await engine?.release();
+    engine = null;
+    isReady.value = false;
+    remoteUid.value = null;
+  }
+
+  // ---- Extra Features ----
+  void muteUnmute() {
+    isMuted.value = !isMuted.value;
+    engine?.muteLocalAudioStream(isMuted.value);
+  }
+
+  void switchCamera() {
+    engine?.switchCamera();
   }
 
   // ---- API Start Call ----
@@ -84,9 +79,7 @@ class CallController {
         'Authorization': 'Bearer $token',
       },
     );
-    if (res.statusCode == 200) {
-      return jsonDecode(res.body);
-    }
+    if (res.statusCode == 200) return jsonDecode(res.body);
     return null;
   }
 
@@ -99,9 +92,24 @@ class CallController {
         'Authorization': 'Bearer $token',
       },
     );
-    if (res.statusCode == 200) {
-      return jsonDecode(res.body);
-    }
+    if (res.statusCode == 200) return jsonDecode(res.body);
     return null;
+  }
+
+  // ---- End Call ----
+  Future<bool> endCall(String token, String callId) async {
+    try {
+      final res = await http.post(
+        Uri.parse("${AppUrl.endVideoCall}$callId"),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      return res.statusCode == 200;
+    } catch (e) {
+      debugPrint("EndCall error: $e");
+      return false;
+    }
   }
 }
