@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
 
+import '../utile/dialog_helper.dart';
+
 class CustomNavBar extends StatefulWidget {
   final String selectedItem;
   final ValueChanged<String> onItemTap;
@@ -53,14 +55,18 @@ class _CustomNavBarState extends State<CustomNavBar>
           _buildNavItem("Party", fontLarge, fontSmall),
           const Spacer(),
           Row(children: [
-            Container(
-              height: 32,
-              width: 36,
-              decoration: BoxDecoration(
-                borderRadius:  BorderRadius.circular(10),
-                color: Colors.white24
+            InkWell(
+              onTap: () => openTopSearchDialog(context),
+              child: Container(
+                height: 32, width: 36,
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Center(
+                  child: Image.asset('assets/icons/searchiconcolor.png', height: 22, width: 22),
+                ),
               ),
-              child: Center(child: Image(image: AssetImage('assets/icons/searchiconcolor.png'),height: 22,width: 22,),),
             ),
             Image(image: AssetImage('assets/images/textlogo.png'),height: 40,width: 70,)
           ],),

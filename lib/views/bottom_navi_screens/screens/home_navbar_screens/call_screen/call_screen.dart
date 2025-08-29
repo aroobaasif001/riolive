@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:riolive/customwidgets/custom_circle.dart';
 import 'package:riolive/customwidgets/customtext.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/home_navbar_screens/call_screen/video_call_screen/video_call_screen.dart';
+
+import '../../../../../controller/random_call_controller.dart';
 
 class MatchScreen extends StatelessWidget {
-  const MatchScreen({super.key});
+  final String token; // 👈 pass login token
+  MatchScreen({super.key, required this.token});
+
+  final CallController _callController = CallController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true, // Makes the body extend behind the AppBar
+      extendBodyBehindAppBar: true,
       backgroundColor: Colors.transparent,
       body: Column(
         children: [
-          SizedBox(height: 50),
+          const SizedBox(height: 50),
           CustomCircle(
             centerImg: 'assets/images/girl_img2.png',
             topLeftImg: 'assets/images/girl_img2.png',
@@ -22,19 +29,23 @@ class MatchScreen extends StatelessWidget {
             bottomLeftImg: 'assets/images/girl_img2.png',
             bottomRightImg: 'assets/images/girl_img2.png',
           ),
-          SizedBox(height: 40),
-          CustomText(
+          const SizedBox(height: 40),
+          const CustomText(
             'Match Random Video Call',
             color: Color(0xff5EBFEF),
             fontSize: 26,
             fontWeight: FontWeight.bold,
             fontType: AppFont.poppins,
           ),
-          SizedBox(height: 40),
+          const SizedBox(height: 40),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image(image: AssetImage('assets/icons/diamondicon.png'), height: 20, width: 27),
+            children: const [
+              Image(
+                image: AssetImage('assets/icons/diamondicon.png'),
+                height: 20,
+                width: 27,
+              ),
               CustomText(
                 '800/min',
                 color: Color(0xff60ED59),
@@ -44,22 +55,48 @@ class MatchScreen extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 40),
+          const SizedBox(height: 40),
           Material(
-            color: Colors.transparent, // background transparent
+            color: Colors.transparent,
             shape: const CircleBorder(),
             child: InkWell(
               customBorder: const CircleBorder(),
-              onTap: () {},
+              onTap: () async {
+                final response = await _callController.startCall(token);
+                print(response);
+                if (response != null) {
+                  final callId = response['call']['id'].toString();
+                  print(callId);
+                  final channelName = 'test';
+
+                  ///response['channelName']
+                  final agoraToken = response['agora']['callerToken'];
+                  print(agoraToken);
+
+                  Get.to(
+                    () => VideoCallScreen(
+                      token: token,
+                      callId: callId,
+                      channelName: channelName,
+                      agoraToken: agoraToken,
+                    ),
+                  );
+                } else {
+                  Get.snackbar("Error", "Failed to start call");
+                }
+              },
               child: Container(
                 height: 80,
                 width: 80,
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white, // 👈 agar background color chahiye
+                  color: Colors.white,
                 ),
-                padding: const EdgeInsets.all(8), // thoda spacing image k liye
-                child: Image.asset('assets/icons/phoneicon.png', fit: BoxFit.contain),
+                padding: const EdgeInsets.all(8),
+                child: Image.asset(
+                  'assets/icons/phoneicon.png',
+                  fit: BoxFit.contain,
+                ),
               ),
             ),
           ),

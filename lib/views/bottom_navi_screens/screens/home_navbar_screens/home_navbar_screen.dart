@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:riolive/customwidgets/customnavbar.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/home_navbar_screens/party_screen/party_screen.dart';
 
+import '../../../../utile/app_url.dart';
 import 'call_screen/call_screen.dart';
 import 'live_Screen/live_screen.dart';
 
@@ -51,7 +52,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     : selectedItem == "Live"
                     ? 1
                     : 2,
-                children: const [MatchScreen(), LiveScreen(), PartyScreen()],
+                children: [
+                  MatchScreen(token: AppUrl.token),
+                  const LiveScreen(),
+                  const PartyScreen(),
+                ],
               ),
             ),
           ],
