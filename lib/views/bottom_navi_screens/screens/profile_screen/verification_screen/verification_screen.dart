@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:riolive/customwidgets/custom_gradient_button.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/agency_screens/agency_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/verification_screen/redirected_screens/bind_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/verification_screen/redirected_screens/face_auth_screen.dart';
+
+import '../JoinAgency_Screen/JoinAgencyScreen.dart';
 // ✅ import custom button
 
 class AuthenticationScreen extends StatelessWidget {
@@ -124,6 +128,7 @@ class AuthenticationScreen extends StatelessWidget {
                   subtitle: "Please enter agency invite code",
                   buttonText: "Join",
                   onPressed: () {
+                    Get.to(() => JoinAgencyScreen());
                     /*Navigator.push(
                       context,
                       MaterialPageRoute(

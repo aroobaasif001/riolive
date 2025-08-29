@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
+import '../profile_screen/JoinAgency_Screen/JoinAgencyScreen.dart';
 import '../profile_screen/about_riolive_screen/about_screen.dart';
 
 class CustomImageButton extends StatelessWidget {
@@ -7,7 +9,7 @@ class CustomImageButton extends StatelessWidget {
   final String backgroundImagePath;
   final String iconImagePath;
   final String? imagePath;
-  final VoidCallback onTap;
+  final void Function()? onTap;
   final double width;
 
   const CustomImageButton({
@@ -15,7 +17,7 @@ class CustomImageButton extends StatelessWidget {
     required this.label,
     required this.backgroundImagePath,
     required this.iconImagePath,
-    required this.onTap,
+    this.onTap,
     this.imagePath,
     this.width = 50,
   });
@@ -106,7 +108,9 @@ class AgencyScreen extends StatelessWidget {
                 label: 'Join Agency',
                 backgroundImagePath: 'assets/images/agency2.png',
                 iconImagePath: 'assets/images/icone1.png',
-                onTap: () {},
+                onTap: () {
+                  Get.to(()=> JoinAgencyScreen());
+                },
                 imagePath: null,
                 width: 48,
               ),

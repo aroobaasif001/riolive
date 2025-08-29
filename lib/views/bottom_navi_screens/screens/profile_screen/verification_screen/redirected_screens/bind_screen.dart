@@ -9,6 +9,16 @@ class BindPhoneScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        backgroundColor: Color(0xffb6f2e3), // Transparent so gradient visible
+        elevation: 0, // Remove shadow
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            Navigator.pop(context); // Back action
+          },
+        ),
+      ),
       body: Container(
         width: double.infinity,
         height: double.infinity,
@@ -56,7 +66,7 @@ class BindPhoneScreen extends StatelessWidget {
               // 🔹 Custom Phone TextField
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24.0),
-                child: CustomTextField(),
+                child: CustomTextField(hintText: '',),
               ),
 
               const SizedBox(height: 20),
@@ -65,10 +75,10 @@ class BindPhoneScreen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 child: CustomGradientButton(
-                    text: "Next",
-                    width: double.infinity,
-                    height: 50,
-                    onPressed: () {}
+                  text: "Next",
+                  width: double.infinity,
+                  height: 50,
+                  onPressed: () {},
                 ),
               ),
 
@@ -85,9 +95,7 @@ class BindPhoneScreen extends StatelessWidget {
                       color: Colors.black.withOpacity(0.6),
                     ),
                     children: const [
-                      TextSpan(
-                          text:
-                          'By using Riolive, you agree to the '),
+                      TextSpan(text: 'By using Riolive, you agree to the '),
                       TextSpan(
                         text: 'Terms Of Services',
                         style: TextStyle(
@@ -178,7 +186,7 @@ class CustomImage extends StatelessWidget {
 
 /// Custom Phone TextField Widget
 class CustomTextField extends StatelessWidget {
-  const CustomTextField({super.key});
+  const CustomTextField({super.key, required String hintText});
 
   @override
   Widget build(BuildContext context) {
