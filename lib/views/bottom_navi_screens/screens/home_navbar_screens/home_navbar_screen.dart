@@ -53,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ? 1
                     : 2,
                 children: [
-                  MatchScreen(token: AppUrl.token),
+                  MatchScreen(token: AppUrl.token ?? ''),
                   const LiveScreen(),
                   const PartyScreen(),
                 ],

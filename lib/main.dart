@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       title: 'Rio Live App',
       debugShowCheckedModeBanner: false,
       home:
-          const BottomNaviScreen(), // Call the AppStartup screen to check login status
+          const AppStartup(), // Call the AppStartup screen to check login status
     );
   }
 }
@@ -63,6 +63,7 @@ class _AppStartupState extends State<AppStartup> {
       // setState(() {});
       AppUrl.riolive_id = response['user']['riolive_id'];
       AppUrl.token = token;
+      AppUrl.email = response['user']['email'];
       // Log the response for debugging
       final users = response['user'];
       AppUrl.user_name = response['user']['username'];

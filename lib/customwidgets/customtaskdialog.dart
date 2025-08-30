@@ -1,13 +1,9 @@
-import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
+
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:riolive/customwidgets/customtext.dart';
 
-import '../views/bottom_navi_screens/screens/agency_screens/agency_screen.dart';
-import '../views/bottom_navi_screens/screens/profile_screen/customer_service/customer_service_screen.dart';
-import '../views/bottom_navi_screens/screens/profile_screen/settings_screen/settings_screen.dart';
-import '../views/bottom_navi_screens/screens/profile_screen/verification_screen/redirected_screens/bind_screen.dart';
-import '../views/bottom_navi_screens/screens/profile_screen/verification_screen/redirected_screens/face_auth_screen.dart';
 import 'custom_container.dart';
 
 class TaskDialog extends StatelessWidget {
@@ -41,7 +37,11 @@ class TaskDialog extends StatelessWidget {
                 fontWeight: FontWeight.w600,
                 color: Colors.black,
                 shadows: const [
-                  Shadow(offset: Offset(1, 1), blurRadius: 2, color: Colors.black54),
+                  Shadow(
+                    offset: Offset(1, 1),
+                    blurRadius: 2,
+                    color: Colors.black54,
+                  ),
                 ],
               ),
 
@@ -49,7 +49,10 @@ class TaskDialog extends StatelessWidget {
               CustomContainer(
                 height: 487,
                 width: 350,
-                image: DecorationImage(image: AssetImage(imagePath), fit: BoxFit.fill),
+                image: DecorationImage(
+                  image: AssetImage(imagePath),
+                  fit: BoxFit.fill,
+                ),
                 child: Stack(
                   children: [
                     // ================= TOP SHOP CAPSULE (4 items) =================
@@ -60,7 +63,9 @@ class TaskDialog extends StatelessWidget {
                       child: CustomContainer(
                         height: 81,
                         width: 320,
-                        image: const DecorationImage(image: AssetImage('assets/images/Union.png')),
+                        image: const DecorationImage(
+                          image: AssetImage('assets/images/Union.png'),
+                        ),
                         borderRadius: BorderRadius.circular(20),
                         padding: const EdgeInsets.only(left: 10, top: 12),
                         child: Row(
@@ -75,9 +80,15 @@ class TaskDialog extends StatelessWidget {
                                   gradient: const LinearGradient(
                                     begin: Alignment.topCenter,
                                     end: Alignment.bottomCenter,
-                                    colors: [Color(0x1AD9D9D9), Color(0x80FFFFFF)],
+                                    colors: [
+                                      Color(0x1AD9D9D9),
+                                      Color(0x80FFFFFF),
+                                    ],
                                   ),
-                                  child: Image.asset('assets/images/1.png', fit: BoxFit.contain),
+                                  child: Image.asset(
+                                    'assets/images/1.png',
+                                    fit: BoxFit.contain,
+                                  ),
                                 ),
                                 const SizedBox(height: 6),
                                 SizedBox(
@@ -108,9 +119,15 @@ class TaskDialog extends StatelessWidget {
                                   gradient: const LinearGradient(
                                     begin: Alignment.topCenter,
                                     end: Alignment.bottomCenter,
-                                    colors: [Color(0x1AD9D9D9), Color(0x80FFFFFF)],
+                                    colors: [
+                                      Color(0x1AD9D9D9),
+                                      Color(0x80FFFFFF),
+                                    ],
                                   ),
-                                  child: Image.asset('assets/images/2.png', fit: BoxFit.contain),
+                                  child: Image.asset(
+                                    'assets/images/2.png',
+                                    fit: BoxFit.contain,
+                                  ),
                                 ),
                                 const SizedBox(height: 6),
                                 SizedBox(
@@ -141,9 +158,15 @@ class TaskDialog extends StatelessWidget {
                                   gradient: const LinearGradient(
                                     begin: Alignment.topCenter,
                                     end: Alignment.bottomCenter,
-                                    colors: [Color(0x1AD9D9D9), Color(0x80FFFFFF)],
+                                    colors: [
+                                      Color(0x1AD9D9D9),
+                                      Color(0x80FFFFFF),
+                                    ],
                                   ),
-                                  child: Image.asset('assets/images/car.png', fit: BoxFit.contain),
+                                  child: Image.asset(
+                                    'assets/images/car.png',
+                                    fit: BoxFit.contain,
+                                  ),
                                 ),
                                 const SizedBox(height: 6),
                                 SizedBox(
@@ -174,9 +197,15 @@ class TaskDialog extends StatelessWidget {
                                   gradient: const LinearGradient(
                                     begin: Alignment.topCenter,
                                     end: Alignment.bottomCenter,
-                                    colors: [Color(0x1AD9D9D9), Color(0x80FFFFFF)],
+                                    colors: [
+                                      Color(0x1AD9D9D9),
+                                      Color(0x80FFFFFF),
+                                    ],
                                   ),
-                                  child: Image.asset('assets/images/last.png', fit: BoxFit.contain),
+                                  child: Image.asset(
+                                    'assets/images/last.png',
+                                    fit: BoxFit.contain,
+                                  ),
                                 ),
                                 const SizedBox(height: 6),
                                 SizedBox(
@@ -218,7 +247,9 @@ class TaskDialog extends StatelessWidget {
                               ),
                               SizedBox(width: 6),
                               Image(
-                                image: AssetImage('assets/icons/diamond_icon 2 1.png'),
+                                image: AssetImage(
+                                  'assets/icons/diamond_icon 2 1.png',
+                                ),
                                 height: 17,
                                 width: 17,
                               ),
@@ -265,18 +296,21 @@ class TaskDialog extends StatelessWidget {
                           final items = [
                             {
                               'title': 'Voice match 0/1',
-                              'subtitle': 'Complete 1 voice matches for more\n than 1 minutes',
-                              'reward': 'x5'
+                              'subtitle':
+                                  'Complete 1 voice matches for more\n than 1 minutes',
+                              'reward': 'x5',
                             },
                             {
                               'title': 'Friend interaction 0/1',
-                              'subtitle': 'Send 5 messages to each other\n with friends',
-                              'reward': 'x50'
+                              'subtitle':
+                                  'Send 5 messages to each other\n with friends',
+                              'reward': 'x50',
                             },
                             {
                               'title': 'To attend a party 0/1',
-                              'subtitle': 'Speak for more than1 minutes in\n the party room',
-                              'reward': 'x100'
+                              'subtitle':
+                                  'Speak for more than1 minutes in\n the party room',
+                              'reward': 'x100',
                             },
                           ];
 
@@ -292,7 +326,12 @@ class TaskDialog extends StatelessWidget {
                                 child: CustomContainer(
                                   height: 74,
                                   width: 320,
-                                  padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+                                  padding: const EdgeInsets.fromLTRB(
+                                    16,
+                                    12,
+                                    12,
+                                    12,
+                                  ),
                                   conColor: Colors.white,
                                   borderRadius: BorderRadius.circular(22),
                                   boxShadow: [
@@ -307,15 +346,18 @@ class TaskDialog extends StatelessWidget {
                                       // left text block
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
                                           children: [
                                             CustomText(
                                               it['title']!,
                                               fontSize: 12,
                                               fontWeight: FontWeight.w600,
                                               color: const Color(0xFF1A1A1A),
-                                              shadows: const [], // remove shadow
+                                              shadows:
+                                                  const [], // remove shadow
                                             ),
                                             const SizedBox(height: 4),
                                             CustomText(
@@ -324,7 +366,8 @@ class TaskDialog extends StatelessWidget {
                                               lineHeight: 1.2,
                                               color: const Color(0xFF8A8A8F),
                                               fontWeight: FontWeight.w500,
-                                              shadows: const [], // remove shadow
+                                              shadows:
+                                                  const [], // remove shadow
                                             ),
                                           ],
                                         ),
@@ -332,7 +375,8 @@ class TaskDialog extends StatelessWidget {
                                       const SizedBox(width: 10),
                                       // right reward + Go
                                       Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
                                           CustomContainer(
                                             child: Row(
@@ -347,7 +391,8 @@ class TaskDialog extends StatelessWidget {
                                                   it['reward']!,
                                                   color: Colors.black,
                                                   fontWeight: FontWeight.w700,
-                                                  shadows: const [], // remove shadow
+                                                  shadows:
+                                                      const [], // remove shadow
                                                 ),
                                               ],
                                             ),
@@ -356,11 +401,16 @@ class TaskDialog extends StatelessWidget {
                                             width: 53,
                                             height: 25,
                                             alignment: Alignment.center,
-                                            borderRadius: BorderRadius.circular(24),
+                                            borderRadius: BorderRadius.circular(
+                                              24,
+                                            ),
                                             gradient: const LinearGradient(
                                               begin: Alignment.topLeft,
                                               end: Alignment.bottomRight,
-                                              colors: [Color(0xFFB06BFF), Color(0xFF7A53FF)],
+                                              colors: [
+                                                Color(0xFFB06BFF),
+                                                Color(0xFF7A53FF),
+                                              ],
                                             ),
                                             child: const CustomText(
                                               'Go',
@@ -385,13 +435,17 @@ class TaskDialog extends StatelessWidget {
                 ),
               ),
               IconButton(
-                icon: Image.asset('assets/icons/crossicon.png', height: 19, width: 19),
+                icon: Image.asset(
+                  'assets/icons/crossicon.png',
+                  height: 19,
+                  width: 19,
+                ),
                 onPressed: () => Get.back(),
               ),
             ],
           ),
-          // ✅ Moved here: Positioned must be a direct child of Stack
 
+          // ✅ Moved here: Positioned must be a direct child of Stack
         ],
       ),
     );

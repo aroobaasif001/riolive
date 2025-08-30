@@ -16,8 +16,14 @@ class AppUrl {
   static var endVideoCall = "${baseUrl}/api/random/calls/end/";
   static var lastestVideoCall = "${baseUrl}/api/random/calls/latest";
 
+  ///Live Streaming Api's
+  static var goLiveCall = "${baseUrl}/api/hosts/go-live";
+  static var offLiveLiveCall = "${baseUrl}/api/hosts/go-offline";
+  static var liveListCall = "${baseUrl}/api/hosts/live-list";
+
   ///Global Variables
   static var riolive_id;
   static var token;
   static var user_name;
+  static var email;
 }

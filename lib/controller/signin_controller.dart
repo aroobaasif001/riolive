@@ -33,6 +33,7 @@ class SignInController extends GetxController {
         final token = data['token']; // Extract token from response
         AppUrl.riolive_id = data['user']['riolive_id'];
         AppUrl.user_name = data['user']['username'];
+        AppUrl.email = data['user']['email'];
 
         // Save the token in SharedPreferences
         _saveToken(token);
