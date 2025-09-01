@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:riolive/customwidgets/custom_circle.dart';
 import 'package:riolive/customwidgets/customtext.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/home_navbar_screens/call_screen/video_call_screen/video_call_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/home_navbar_screens/match_screen/user_live_screen/user_live_screen.dart';
 
 import '../../../../../controller/random_call_controller.dart';
 import '../../../../../utile/app_url.dart';
@@ -42,7 +43,11 @@ class MatchTab extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: const [
-              Image(image: AssetImage('assets/icons/diamondicon.png'), height: 20, width: 27),
+              Image(
+                image: AssetImage('assets/icons/diamondicon.png'),
+                height: 20,
+                width: 27,
+              ),
               CustomText(
                 '800/min',
                 color: Color(0xff60ED59),
@@ -59,14 +64,21 @@ class MatchTab extends StatelessWidget {
             child: InkWell(
               customBorder: const CircleBorder(),
               onTap: () async {
-                await startRandomCall();
+                // await startRandomCall();
+                Get.to(() => PartyRoomScreen());
               },
               child: Container(
                 height: 80,
                 width: 80,
-                decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white),
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                ),
                 padding: const EdgeInsets.all(8),
-                child: Image.asset('assets/icons/phoneicon.png', fit: BoxFit.contain),
+                child: Image.asset(
+                  'assets/icons/phoneicon.png',
+                  fit: BoxFit.contain,
+                ),
               ),
             ),
           ),
@@ -80,9 +92,16 @@ class MatchTab extends StatelessWidget {
     final response = await _callController.startCall(token);
 
     if (response != null) {
+      AppUrl.user_role = 'user';
       final callId = response['call']?['id']?.toString() ?? "";
-      final channelName = response['agora']?['channelName'] ?? response['call']?['room_id'] ?? "";
-      var agoraToken = response['agora']?['callerToken'] ?? response['agora']?['token'] ?? "";
+      final channelName =
+          response['agora']?['channelName'] ??
+          response['call']?['room_id'] ??
+          "";
+      var agoraToken =
+          response['agora']?['callerToken'] ??
+          response['agora']?['token'] ??
+          "";
 
       if (agoraToken.isEmpty && channelName.isNotEmpty) {
         final uid = int.tryParse(AppUrl.riolive_id.toString()) ?? 0;
