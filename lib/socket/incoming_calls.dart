@@ -30,7 +30,9 @@ class SocketService extends GetxService {
     debugPrint("🔍 Base URL: ${AppUrl.baseUrl}");
     debugPrint("🔍 Token: ${token.isNotEmpty ? "Present" : "Missing"}");
     debugPrint("🔍 User ID: $userId");
-    debugPrint("🔍 Socket instance before: ${socket != null ? "Exists" : "Null"}");
+    debugPrint(
+      "🔍 Socket instance before: ${socket != null ? "Exists" : "Null"}",
+    );
     debugPrint("🔍 Call stack: ${StackTrace.current}");
 
     // Dispose any existing socket first
@@ -85,8 +87,11 @@ class SocketService extends GetxService {
       debugPrint("🔍 Socket instance: ${socket != null ? "Exists" : "Null"}");
 
       // If WebSocket fails, try to force polling transport
-      if (error.toString().contains("websocket") || error.toString().contains("404")) {
-        debugPrint("🔄 WebSocket failed, attempting to use polling transport...");
+      if (error.toString().contains("websocket") ||
+          error.toString().contains("404")) {
+        debugPrint(
+          "🔄 WebSocket failed, attempting to use polling transport...",
+        );
         try {
           socket?.disconnect();
           socket = IO.io(
@@ -334,11 +339,14 @@ class SocketService extends GetxService {
                   return;
                 }
 
-                final channelName = (joinResp['agora']?['channelName'] ??
-                                   joinResp['call']?['room_id'] ??
-                                   roomId).toString();
-                final token = (joinResp['agora']?['token'] ??
-                             joinResp['token'] ?? "").toString();
+                final channelName =
+                    (joinResp['agora']?['channelName'] ??
+                            joinResp['call']?['room_id'] ??
+                            roomId)
+                        .toString();
+                final token =
+                    (joinResp['agora']?['token'] ?? joinResp['token'] ?? "")
+                        .toString();
 
                 if (channelName.isEmpty || token.isEmpty) {
                   Get.snackbar("Error", "Invalid join data.");

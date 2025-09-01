@@ -255,7 +255,9 @@ class CallController extends GetxController {
         debugPrint("🔍 Extracted data:");
         debugPrint("   Call ID: $callId");
         debugPrint("   Channel: $channelFromApi");
-        debugPrint("   Caller Token: ${callerToken?.toString().isNotEmpty == true ? "Present" : "Missing"}");
+        debugPrint(
+          "   Caller Token: ${callerToken?.toString().isNotEmpty == true ? "Present" : "Missing"}",
+        );
 
         // Prepare socket payload
         final socketPayload = {
@@ -381,7 +383,9 @@ class CallController extends GetxController {
         },
       );
 
-      debugPrint('🔍 Fetching live hosts from: ${AppUrl.baseUrl}/api/hosts/live-list');
+      debugPrint(
+        '🔍 Fetching live hosts from: ${AppUrl.baseUrl}/api/hosts/live-list',
+      );
       debugPrint('🔍 Live hosts API response status: ${response.statusCode}');
       debugPrint('🔍 Live hosts API response: ${response.body}');
 
