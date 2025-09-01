@@ -249,8 +249,28 @@ class CallController extends GetxController {
         final callId = data['call']?['id'];
         final channelFromApi =
             data['agora']?['channelName'] ?? data['call']?['room_id'];
-        final callerToken =
-            data['agora']?['callerToken'] ?? data['agora']?['token'];
+        
+        // 🔧 CRITICAL FIX: Fetch fresh Agora token before proceeding
+        debugPrint("🔄 Fetching fresh Agora token for channel: $channelFromApi");
+        final uid = int.tryParse(AppUrl.riolive_id.toString()) ?? 0;
+        final freshToken = await fetchAgoraToken(
+          token: token,
+          channelName: channelFromApi,
+          uid: uid,
+          role: 'publisher', // For random calls
+        );
+        
+        if (freshToken?.isNotEmpty == true) {
+          debugPrint("✅ Fresh Agora token fetched successfully");
+          // Update the data with fresh token
+          if (data['agora'] != null) {
+            data['agora']['token'] = freshToken;
+          }
+        } else {
+          debugPrint("❌ Failed to fetch fresh Agora token");
+        }
+        
+        final callerToken = data['agora']?['token'];
 
         debugPrint("🔍 Extracted data:");
         debugPrint("   Call ID: $callId");
@@ -411,22 +431,43 @@ class CallController extends GetxController {
     required String token,
     required String channelName,
     required int uid,
-    String role = 'publisher', // 'publisher' for 1:1, 'subscriber' for viewer
+    String role = 'host', // Changed default to 'host' for live streaming
   }) async {
     try {
+      // Build dynamic URL with user-specific parameters
       final uri = Uri.parse(
         "${AppUrl.agoraToken}?channel=$channelName&uid=$uid&role=$role",
       );
+      
+      debugPrint("🔍 Fetching Agora token from: $uri");
+      
       final res = await http.get(
         uri,
         headers: {"Authorization": "Bearer $token"},
       );
+      
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
-        return (data['agora']?['token'] ?? data['token'])?.toString();
+        debugPrint("🔍 Agora token API response: $data");
+        
+        if (data['status'] == 'success' && data['agora'] != null) {
+          final agoraData = data['agora'];
+          final tokenValue = agoraData['token']?.toString();
+          
+          debugPrint("🔍 Extracted token: ${tokenValue?.isNotEmpty == true ? "Present" : "Missing"}");
+          debugPrint("🔍 Channel: ${agoraData['channelName']}");
+          debugPrint("🔍 UID: ${agoraData['uid']}");
+          debugPrint("🔍 Role: ${agoraData['role']}");
+          
+          return tokenValue;
+        } else {
+          debugPrint("❌ Invalid response structure from Agora token API");
+        }
+      } else {
+        debugPrint("❌ Agora token API error: ${res.statusCode} - ${res.body}");
       }
     } catch (e) {
-      debugPrint("fetchAgoraToken error: $e");
+      debugPrint("❌ fetchAgoraToken error: $e");
     }
     return null;
   }
