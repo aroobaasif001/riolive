@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       title: 'Rio Live App',
       debugShowCheckedModeBanner: false,
       home:
-          const BottomNaviScreen(), // Call the AppStartup screen to check login status
+          const AppStartup(), // Call the AppStartup screen to check login status
     );
   }
 }

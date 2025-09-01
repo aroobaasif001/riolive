@@ -5,7 +5,7 @@ import 'package:riolive/customwidgets/customtext.dart';
 
 import '../views/bottom_navi_screens/screens/agency_screens/agency_screen.dart';
 import '../views/bottom_navi_screens/screens/profile_screen/customer_service/customer_service_screen.dart';
-import '../views/bottom_navi_screens/screens/profile_screen/settings_screen/settings_screen.dart';
+import '../views/bottom_navi_screens/screens/profile_screen/settings_screen/settings_screen.dart' hide CustomText;
 import '../views/bottom_navi_screens/screens/profile_screen/verification_screen/redirected_screens/bind_screen.dart';
 import '../views/bottom_navi_screens/screens/profile_screen/verification_screen/redirected_screens/face_auth_screen.dart';
 import 'custom_container.dart';

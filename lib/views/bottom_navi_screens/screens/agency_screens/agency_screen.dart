@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../customwidgets/customtext.dart';
 import '../profile_screen/JoinAgency_Screen/JoinAgencyScreen.dart';
 import '../profile_screen/about_riolive_screen/about_screen.dart';
 
@@ -45,7 +46,7 @@ class CustomImageButton extends StatelessWidget {
           Positioned(
             bottom: 16,
             child: CustomText(
-              text: label,
+               label,
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: Colors.white,
@@ -66,7 +67,7 @@ class AgencyScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const CustomText(
-          text: 'Agency',
+          'Agency',
           fontSize: 20,
           fontWeight: FontWeight.bold,
           color: Colors.black,
@@ -138,35 +139,7 @@ class AgencyScreen extends StatelessWidget {
 /// =========================
 
 /// Custom Text Widget
-class CustomText extends StatelessWidget {
-  final String text;
-  final double fontSize;
-  final FontWeight fontWeight;
-  final Color color;
-  final TextAlign textAlign;
 
-  const CustomText({
-    super.key,
-    required this.text,
-    required this.fontSize,
-    this.fontWeight = FontWeight.normal,
-    this.color = Colors.black,
-    this.textAlign = TextAlign.start,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      textAlign: textAlign,
-      style: TextStyle(
-        fontSize: fontSize,
-        fontWeight: fontWeight,
-        color: color,
-      ),
-    );
-  }
-}
 
 /// Custom Image Widget
 class CustomImage extends StatelessWidget {

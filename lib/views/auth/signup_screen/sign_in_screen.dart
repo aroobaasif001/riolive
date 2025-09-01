@@ -12,23 +12,28 @@ class SignInScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final signInController = Get.put(
-      SignInController(),
-    ); // Initialize SignInController
+    final signInController = Get.put(SignInController());
 
     return SafeArea(
       child: Scaffold(
+        // (optional) explicit – default true hota hai
+        resizeToAvoidBottomInset: true,
         body: Container(
           width: double.infinity,
           height: double.infinity,
-          decoration: BoxDecoration(
-            image: const DecorationImage(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
               image: AssetImage("assets/images/backgrondimage.png"),
-              fit: BoxFit.fill, // 👈 Image poora screen cover karegi
+              fit: BoxFit.fill,
             ),
           ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 30),
+          // ⬇️ Wrap existing Column with SingleChildScrollView
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            // keyboard khulte hi bottom padding add ho jayegi
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 30).copyWith(
+              bottom: 30 + MediaQuery.of(context).viewInsets.bottom,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -38,62 +43,60 @@ class SignInScreen extends StatelessWidget {
                     onTap: () {
                       Get.to(() => const SplashScreen());
                     },
-                    child: Image(
+                    child: const Image(
                       image: AssetImage('assets/icons/backarrow.png'),
                       height: 24,
                       width: 30,
                     ),
                   ),
                 ),
-                SizedBox(height: 24),
-                Image(
+                const SizedBox(height: 24),
+                const Image(
                   image: AssetImage('assets/icons/hellowtext.png'),
                   height: 48,
                   width: 113,
                 ),
-                SizedBox(height: 25),
+                const SizedBox(height: 25),
                 CustomTextFormField(
                   controller: signInController.email,
                   hintText: 'Enter your email or phone number...',
-                  prefix: Image(
+                  prefix: const Image(
                     image: AssetImage('assets/icons/emailicon.png'),
                     height: 22,
                     width: 28,
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 CustomTextFormField(
                   controller: signInController.password,
                   hintText: 'Enter Password',
-                  prefix: Image(
+                  prefix: const Image(
                     image: AssetImage('assets/icons/passwordicon.png'),
                     height: 22,
                     width: 28,
                   ),
                 ),
-                SizedBox(height: 110),
+                const SizedBox(height: 110),
                 Obx(() {
                   return signInController.isLoading.value
-                      ? CircularProgressIndicator() // Show loading indicator
+                      ? const CircularProgressIndicator()
                       : CustomButton(
-                          height: 57,
-                          width: 386,
-                          text: 'Next',
-                          onPressed:
-                              signInController.signIn, // Call the signIn method
-                        );
+                    height: 57,
+                    width: 386,
+                    text: 'Next',
+                    onPressed: signInController.signIn,
+                  );
                 }),
-                SizedBox(height: 16),
-                TermsAgreement(showCheckbox: false),
-                SizedBox(height: 20),
-                // Display error message if any
+                const SizedBox(height: 16),
+                const TermsAgreement(showCheckbox: false),
+                const SizedBox(height: 20),
                 Obx(() {
                   return signInController.errorMessage.value.isNotEmpty
                       ? Text(
-                          signInController.errorMessage.value,
-                          style: TextStyle(color: Colors.red),
-                        )
-                      : SizedBox();
+                    signInController.errorMessage.value,
+                    style: const TextStyle(color: Colors.red),
+                  )
+                      : const SizedBox();
                 }),
               ],
             ),
