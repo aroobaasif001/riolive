@@ -1,37 +1,32 @@
 import 'package:flutter/material.dart';
-import 'tabs/new_tab.dart';
-import 'tabs/explore_tab.dart';
-import 'tabs/pk_tab.dart';
-import 'tabs/multi_tab.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/home_navbar_screens/party_screen/tabs/all_tab.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/home_navbar_screens/party_screen/tabs/friends_tab.dart';
 
-class LiveScreen extends StatefulWidget {
-  const LiveScreen({super.key});
+class PartyTab extends StatefulWidget {
+  const PartyTab({super.key});
 
   @override
-  _LiveScreenState createState() => _LiveScreenState();
+  State<PartyTab> createState() => _PartyTabState();
 }
 
-class _LiveScreenState extends State<LiveScreen> {
-  int _selectedIndex = 1; // Default: Explore
+class _PartyTabState extends State<PartyTab> {
+  int _selectedIndex = 0; // Default: All
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
             child: Row(
               children: [
-                _buildChip('New', _selectedIndex == 0),
+                _buildChip('All', _selectedIndex == 0),
                 const SizedBox(width: 10),
-                _buildChip('Explore', _selectedIndex == 1),
-                const SizedBox(width: 10),
-                _buildChip('PK', _selectedIndex == 2),
-                const SizedBox(width: 10),
-                _buildChip('Multi', _selectedIndex == 3),
+                _buildChip('Friends', _selectedIndex == 1),
               ],
             ),
           ),
@@ -42,29 +37,12 @@ class _LiveScreenState extends State<LiveScreen> {
     );
   }
 
-  Widget _buildSelectedTab() {
-    switch (_selectedIndex) {
-      case 0:
-        return const NewTab();
-      case 1:
-        return const ExploreTab();
-      case 2:
-        return const PKTab();
-      case 3:
-        return const MultiTab();
-      default:
-        return const ExploreTab();
-    }
-  }
-
   Widget _buildChip(String text, bool selected) {
     return GestureDetector(
       onTap: () {
         setState(() {
-          if (text == 'New') _selectedIndex = 0;
-          if (text == 'Explore') _selectedIndex = 1;
-          if (text == 'PK') _selectedIndex = 2;
-          if (text == 'Multi') _selectedIndex = 3;
+          if (text == 'All') _selectedIndex = 0;
+          if (text == 'Friends') _selectedIndex = 1;
         });
       },
       child: Container(
@@ -81,7 +59,7 @@ class _LiveScreenState extends State<LiveScreen> {
             width: selected ? 3 : 0,
           ),
           boxShadow: [
-            BoxShadow(color: Colors.white.withOpacity(0.7),),
+            BoxShadow(color: Colors.white.withOpacity(0.7)),
             BoxShadow(color: Colors.black.withOpacity(0.15), offset: const Offset(6, 6), blurRadius: 12),
           ],
         ),
@@ -96,5 +74,16 @@ class _LiveScreenState extends State<LiveScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildSelectedTab() {
+    switch (_selectedIndex) {
+      case 0:
+        return const AllTab();
+      case 1:
+        return const FriendsTab();
+      default:
+        return const AllTab();
+    }
   }
 }

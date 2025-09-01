@@ -1,6 +1,6 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:riolive/customwidgets/customtext.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/live_streaming_screen/live_streaming_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/messages_screen/messages_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/moment&message/moment_message_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/profile_screen.dart';
@@ -16,13 +16,13 @@ class BottomNaviScreen extends StatefulWidget {
 }
 
 class _BottomNaviScreenState extends State<BottomNaviScreen> {
-  late int _selectedIndex;
+  int _selectedIndex = 0;
 
   // Keep your screens as before (you can replace the placeholder CustomText screens later)
   final List<Widget> _screens = [
     HomeScreen(), // 0
     const MomentMessageScreen(), // 1
-    const CustomText('Create'), // 2
+    const StartCallDummyScreen(), // 2
     const MessagesScreen(), // 3
     const ProfileDashboardScreen(), // 4
   ];
@@ -30,7 +30,7 @@ class _BottomNaviScreenState extends State<BottomNaviScreen> {
   @override
   void initState() {
     super.initState();
-    final idx = widget.initialIndex ?? 1;
+    final idx = widget.initialIndex ?? 0;
     _selectedIndex = idx.clamp(0, _screens.length - 1);
   }
 
@@ -53,11 +53,31 @@ class _BottomNaviScreenState extends State<BottomNaviScreen> {
         index: _selectedIndex,
         items: <Widget>[
           // 🔁 Replace these asset paths with your own if different
-          Image.asset("assets/icons/CartoonParrotbottom1.png", width: 32, height: 32), // Call
-          Image.asset("assets/icons/bottom2.png", width: 32, height: 32), // Moment
-          Image.asset("assets/icons/bottom3.png", width: 32, height: 32), // Create
-          Image.asset("assets/icons/bottom4.png", width: 32, height: 32), // Messages
-          Image.asset("assets/icons/bottom5.png", width: 32, height: 32), // Profile
+          Image.asset(
+            "assets/icons/CartoonParrotbottom1.png",
+            width: 32,
+            height: 32,
+          ), // Call
+          Image.asset(
+            "assets/icons/bottom2.png",
+            width: 32,
+            height: 32,
+          ), // Moment
+          Image.asset(
+            "assets/icons/bottom3.png",
+            width: 32,
+            height: 32,
+          ), // Create
+          Image.asset(
+            "assets/icons/bottom4.png",
+            width: 32,
+            height: 32,
+          ), // Messages
+          Image.asset(
+            "assets/icons/bottom5.png",
+            width: 32,
+            height: 32,
+          ), // Profile
         ],
         color: Colors.grey.withOpacity(0.5), // Bar color
         buttonBackgroundColor: Colors.grey.withOpacity(0.5), // Selected bubble

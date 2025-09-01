@@ -1,69 +1,140 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/become_a_agent_screen/become_a_agent_screen.dart';
 
 import '../../../../customwidgets/customtext.dart';
 import '../profile_screen/JoinAgency_Screen/JoinAgencyScreen.dart';
-import '../profile_screen/about_riolive_screen/about_screen.dart';
 
 class CustomImageButton extends StatelessWidget {
   final String label;
-  final String backgroundImagePath;
+  final LinearGradient gradient;
   final String iconImagePath;
-  final String? imagePath;
-  final void Function()? onTap;
-  final double width;
+  final VoidCallback? onTap;
 
   const CustomImageButton({
     super.key,
     required this.label,
-    required this.backgroundImagePath,
+    required this.gradient,
     required this.iconImagePath,
     this.onTap,
-    this.imagePath,
-    this.width = 50,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Image.asset(
-              backgroundImagePath,
-              width: double.infinity,
-              height: 180,
-              fit: BoxFit.cover,
-            ),
+      child: ClipPath(
+        clipper: AgencyShapeClipper(), // 👈 sharp top peak
+        child: Container(
+          height: 160,
+          width: double.infinity,
+          margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+          decoration: BoxDecoration(
+            gradient: gradient,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 6,
+                spreadRadius: 2,
+                offset: const Offset(0, 3),
+              ),
+            ],
           ),
-          Positioned(
-            left: 140,
-            child: Image.asset(iconImagePath, width: width),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // 🔹 Icon inside circle
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                ),
+                child: Image.asset(
+                  iconImagePath,
+                  width: 32,
+                  height: 32,
+                  fit: BoxFit.contain,
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // 🔹 Text inside whitish container
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 20,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.8), // 👈 whitish background
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: CustomText(
+                  text: label,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
           ),
-          Positioned(
-            bottom: 16,
-            child: CustomText(
-               label,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
+/// 🔹 Shape with sharp peak (not rounded)
+class AgencyShapeClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    double curve = 20; // bottom corner radius
+    Path path = Path();
 
+    // bottom-left start
+    path.moveTo(curve, size.height);
+
+    // bottom-left curve
+    path.quadraticBezierTo(0, size.height, 0, size.height - curve);
+
+    // left side
+    path.lineTo(0, size.height * 0.4);
+
+    // sharp peak
+    path.lineTo(size.width * 0.5, 0);
+
+    // right slope
+    path.lineTo(size.width, size.height * 0.4);
+
+    // bottom-right side
+    path.lineTo(size.width, size.height - curve);
+
+    // bottom-right curve
+    path.quadraticBezierTo(
+      size.width,
+      size.height,
+      size.width - curve,
+      size.height,
+    );
+
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+}
+
+/// =========================
+/// 🔥 Screen
+/// =========================
 class AgencyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final double verticalSpacing =
-        MediaQuery.of(context).size.height * 0.03; // 🔹 kam gap
+    final double verticalSpacing = MediaQuery.of(context).size.height * 0.03;
+
     return Scaffold(
       appBar: AppBar(
         title: const CustomText(
@@ -74,7 +145,7 @@ class AgencyScreen extends StatelessWidget {
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Get.back(),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -84,85 +155,59 @@ class AgencyScreen extends StatelessWidget {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration:  BoxDecoration(
-          gradient: CustomGradient.mainBackground,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFCCF4E2), Color(0xFFF2D6F9)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
         ),
         child: SingleChildScrollView(
           padding: const EdgeInsets.only(top: 100),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start, // 🔹 top align
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Become an agent
               CustomImageButton(
                 label: 'Become a agent',
-                backgroundImagePath: 'assets/images/agency1.png',
-                iconImagePath: 'assets/images/icone1.png',
-                onTap: () {},
-                imagePath: null,
-                width: 48,
-              ),
-              SizedBox(height: verticalSpacing),
-
-              // Join Agency
-              CustomImageButton(
-                label: 'Join Agency',
-                backgroundImagePath: 'assets/images/agency2.png',
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF4ADE80), Color(0xFFFACC15)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
                 iconImagePath: 'assets/images/icone1.png',
                 onTap: () {
-                  Get.to(()=> JoinAgencyScreen());
+                  Get.to(() => const CreateAgencyScreen());
                 },
-                imagePath: null,
-                width: 48,
               ),
               SizedBox(height: verticalSpacing),
 
-              // Become a coin seller
+              CustomImageButton(
+                label: 'Join Agency',
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFF472B6), Color(0xFFA855F7)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                iconImagePath: 'assets/images/icone1.png',
+                onTap: () {
+                  Get.to(() => const JoinAgencyScreen());
+                },
+              ),
+              SizedBox(height: verticalSpacing),
+
               CustomImageButton(
                 label: 'Become a coin seller',
-                backgroundImagePath: 'assets/images/agency3.png',
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF38BDF8), Color(0xFF06B6D4)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
                 iconImagePath: 'assets/images/icone1.png',
                 onTap: () {},
-                imagePath: null,
-                width: 48,
               ),
             ],
           ),
         ),
       ),
-    );
-  }
-}
-
-/// =========================
-/// 🔥 Custom Widgets (inside this file)
-/// =========================
-
-/// Custom Text Widget
-
-
-/// Custom Image Widget
-class CustomImage extends StatelessWidget {
-  final String path;
-  final double width;
-  final double height;
-  final BoxFit fit;
-
-  const CustomImage({
-    super.key,
-    required this.path,
-    this.width = 50,
-    this.height = 50,
-    this.fit = BoxFit.cover,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Image.asset(
-      path,
-      width: width,
-      height: height,
-      fit: fit,
     );
   }
 }
