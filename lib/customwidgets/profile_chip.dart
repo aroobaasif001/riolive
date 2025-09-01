@@ -3,11 +3,11 @@ import 'package:get/get.dart';
 import 'package:riolive/customwidgets/round_glow.dart';
 import 'package:riolive/customwidgets/tiny_round.dart';
 
-import '../controller/party_room_controller.dart';
+import '../controller/user_video_call_controller.dart';
 import 'customtext.dart';
 import 'frosted_pill.dart';
 
-class ProfileChip extends GetView<PartyRoomController> {
+class ProfileChip extends GetView<UserVideoCallController> {
   const ProfileChip();
   @override
   Widget build(BuildContext context) {

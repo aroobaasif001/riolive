@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 import '../models/chat_bubble_model.dart';
 
-class PartyRoomController extends GetxController {
+class UserVideoCallController extends GetxController {
   final hostName = 'Wamiqa J.'.obs;
   final hostId = '7205215'.obs;
   final coin = 100100.obs;

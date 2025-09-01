@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../../../controller/party_room_controller.dart';
+import '../../../../../../controller/user_video_call_controller.dart';
 import '../../../../../../customwidgets/chat_list.dart';
 import '../../../../../../customwidgets/coins_chip.dart';
 import '../../../../../../customwidgets/custom_container.dart';
@@ -15,12 +15,12 @@ import '../../../../../../customwidgets/profile_chip.dart';
 import '../../../../../../customwidgets/round_icon.dart';
 import '../../../../../../customwidgets/tiny_round.dart';
 
-class PartyRoomScreen extends GetView<PartyRoomController> {
-  const PartyRoomScreen({super.key});
+class UserVideoCallScreen extends GetView<UserVideoCallController> {
+  const UserVideoCallScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    Get.put(PartyRoomController());
+    Get.put(UserVideoCallController());
     final size = MediaQuery.of(context).size;
 
     return Scaffold(

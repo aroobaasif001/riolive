@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../controller/party_room_controller.dart';
+import '../controller/user_video_call_controller.dart';
 import 'customtext.dart';
 import 'frosted_pill.dart';
 
-class CoinsChip extends GetView<PartyRoomController> {
+class CoinsChip extends GetView<UserVideoCallController> {
   const CoinsChip();
   @override
   Widget build(BuildContext context) {

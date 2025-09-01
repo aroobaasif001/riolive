@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../controller/party_room_controller.dart';
+import '../controller/user_video_call_controller.dart';
 import 'chat_bubble.dart';
 
-class ChatList extends GetView<PartyRoomController> {
+class ChatList extends GetView<UserVideoCallController> {
   const ChatList();
   @override
   Widget build(BuildContext context) {

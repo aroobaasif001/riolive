@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:riolive/customwidgets/custom_circle.dart';
 import 'package:riolive/customwidgets/customtext.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/home_navbar_screens/call_screen/video_call_screen/video_call_screen.dart';
-import 'package:riolive/views/bottom_navi_screens/screens/home_navbar_screens/match_screen/user_live_screen/user_live_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/home_navbar_screens/match_screen/user_video_call_screen/user_video_call_screen.dart';
 
 import '../../../../../controller/random_call_controller.dart';
 import '../../../../../socket/incoming_calls.dart';
@@ -66,7 +66,7 @@ class MatchTab extends StatelessWidget {
               customBorder: const CircleBorder(),
               onTap: () async {
                 // await startRandomCall();
-                Get.to(() => PartyRoomScreen());
+                Get.to(() => UserVideoCallScreen());
               },
               child: Container(
                 height: 80,
