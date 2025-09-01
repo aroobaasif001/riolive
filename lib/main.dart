@@ -3,15 +3,16 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:riolive/socket/incoming_calls.dart';
 import 'package:riolive/utile/app_url.dart';
 import 'package:riolive/views/bottom_navi_screens/bottom_navi_screen.dart';
 import 'package:riolive/views/splashscreen/splash_screen.dart';
 
-import 'controller/signin_controller.dart'; // Import the SignInController
+import 'controller/signin_controller.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized(); // <-- IMPORTANT
-
+  WidgetsFlutterBinding.ensureInitialized(); // IMPORTANT
+  Get.put(SocketService()); // register SocketService globally
   runApp(const MyApp());
 }
 
@@ -23,8 +24,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Rio Live App',
       debugShowCheckedModeBanner: false,
-      home:
-          const AppStartup(), // Call the AppStartup screen to check login status
+      home: const AppStartup(),
     );
   }
 }
@@ -33,87 +33,80 @@ class AppStartup extends StatefulWidget {
   const AppStartup({super.key});
 
   @override
-  _AppStartupState createState() => _AppStartupState();
+  State<AppStartup> createState() => _AppStartupState();
 }
 
 class _AppStartupState extends State<AppStartup> {
-  late SignInController _signInController; // Declare the controller
+  late final SignInController _signInController;
 
   @override
   void initState() {
     super.initState();
-    _signInController = Get.put(
-      SignInController(),
-    ); // Initialize SignInController
+    _signInController = Get.put(SignInController());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkStayLoggedIn();
     });
   }
 
   Future<void> _checkStayLoggedIn() async {
-    var token = await _signInController
-        .getToken(); // Retrieve the token from SharedPreferences
-    print("token");
-    print(token);
-    // token = '';
-    if (token != null && token.isNotEmpty) {
-      final response = await _stayLogin(token); // Pass token to stayLogin API
+    try {
+      final token = await _signInController.getToken();
 
-      print(response['user']['riolive_id']);
-      // setState(() {});
-      AppUrl.riolive_id = response['user']['riolive_id'];
-      AppUrl.token = token;
-      AppUrl.email = response['user']['email'];
-      // Log the response for debugging
-      final users = response['user'];
-      AppUrl.user_name = response['user']['username'];
+      // Case 1: No token → Splash
+      if (token == null || token.isEmpty) {
+        if (!mounted) return;
+        Get.offAll(() => const SplashScreen());
+        return;
+      }
 
-      // final id = users['riolive_id'];
-      print("API Response: $response");
-      print(response['status']);
-      print(users);
-
+      // Case 2: Token exists → verify with API
+      final response = await _stayLogin(token);
       if (!mounted) return;
 
-      if (response['status'] == 'success') {
-        // If login is successful, navigate to the home screen
+      final ok = response['status'] == 'success' && response['user'] != null;
+      if (ok) {
+        // Save user details globally
+        AppUrl.riolive_id = response['user']['riolive_id'];
+        AppUrl.token = token;
+        AppUrl.email = response['user']['email'];
+        AppUrl.user_name = response['user']['username'];
+
+        // 🔌 Initialize socket **now** (AFTER we know token & userId)
+        final socketSvc = SocketService.to;
+        socketSvc.disposeSocket(); // safety: drop any stale connection
+        socketSvc.initSocket(
+          AppUrl.token,
+          AppUrl.riolive_id.toString(), // userId must be string
+        );
+
+        // Go to home
         Get.offAll(() => const BottomNaviScreen());
       } else {
-        if (!mounted) return;
-
-        // If login fails, navigate to the splash screen
         Get.offAll(() => const SplashScreen());
       }
-    } else {
+    } catch (e) {
       if (!mounted) return;
-
-      // If token is null or empty, navigate to the splash screen
       Get.offAll(() => const SplashScreen());
     }
   }
 
-  // stayLogin API request (POST request)
+  // stayLogin API request (GET request)
   Future<Map<String, dynamic>> _stayLogin(String token) async {
     try {
       final response = await http
           .get(
-            Uri.parse(AppUrl.stayLogin), // stayLogin POST API URL
+            Uri.parse(AppUrl.stayLogin),
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': 'Bearer $token', // header me token
+              'Authorization': 'Bearer $token',
             },
-            // body: jsonEncode({
-            //   "token": token
-            //       .toString(), // body me bhi bhejna ho sakta hai (depends on API requirement)
-            // }),
           )
           .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
-      } else {
-        return {'status': 'failure'};
       }
+      return {'status': 'failure'};
     } catch (e) {
       return {'status': 'failure', 'message': e.toString()};
     }
@@ -121,11 +114,6 @@ class _AppStartupState extends State<AppStartup> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child:
-            CircularProgressIndicator(), // Show loading while checking the login status
-      ),
-    );
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

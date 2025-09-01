@@ -14,7 +14,7 @@ class AppUrl {
   static var startVideoCall = "${baseUrl}/api/random/calls/start";
   static var joinVideoCall = "${baseUrl}/api/random/calls/join/";
   static var endVideoCall = "${baseUrl}/api/random/calls/end/";
-  static var lastestVideoCall = "${baseUrl}/api/random/calls/latest";
+  // static var lastestVideoCall = "${baseUrl}/api/random/calls/latest";
 
   ///Live Streaming Api's
   static var goLiveCall = "${baseUrl}/api/hosts/go-live";
@@ -26,4 +26,5 @@ class AppUrl {
   static var token;
   static var user_name;
   static var email;
+  static var agoraToken;
 }

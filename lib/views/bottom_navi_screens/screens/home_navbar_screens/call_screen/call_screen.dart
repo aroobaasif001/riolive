@@ -6,6 +6,7 @@ import 'package:riolive/views/bottom_navi_screens/screens/home_navbar_screens/ca
     hide CallController;
 
 import '../../../../../controller/random_call_controller.dart';
+import '../../../../../utile/app_url.dart';
 
 class MatchScreen extends StatelessWidget {
   final String token;
@@ -63,42 +64,7 @@ class MatchScreen extends StatelessWidget {
             child: InkWell(
               customBorder: const CircleBorder(),
               onTap: () async {
-                // First check if there are any live hosts
-                final liveHosts = await _callController.getLiveHosts(token);
-
-                if (liveHosts.isNotEmpty) {
-                  // Show dialog to join live stream instead
-                  Get.dialog(
-                    AlertDialog(
-                      title: const Text("Live Stream Available"),
-                      content: const Text(
-                        "There are live streams available. Do you want to join a live stream instead of starting a random call?",
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () async {
-                            Get.back();
-                            // Start random call
-                            await startRandomCall();
-                          },
-                          child: const Text("Random Call"),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Get.back();
-                            // Join the first live stream
-                            final host = liveHosts[0];
-                            joinLiveStream(host);
-                          },
-                          child: const Text("Join Live"),
-                        ),
-                      ],
-                    ),
-                  );
-                } else {
-                  // No live hosts, start random call directly
-                  await startRandomCall();
-                }
+                await startRandomCall();
               },
               child: Container(
                 height: 80,
@@ -120,12 +86,39 @@ class MatchScreen extends StatelessWidget {
     );
   }
 
+  /// Start random 1-to-1 call (user side)
   Future<void> startRandomCall() async {
     final response = await _callController.startCall(token);
+
     if (response != null) {
-      final callId = response['call']['id'].toString();
-      final channelName = 'test'; // You might need to adjust this
-      final agoraToken = response['agora']['callerToken'];
+      final callId = response['call']?['id']?.toString() ?? "";
+      final channelName =
+          response['agora']?['channelName'] ??
+          response['call']?['room_id'] ??
+          "";
+      var agoraToken =
+          response['agora']?['callerToken'] ??
+          response['agora']?['token'] ??
+          "";
+
+      if (agoraToken.isEmpty && channelName.isNotEmpty) {
+        final uid = int.tryParse(AppUrl.riolive_id.toString()) ?? 0;
+        agoraToken =
+            await _callController.fetchAgoraToken(
+              token: token,
+              channelName: channelName,
+              uid: uid,
+              role: 'publisher',
+            ) ??
+            "";
+      }
+
+      if (callId.isEmpty || channelName.isEmpty || agoraToken.isEmpty) {
+        Get.snackbar("Error", "Invalid call response from server.");
+        return;
+      }
+
+      // NOTE: startCall() already emitted 'call_started' via socket with synonyms.
 
       Get.to(
         () => VideoCallScreen(
@@ -133,27 +126,11 @@ class MatchScreen extends StatelessWidget {
           callId: callId,
           channelName: channelName,
           agoraToken: agoraToken,
+          isHost: false, // user side (broadcaster in 1:1)
         ),
       );
     } else {
       Get.snackbar("Error", "Failed to start call");
     }
-  }
-
-  void joinLiveStream(Map<String, dynamic> host) {
-    // For live streams, you might need a different API endpoint
-    // This is a placeholder implementation
-    final hostId = host['id'].toString();
-    final channelName = 'live_$hostId';
-
-    // In a real scenario, you would get the token from your backend
-    Get.to(
-      () => VideoCallScreen(
-        token: token,
-        callId: hostId,
-        channelName: channelName,
-        agoraToken: "placeholder_token", // You need to implement this
-      ),
-    );
   }
 }

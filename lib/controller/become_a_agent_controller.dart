@@ -64,10 +64,10 @@ class CreateAgencyController extends GetxController {
 
   /// Step 3: Submit Agency Form API
   Future<void> applyAgency() async {
-    if (!isCodeVerified.value) {
-      Get.snackbar("Error", "Please verify code first!");
-      return;
-    }
+    // if (!isCodeVerified.value) {
+    //   Get.snackbar("Error", "Please verify code first!");
+    //   return;
+    // }
 
     try {
       isLoading.value = true;
