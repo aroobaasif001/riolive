@@ -26,23 +26,100 @@ class SocketService extends GetxService {
           .setQuery({"token": token})
           .build(),
     );
+    debugPrint("🔌 Initializing socket...");
+    debugPrint("🔍 Base URL: ${AppUrl.baseUrl}");
+    debugPrint("🔍 Token: ${token.isNotEmpty ? "Present" : "Missing"}");
+    debugPrint("🔍 User ID: $userId");
+    debugPrint("🔍 Socket instance before: ${socket != null ? "Exists" : "Null"}");
+    debugPrint("🔍 Call stack: ${StackTrace.current}");
+
+    // Dispose any existing socket first
+    if (socket != null) {
+      debugPrint("🔄 Disposing existing socket...");
+      socket?.dispose();
+      socket = null;
+    }
+
+    try {
+      debugPrint("🔍 Creating socket.io instance...");
+      debugPrint("🔍 Using transports: websocket, polling");
+
+      socket = IO.io(
+        AppUrl.baseUrl,
+        IO.OptionBuilder()
+            .setTransports(['websocket', 'polling']) // Add polling as fallback
+            .enableForceNew()
+            .enableReconnection()
+            .setQuery({"token": token})
+            .setExtraHeaders({"Origin": AppUrl.baseUrl}) // Add origin header
+            .build(),
+      );
+      debugPrint("✅ Socket instance created successfully");
+      debugPrint("🔍 Socket instance: ${socket != null ? "Exists" : "Null"}");
+      debugPrint("🔍 Socket connected immediately: ${socket?.connected}");
+      debugPrint("🔍 Socket ID immediately: ${socket?.id}");
+    } catch (e) {
+      debugPrint("❌ Error creating socket: $e");
+      debugPrint("❌ Stack trace: ${StackTrace.current}");
+      return;
+    }
 
     socket?.onConnect((_) {
-      debugPrint("✅ Socket connected");
-      socket?.emit("authenticate", {
-        "userId": userId,
-        "userRole": AppUrl.user_role,
-      });
+      debugPrint("✅ Socket connected successfully!");
+      debugPrint("🔍 Socket ID: ${socket?.id}");
+      debugPrint("🔍 Socket connected: ${socket?.connected}");
+      debugPrint("🔍 Socket instance: ${socket != null ? "Exists" : "Null"}");
+      socket?.emit("authenticate", userId);
+      debugPrint("📤 Sent authenticate event with userId: $userId");
     });
 
     socket?.onDisconnect((_) {
       debugPrint("❌ Socket disconnected");
-      _pendingCallDialogs.clear();
-      _processedCallIds.clear();
+      debugPrint("🔍 Socket ID: ${socket?.id}");
+      debugPrint("🔍 Socket connected: ${socket?.connected}");
+      debugPrint("🔍 Socket instance: ${socket != null ? "Exists" : "Null"}");
     });
 
-    socket?.onConnectError((data) {
-      debugPrint("🚨 Socket connection error: $data");
+    socket?.onConnectError((error) {
+      debugPrint("❌ Socket connection error: $error");
+      debugPrint("🔍 Socket instance: ${socket != null ? "Exists" : "Null"}");
+
+      // If WebSocket fails, try to force polling transport
+      if (error.toString().contains("websocket") || error.toString().contains("404")) {
+        debugPrint("🔄 WebSocket failed, attempting to use polling transport...");
+        try {
+          socket?.disconnect();
+          socket = IO.io(
+            AppUrl.baseUrl,
+            IO.OptionBuilder()
+                .setTransports(['polling']) // Force polling only
+                .enableForceNew()
+                .enableReconnection()
+                .setQuery({"token": token})
+                .setExtraHeaders({"Origin": AppUrl.baseUrl})
+                .build(),
+          );
+          debugPrint("✅ Recreated socket with polling transport");
+        } catch (e) {
+          debugPrint("❌ Failed to recreate socket with polling: $e");
+        }
+      }
+    });
+
+    socket?.onError((error) {
+      debugPrint("❌ Socket error: $error");
+      debugPrint("🔍 Socket instance: ${socket != null ? "Exists" : "Null"}");
+    });
+
+    // Add timeout to check connection status
+    Future.delayed(const Duration(seconds: 3), () {
+      debugPrint("⏰ Socket connection check after 3 seconds:");
+      debugPrint("🔍 Socket instance: ${socket != null ? "Exists" : "Null"}");
+      debugPrint("🔍 Socket connected: ${socket?.connected}");
+      debugPrint("🔍 Socket ID: ${socket?.id}");
+      if (socket?.connected != true) {
+        debugPrint("⚠️ Socket still not connected after 3 seconds!");
+      }
     });
 
     // ======== LISTENERS ========
@@ -56,89 +133,123 @@ class SocketService extends GetxService {
 
     // Listen for when users start calls (hosts receive this)
     socket?.on("call_started", (raw) async {
-      debugPrint("📞 Received call_started: $raw");
-
+      debugPrint("🔔 Received call_started event: $raw");
       final Map<String, dynamic> data = raw is Map
           ? Map<String, dynamic>.from(raw)
           : {};
 
       final callId = (data['callId'] ?? data['id'] ?? '').toString();
-      final callerName =
-          (data['callerName'] ?? data['userName'] ?? 'Unknown User').toString();
-      final callerId = (data['callerId'] ?? data['userId'] ?? '').toString();
+      final callerName = (data['callerName'] ?? data['userName'] ?? 'Unknown')
+          .toString();
 
       if (callId.isEmpty) {
         debugPrint("⚠️ call_started without callId");
         return;
       }
 
-      // Ignore if it's from self
-      if (callerId == AppUrl.riolive_id.toString()) {
-        debugPrint("🚫 Ignoring own call");
-        return;
-      }
+      // Ignore self
+      final callerId = (data['callerId'] ?? data['userId'] ?? '').toString();
+      if (callerId == AppUrl.riolive_id.toString()) return;
 
-      // Only show to hosts who are live
-      if (AppUrl.user_role?.toLowerCase() != 'host') {
-        debugPrint("🚫 Not a host, ignoring call notification");
-        return;
-      }
+      // (Optional) If only HOSTS should see this dialog, uncomment:
+      // if (AppUrl.user_role?.toLowerCase() != 'host') return;
 
-      // Check if we already processed this call
-      if (_processedCallIds.contains(callId)) {
-        debugPrint("🚫 Already processed call: $callId");
-        return;
-      }
-
-      // Check if dialog already showing for this call
-      if (_pendingCallDialogs.contains(callId)) {
-        debugPrint("🚫 Dialog already showing for call: $callId");
-        return;
-      }
-
+      if (_pendingCallDialogs.contains(callId)) return;
       _pendingCallDialogs.add(callId);
-      _processedCallIds.add(callId);
 
-      // Close any existing dialog
-      if (Get.isDialogOpen == true) {
-        Get.back();
-      }
-
-      debugPrint("📲 Showing incoming call dialog for: $callerName");
+      if (Get.isDialogOpen == true) Get.back();
 
       Get.dialog(
         AlertDialog(
-          title: Row(
-            children: [
-              const Icon(Icons.phone_in_talk, color: Colors.green),
-              const SizedBox(width: 8),
-              const Text("Incoming Call"),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text("$callerName wants to video call you"),
-              const SizedBox(height: 8),
-              Text(
-                "Call ID: $callId",
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-            ],
-          ),
+          title: const Text("Incoming Call"),
+          content: Text("User $callerName is calling you."),
           actions: [
             TextButton(
-              onPressed: () => _rejectCall(callId),
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text("Decline"),
+              onPressed: () {
+                try {
+                  socket?.emit("call_rejected", {"callId": callId});
+                } catch (_) {}
+                _pendingCallDialogs.remove(callId);
+                Get.back();
+              },
+              child: const Text("Reject"),
             ),
-            ElevatedButton(
-              onPressed: () => _acceptCall(callId, data),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-              child: const Text(
-                "Accept",
-                style: TextStyle(color: Colors.white),
-              ),
+            TextButton(
+              onPressed: () async {
+                _pendingCallDialogs.remove(callId);
+                Get.back();
+
+                final c = Get.find<CallController>();
+
+                // 1) Join API via callId
+                final joinResp = await c.joinCall(AppUrl.token, callId);
+                if (joinResp == null) {
+                  Get.snackbar("Error", "Join call failed.");
+                  return;
+                }
+
+                // 2) Resolve channel name
+                final channelName =
+                    (joinResp['agora']?['channelName'] ??
+                            joinResp['call']?['room_id'] ??
+                            data['channel'] ??
+                            data['channelName'] ??
+                            data['roomId'] ??
+                            data['roomName'] ??
+                            '')
+                        .toString();
+
+                // 3) Resolve token
+                String token =
+                    (joinResp['agora']?['hostToken'] ??
+                            joinResp['agora']?['token'] ??
+                            joinResp['token'] ??
+                            data['agora']?['token'] ??
+                            '')
+                        .toString();
+
+                if (token.isEmpty && channelName.isNotEmpty) {
+                  final uid = int.tryParse(AppUrl.riolive_id.toString()) ?? 0;
+                  token =
+                      await c.fetchAgoraToken(
+                        token: AppUrl.token,
+                        channelName: channelName,
+                        uid: uid,
+                        role: 'publisher',
+                      ) ??
+                      "";
+                }
+
+                if (channelName.isEmpty || token.isEmpty) {
+                  Get.snackbar(
+                    "Error",
+                    "Invalid join data (token/channel missing).",
+                  );
+                  return;
+                }
+
+                // 4) Notify caller accepted (optional UI sync)
+                try {
+                  socket?.emit("call_accepted", {
+                    "callId": callId,
+                    "channel": channelName,
+                    "channelName": channelName,
+                    "agora": {"token": token},
+                  });
+                } catch (_) {}
+
+                // 5) Open the call as host/broadcaster
+                Get.to(
+                  () => VideoCallScreen(
+                    token: AppUrl.token,
+                    callId: callId,
+                    channelName: channelName,
+                    agoraToken: token,
+                    isHost: true,
+                  ),
+                );
+              },
+              child: const Text("Accept"),
             ),
           ],
         ),
@@ -146,162 +257,127 @@ class SocketService extends GetxService {
       );
     });
 
-    // Listen for call acceptance confirmation
-    socket?.on("call_accepted", (raw) {
-      debugPrint("✅ Call accepted: $raw");
-      // Handle any UI updates needed when call is accepted
-    });
+    // Live stream notification listener
+    socket?.off("host_joined_live");
+    socket?.on("host_joined_live", (raw) async {
+      debugPrint("🔔 Received host_joined_live event: $raw");
+      final Map<String, dynamic> data = raw is Map
+          ? Map<String, dynamic>.from(raw)
+          : {};
 
-    // Listen for call rejection
-    socket?.on("call_rejected", (raw) {
-      debugPrint("❌ Call rejected: $raw");
-      final data = raw is Map ? Map<String, dynamic>.from(raw) : {};
-      final callId = data['callId']?.toString() ?? '';
-      _pendingCallDialogs.remove(callId);
+      final hostId = (data['hostId'] ?? data['id'] ?? '').toString();
+      final hostName = (data['hostName'] ?? data['userName'] ?? 'Unknown Host')
+          .toString();
 
-      if (Get.isDialogOpen == true) {
-        Get.back();
-      }
-      Get.snackbar("Call Rejected", "The host declined your call");
-    });
-
-    // Listen for call end
-    socket?.on("call_ended", (raw) {
-      debugPrint("📞 Call ended: $raw");
-      final data = raw is Map ? Map<String, dynamic>.from(raw) : {};
-      final callId = data['callId']?.toString() ?? '';
-
-      _pendingCallDialogs.remove(callId);
-      _processedCallIds.remove(callId);
-
-      if (Get.isDialogOpen == true) {
-        Get.back();
-      }
-
-      // If we're in a call screen, go back
-      if (Get.currentRoute.contains('VideoCallScreen')) {
-        Get.back();
-        Get.snackbar("Call Ended", "The call has ended");
-      }
-    });
-
-    // Listen for host status updates
-    socket?.on("host_joined", (raw) {
-      debugPrint("🎯 Host joined: $raw");
-    });
-  }
-
-  // Helper method to reject call
-  void _rejectCall(String callId) {
-    try {
-      debugPrint("❌ Rejecting call: $callId");
-      socket?.emit("call_rejected", {
-        "callId": callId,
-        "hostId": AppUrl.riolive_id.toString(),
-        "timestamp": DateTime.now().millisecondsSinceEpoch,
-      });
-    } catch (e) {
-      debugPrint("❌ Error rejecting call: $e");
-    }
-
-    _pendingCallDialogs.remove(callId);
-    Get.back();
-  }
-
-  // Helper method to accept call
-  void _acceptCall(String callId, Map<String, dynamic> callData) async {
-    try {
-      debugPrint("✅ Accepting call: $callId");
-      _pendingCallDialogs.remove(callId);
-      Get.back();
-
-      final callController = Get.find<CallController>();
-
-      // 1) Join the call via API
-      final joinResp = await callController.joinCall(AppUrl.token, callId);
-      if (joinResp == null) {
-        Get.snackbar("Error", "Failed to join call");
+      if (hostId.isEmpty) {
+        debugPrint("⚠️ host_joined_live without hostId");
         return;
       }
 
-      // 2) Get channel info - try multiple sources
-      final channelName =
-          (joinResp['agora']?['channelName'] ??
-                  joinResp['call']?['room_id'] ??
-                  callData['channel'] ??
-                  callData['channelName'] ??
-                  callData['roomId'] ??
-                  callData['roomName'] ??
-                  '')
-              .toString();
-
-      if (channelName.isEmpty) {
-        Get.snackbar("Error", "No channel name available");
+      // Ignore self
+      final callerId = (data['hostId'] ?? data['userId'] ?? '').toString();
+      if (callerId == AppUrl.riolive_id.toString()) {
+        debugPrint("🚫 Ignoring own live stream notification");
         return;
       }
 
-      // 3) Get token - prefer host token for joiners
-      String agoraToken =
-          (joinResp['agora']?['hostToken'] ??
-                  joinResp['agora']?['token'] ??
-                  joinResp['token'] ??
-                  '')
-              .toString();
+      debugPrint("🎯 Showing live stream notification for host: $hostName");
 
-      // If no token from join response, fetch one
-      if (agoraToken.isEmpty) {
-        final uid = int.tryParse(AppUrl.riolive_id.toString()) ?? 0;
-        agoraToken =
-            await callController.fetchAgoraToken(
-              token: AppUrl.token,
-              channelName: channelName,
-              uid: uid,
-              role: 'publisher', // Host acts as publisher in 1-to-1
-            ) ??
-            '';
-      }
+      if (_pendingCallDialogs.contains(hostId)) return;
+      _pendingCallDialogs.add(hostId);
 
-      if (agoraToken.isEmpty) {
-        Get.snackbar("Error", "Could not get Agora token");
-        return;
-      }
+      if (Get.isDialogOpen == true) Get.back();
 
-      // 4) Notify caller that we accepted
-      socket?.emit("call_accepted", {
-        "callId": callId,
-        "hostId": AppUrl.riolive_id.toString(),
-        "hostName": AppUrl.user_name ?? "Host",
-        "channel": channelName,
-        "channelName": channelName,
-        "timestamp": DateTime.now().millisecondsSinceEpoch,
-      });
+      Get.dialog(
+        AlertDialog(
+          title: const Text("Live Stream Started"),
+          content: Text("$hostName has started a live stream!"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                _pendingCallDialogs.remove(hostId);
+                Get.back();
+              },
+              child: const Text("Dismiss"),
+            ),
+            TextButton(
+              onPressed: () async {
+                _pendingCallDialogs.remove(hostId);
+                Get.back();
 
-      debugPrint("📤 Emitted call_accepted");
+                final c = Get.find<CallController>();
 
-      // 5) Navigate to video call screen
-      Get.to(
-        () => VideoCallScreen(
-          token: AppUrl.token,
-          callId: callId,
-          channelName: channelName,
-          agoraToken: agoraToken,
-          isHost: true, // Host accepting the call
+                // Get live hosts to find the specific host
+                final liveHosts = await c.getLiveHosts(AppUrl.token);
+                final targetHost = liveHosts.firstWhere(
+                  (host) => host['id'].toString() == hostId,
+                  orElse: () => {},
+                );
+
+                if (targetHost.isEmpty) {
+                  Get.snackbar("Error", "Live stream not found.");
+                  return;
+                }
+
+                // Note: The live hosts API doesn't return room_id, so we'll use the hostId as roomId
+                // This is a workaround - ideally the API should return room_id for live hosts
+                final roomId = targetHost['id']?.toString() ?? "";
+                if (roomId.isEmpty) {
+                  Get.snackbar("Error", "Invalid live stream data.");
+                  return;
+                }
+
+                // Join the live stream as audience
+                final joinResp = await c.joinCall(AppUrl.token, roomId);
+                if (joinResp == null) {
+                  Get.snackbar("Error", "Join live stream failed.");
+                  return;
+                }
+
+                final channelName = (joinResp['agora']?['channelName'] ??
+                                   joinResp['call']?['room_id'] ??
+                                   roomId).toString();
+                final token = (joinResp['agora']?['token'] ??
+                             joinResp['token'] ?? "").toString();
+
+                if (channelName.isEmpty || token.isEmpty) {
+                  Get.snackbar("Error", "Invalid join data.");
+                  return;
+                }
+
+                // Open the live stream as audience
+                Get.to(
+                  () => VideoCallScreen(
+                    token: AppUrl.token,
+                    callId: roomId,
+                    channelName: channelName,
+                    agoraToken: token,
+                    isHost: false, // Join as audience
+                  ),
+                );
+              },
+              child: const Text("Join"),
+            ),
+          ],
         ),
+        barrierDismissible: false,
       );
-    } catch (e) {
-      debugPrint("❌ Error accepting call: $e");
-      Get.snackbar("Error", "Failed to accept call: $e");
-    }
+    });
+
+    // You can keep your other listeners (incoming_call, call_accepted, call_status, host_status)
+    // if you still rely on them elsewhere.
   }
 
   // ================= EMITS =================
 
   /// Caller emits after startCall() succeeds
   void notifyCallStarted(Map<String, dynamic> payload) {
+    debugPrint("🔔 notifyCallStarted() called with payload: $payload");
+
     final enriched = {
       ...payload,
       "callerId": payload["callerId"] ?? payload["userId"],
-      "callerName": payload["callerName"] ?? payload["userName"] ?? "Unknown",
+      "callerName": payload["callerName"] ?? payload["userName"],
       "channel":
           payload["channel"] ??
           payload["channelName"] ??
@@ -310,76 +386,64 @@ class SocketService extends GetxService {
       "channelName": payload["channelName"] ?? payload["channel"],
       "roomId": payload["roomId"] ?? payload["channel"],
       "roomName": payload["roomName"] ?? payload["channel"],
-      "timestamp": DateTime.now().millisecondsSinceEpoch,
     };
 
-    debugPrint("📤 Emitting call_started: $enriched");
-    socket?.emit("call_started", enriched);
+    debugPrint("🔍 Socket connection status: ${socket?.connected}");
+    debugPrint("🔍 Socket ID: ${socket?.id}");
+    debugPrint("📤 Emitting call_started with enriched payload: $enriched");
+
+    if (socket?.connected == true) {
+      socket?.emit("call_started", enriched);
+      debugPrint("✅ call_started event emitted successfully");
+    } else {
+      debugPrint("❌ Socket not connected - cannot emit call_started event");
+      debugPrint("🔍 Socket state: ${socket?.connected}");
+    }
   }
 
   void notifyCallEnded(Map<String, dynamic> payload) {
-    final enriched = {
-      ...payload,
-      "timestamp": DateTime.now().millisecondsSinceEpoch,
-    };
-    debugPrint("📤 Emitting call_ended: $enriched");
-    socket?.emit("call_ended", enriched);
+    debugPrint("📤 call_ended $payload");
+    socket?.emit("call_ended", payload);
   }
 
-  void notifyCallAccepted(Map<String, dynamic> payload) {
-    final enriched = {
-      ...payload,
-      "timestamp": DateTime.now().millisecondsSinceEpoch,
-    };
-    debugPrint("📤 Emitting call_accepted: $enriched");
-    socket?.emit("call_accepted", enriched);
-  }
-
-  void notifyCallRejected(Map<String, dynamic> payload) {
-    final enriched = {
-      ...payload,
-      "timestamp": DateTime.now().millisecondsSinceEpoch,
-    };
-    debugPrint("📤 Emitting call_rejected: $enriched");
-    socket?.emit("call_rejected", enriched);
-  }
-
-  /// Host joins live stream
+  /// If backend expects only hostId:
   void hostJoin(String hostId) {
-    final payload = {
-      "hostId": hostId,
-      "userId": AppUrl.riolive_id.toString(),
-      "userName": AppUrl.user_name ?? "Host",
-      "timestamp": DateTime.now().millisecondsSinceEpoch,
-    };
-    debugPrint("📤 Emitting host_join: $payload");
-    socket?.emit("host_join", payload);
+    debugPrint("📤 host_join $hostId");
+    debugPrint("🔍 Emitting host_join event with hostId: $hostId");
+    debugPrint("🔍 Current user ID: ${AppUrl.riolive_id}");
+    debugPrint("🔍 Current user name: ${AppUrl.user_name}");
+    socket?.emit("host_join", hostId);
   }
 
-  /// Host leaves live stream
-  void hostLeave(String hostId) {
-    final payload = {
-      "hostId": hostId,
-      "userId": AppUrl.riolive_id.toString(),
-      "timestamp": DateTime.now().millisecondsSinceEpoch,
-    };
-    debugPrint("📤 Emitting host_leave: $payload");
-    socket?.emit("host_leave", payload);
-  }
-
-  // Method to manually clear processed calls (useful for testing)
-  void clearProcessedCalls() {
-    _processedCallIds.clear();
-    _pendingCallDialogs.clear();
-    debugPrint("🧹 Cleared processed calls");
-  }
+  // Optional: payload variant
+  // void hostJoinWithPayload(Map<String, dynamic> payload) {
+  //   debugPrint("📤 host_join(payload) $payload");
+  //   socket?.emit("host_join", payload);
+  // }
 
   void disposeSocket() {
-    debugPrint("🧹 Disposing socket service");
     _pendingCallDialogs.clear();
-    _processedCallIds.clear();
     socket?.disconnect();
     socket?.dispose();
     socket = null;
+  }
+
+  // Debug method to check socket status
+  void debugSocketStatus() {
+    debugPrint("🔍 === SOCKET STATUS DEBUG ===");
+    debugPrint("🔍 Socket instance: ${socket != null ? "Exists" : "Null"}");
+    debugPrint("🔍 Socket connected: ${socket?.connected}");
+    debugPrint("🔍 Socket ID: ${socket?.id}");
+    debugPrint("🔍 Base URL: ${AppUrl.baseUrl}");
+    debugPrint("🔍 ============================");
+  }
+
+  // Force socket reconnection
+  void forceReconnect(String token, String userId) {
+    debugPrint("🔄 Force reconnecting socket...");
+    disposeSocket();
+    Future.delayed(const Duration(milliseconds: 500), () {
+      initSocket(token, userId);
+    });
   }
 }

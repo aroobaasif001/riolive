@@ -2,8 +2,6 @@ class AppUrl {
   ///Base URL
   static var baseUrl = "http://192.168.1.17:5000";
 
-  ///http://192.168.1.17:5000
-  ///https://backend-api-six-drab.vercel.app
   ///Registration Api's
   static var signup = "${baseUrl}/api/users/signup";
   static var login = "${baseUrl}/api/users/login";
@@ -21,7 +19,10 @@ class AppUrl {
   ///Live Streaming Api's
   static var goLiveCall = "${baseUrl}/api/hosts/go-live";
   static var offLiveLiveCall = "${baseUrl}/api/hosts/go-offline";
-  static var liveListCall = "${baseUrl}/api/hosts/live-list";
+  // static var liveListCall = "${baseUrl}/api/hosts/live-list"; // Removed - using direct URL now
+
+  ///Agora Token Api
+  static var agoraToken = "${baseUrl}/api/agora/token";
 
   ///Global Variables
   static var riolive_id;
