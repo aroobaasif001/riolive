@@ -224,18 +224,26 @@ class CallController extends GetxController {
 
   Future<Map<String, dynamic>?> startCall(String token) async {
     try {
+      debugPrint("🚀 startCall() - Making API request...");
+      debugPrint("🔍 API URL: ${AppUrl.startVideoCall}");
+      debugPrint("🔍 Token: ${token.isNotEmpty ? "Present" : "Missing"}");
+      
       isLoading.value = true;
       final res = await http.post(
         Uri.parse(AppUrl.startVideoCall),
         headers: {"Authorization": "Bearer $token"},
       );
 
+      debugPrint("🔍 API Response Status: ${res.statusCode}");
+      debugPrint("🔍 API Response Body: ${res.body}");
+
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
-        debugPrint("call start: $data");
+        debugPrint("✅ call start success: $data");
 
         // cache server appId (CRITICAL for token-appId match)
         _serverAppId = data['agora']?['appId']?.toString() ?? _serverAppId;
+        debugPrint("🔍 Server App ID: $_serverAppId");
 
         // Resolve common fields from response
         final callId = data['call']?['id'];
@@ -244,8 +252,13 @@ class CallController extends GetxController {
         final callerToken =
             data['agora']?['callerToken'] ?? data['agora']?['token'];
 
-        // Emit with synonym keys so backend listener doesn't miss it
-        SocketService.to.notifyCallStarted({
+        debugPrint("🔍 Extracted data:");
+        debugPrint("   Call ID: $callId");
+        debugPrint("   Channel: $channelFromApi");
+        debugPrint("   Caller Token: ${callerToken?.toString().isNotEmpty == true ? "Present" : "Missing"}");
+
+        // Prepare socket payload
+        final socketPayload = {
           "callId": callId,
           "callerId": AppUrl.riolive_id,
           "callerName": AppUrl.user_name,
@@ -256,14 +269,24 @@ class CallController extends GetxController {
           "roomName": channelFromApi,
           // pass caller side token if your server wants to forward it
           "callerToken": callerToken,
-        });
+        };
 
+        debugPrint("📡 Emitting call_started socket event...");
+        debugPrint("🔍 Socket payload: $socketPayload");
+
+        // Emit with synonym keys so backend listener doesn't miss it
+        SocketService.to.notifyCallStarted(socketPayload);
+
+        debugPrint("✅ Socket event emitted successfully");
         return data;
       } else {
+        debugPrint("❌ API Error - Status: ${res.statusCode}");
         final body = jsonDecode(res.body);
+        debugPrint("❌ Error body: $body");
         Get.snackbar("Error", body['message'] ?? "Start call failed");
       }
     } catch (e) {
+      debugPrint("❌ startCall() Exception: $e");
       Get.snackbar("Error", e.toString());
     } finally {
       isLoading.value = false;
@@ -348,21 +371,40 @@ class CallController extends GetxController {
   }
 
   // Your live-list response: {"status":"success","count":2,"hosts":[{...}]}
-  Future<List<dynamic>> getLiveHosts(String token) async {
+  Future<List<Map<String, dynamic>>> getLiveHosts(String token) async {
     try {
-      final res = await http.get(
-        Uri.parse(AppUrl.liveListCall),
-        headers: {"Authorization": "Bearer $token"},
+      final response = await http.get(
+        Uri.parse('${AppUrl.baseUrl}/api/hosts/live-list'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
       );
-      if (res.statusCode == 200) {
-        final data = jsonDecode(res.body);
-        // returns the array as-is; shape: [{id,username,email,role,is_live,updated_at}]
-        return (data['hosts'] as List?) ?? [];
+
+      debugPrint('🔍 Fetching live hosts from: ${AppUrl.baseUrl}/api/hosts/live-list');
+      debugPrint('🔍 Live hosts API response status: ${response.statusCode}');
+      debugPrint('🔍 Live hosts API response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        
+        if (data['status'] == 'success' && data['hosts'] != null) {
+          final hosts = List<Map<String, dynamic>>.from(data['hosts']);
+          debugPrint('🔍 Parsed hosts count: ${hosts.length}');
+          
+          if (hosts.isNotEmpty) {
+            debugPrint('🔍 First host data structure: ${hosts.first}');
+          }
+          
+          return hosts;
+        }
       }
+      
+      return [];
     } catch (e) {
-      debugPrint("Get live hosts error: $e");
+      debugPrint('❌ Error fetching live hosts: $e');
+      return [];
     }
-    return [];
   }
 
   Future<String?> fetchAgoraToken({
