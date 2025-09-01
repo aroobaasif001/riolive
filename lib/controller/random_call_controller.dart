@@ -227,7 +227,7 @@ class CallController extends GetxController {
       debugPrint("🚀 startCall() - Making API request...");
       debugPrint("🔍 API URL: ${AppUrl.startVideoCall}");
       debugPrint("🔍 Token: ${token.isNotEmpty ? "Present" : "Missing"}");
-      
+
       isLoading.value = true;
       final res = await http.post(
         Uri.parse(AppUrl.startVideoCall),
@@ -275,7 +275,9 @@ class CallController extends GetxController {
         debugPrint("🔍 Extracted data:");
         debugPrint("   Call ID: $callId");
         debugPrint("   Channel: $channelFromApi");
-        debugPrint("   Caller Token: ${callerToken?.toString().isNotEmpty == true ? "Present" : "Missing"}");
+        debugPrint(
+          "   Caller Token: ${callerToken?.toString().isNotEmpty == true ? "Present" : "Missing"}",
+        );
 
         // Prepare socket payload
         final socketPayload = {
@@ -401,25 +403,27 @@ class CallController extends GetxController {
         },
       );
 
-      debugPrint('🔍 Fetching live hosts from: ${AppUrl.baseUrl}/api/hosts/live-list');
+      debugPrint(
+        '🔍 Fetching live hosts from: ${AppUrl.baseUrl}/api/hosts/live-list',
+      );
       debugPrint('🔍 Live hosts API response status: ${response.statusCode}');
       debugPrint('🔍 Live hosts API response: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        
+
         if (data['status'] == 'success' && data['hosts'] != null) {
           final hosts = List<Map<String, dynamic>>.from(data['hosts']);
           debugPrint('🔍 Parsed hosts count: ${hosts.length}');
-          
+
           if (hosts.isNotEmpty) {
             debugPrint('🔍 First host data structure: ${hosts.first}');
           }
-          
+
           return hosts;
         }
       }
-      
+
       return [];
     } catch (e) {
       debugPrint('❌ Error fetching live hosts: $e');

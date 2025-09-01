@@ -27,6 +27,7 @@ class StartCallDummyScreen extends StatelessWidget {
                 Get.snackbar("Error", "Failed to start live stream");
                 return;
               }
+              AppUrl.user_role = 'host';
 
               debugPrint("✅ Live stream started successfully: $response");
 

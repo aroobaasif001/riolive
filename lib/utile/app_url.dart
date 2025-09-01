@@ -1,6 +1,5 @@
 class AppUrl {
   ///Base URL
-  // static var baseUrl = "https://backend-api-six-drab.vercel.app";
   static var baseUrl = "http://192.168.1.17:5000";
 
   ///Registration Api's
@@ -30,4 +29,5 @@ class AppUrl {
   static var token;
   static var user_name;
   static var email;
+  static var user_role;
 }

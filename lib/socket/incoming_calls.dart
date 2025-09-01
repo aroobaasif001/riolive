@@ -12,13 +12,27 @@ class SocketService extends GetxService {
 
   // De-dupe dialogs per callId
   final Set<String> _pendingCallDialogs = {};
+  final Set<String> _processedCallIds = {};
 
   void initSocket(String token, String userId) {
+    debugPrint("🔌 Initializing socket for user: $userId");
+
+    socket = IO.io(
+      AppUrl.baseUrl,
+      IO.OptionBuilder()
+          .setTransports(['websocket'])
+          .enableForceNew()
+          .enableReconnection()
+          .setQuery({"token": token})
+          .build(),
+    );
     debugPrint("🔌 Initializing socket...");
     debugPrint("🔍 Base URL: ${AppUrl.baseUrl}");
     debugPrint("🔍 Token: ${token.isNotEmpty ? "Present" : "Missing"}");
     debugPrint("🔍 User ID: $userId");
-    debugPrint("🔍 Socket instance before: ${socket != null ? "Exists" : "Null"}");
+    debugPrint(
+      "🔍 Socket instance before: ${socket != null ? "Exists" : "Null"}",
+    );
     debugPrint("🔍 Call stack: ${StackTrace.current}");
 
     // Dispose any existing socket first
@@ -31,7 +45,7 @@ class SocketService extends GetxService {
     try {
       debugPrint("🔍 Creating socket.io instance...");
       debugPrint("🔍 Using transports: websocket, polling");
-      
+
       socket = IO.io(
         AppUrl.baseUrl,
         IO.OptionBuilder()
@@ -72,10 +86,13 @@ class SocketService extends GetxService {
     socket?.onConnectError((error) {
       debugPrint("❌ Socket connection error: $error");
       debugPrint("🔍 Socket instance: ${socket != null ? "Exists" : "Null"}");
-      
+
       // If WebSocket fails, try to force polling transport
-      if (error.toString().contains("websocket") || error.toString().contains("404")) {
-        debugPrint("🔄 WebSocket failed, attempting to use polling transport...");
+      if (error.toString().contains("websocket") ||
+          error.toString().contains("404")) {
+        debugPrint(
+          "🔄 WebSocket failed, attempting to use polling transport...",
+        );
         try {
           socket?.disconnect();
           socket = IO.io(
@@ -113,8 +130,14 @@ class SocketService extends GetxService {
 
     // ======== LISTENERS ========
 
-    // Broadcast from caller: everyone (or just hosts) receives this
+    // Clear existing listeners to avoid duplicates
     socket?.off("call_started");
+    socket?.off("call_accepted");
+    socket?.off("call_rejected");
+    socket?.off("call_ended");
+    socket?.off("host_joined");
+
+    // Listen for when users start calls (hosts receive this)
     socket?.on("call_started", (raw) async {
       debugPrint("🔔 Received call_started event: $raw");
       final Map<String, dynamic> data = raw is Map
@@ -317,11 +340,14 @@ class SocketService extends GetxService {
                   return;
                 }
 
-                final channelName = (joinResp['agora']?['channelName'] ?? 
-                                   joinResp['call']?['room_id'] ?? 
-                                   roomId).toString();
-                final token = (joinResp['agora']?['token'] ?? 
-                             joinResp['token'] ?? "").toString();
+                final channelName =
+                    (joinResp['agora']?['channelName'] ??
+                            joinResp['call']?['room_id'] ??
+                            roomId)
+                        .toString();
+                final token =
+                    (joinResp['agora']?['token'] ?? joinResp['token'] ?? "")
+                        .toString();
 
                 if (channelName.isEmpty || token.isEmpty) {
                   Get.snackbar("Error", "Invalid join data.");
@@ -356,7 +382,7 @@ class SocketService extends GetxService {
   /// Caller emits after startCall() succeeds
   void notifyCallStarted(Map<String, dynamic> payload) {
     debugPrint("🔔 notifyCallStarted() called with payload: $payload");
-    
+
     final enriched = {
       ...payload,
       "callerId": payload["callerId"] ?? payload["userId"],
@@ -370,11 +396,11 @@ class SocketService extends GetxService {
       "roomId": payload["roomId"] ?? payload["channel"],
       "roomName": payload["roomName"] ?? payload["channel"],
     };
-    
+
     debugPrint("🔍 Socket connection status: ${socket?.connected}");
     debugPrint("🔍 Socket ID: ${socket?.id}");
     debugPrint("📤 Emitting call_started with enriched payload: $enriched");
-    
+
     if (socket?.connected == true) {
       socket?.emit("call_started", enriched);
       debugPrint("✅ call_started event emitted successfully");
