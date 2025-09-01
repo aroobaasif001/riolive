@@ -71,7 +71,7 @@ class CustomImageButton extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: CustomText(
-                  text: label,
+                  label,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
