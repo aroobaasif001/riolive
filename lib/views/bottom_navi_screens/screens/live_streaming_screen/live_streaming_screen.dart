@@ -30,9 +30,9 @@ class StartCallDummyScreen extends StatelessWidget {
               final agora = response['agora'];
 
               final hostId = host?['id']?.toString() ?? "";
-              final roomId = host?['room_id'] ?? "";
-              final channelName = agora?['channelName'] ?? "";
-              final agoraToken = agora?['token'] ?? "";
+              final roomId = host?['room_id']?.toString() ?? "";
+              final channelName = agora?['channelName']?.toString() ?? "";
+              final agoraToken = agora?['token']?.toString() ?? "";
 
               if (hostId.isEmpty ||
                   roomId.isEmpty ||
@@ -42,13 +42,13 @@ class StartCallDummyScreen extends StatelessWidget {
                 return;
               }
 
-              // If backend expects only hostId for 'host_join'
+              // Backend expects only hostId (not uid)
               SocketService.to.hostJoin(hostId);
 
               Get.to(
                 () => VideoCallScreen(
                   token: AppUrl.token,
-                  callId: hostId,
+                  callId: hostId, // using hostId as call id for live session
                   channelName: channelName,
                   agoraToken: agoraToken,
                   isHost: true,

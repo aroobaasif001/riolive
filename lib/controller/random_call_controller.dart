@@ -10,7 +10,8 @@ import '../socket/incoming_calls.dart';
 import '../utile/app_url.dart';
 
 class CallController extends GetxController {
-  static const String appId = "747241138f01491291af0d34b78a5e9c";
+  /// Keep a fallback in case server doesn't return appId
+  static const String fallbackAppId = "6569a35538f247de9b0e7a4b7de82604";
 
   var isLoading = false.obs;
   RtcEngine? engine;
@@ -18,16 +19,15 @@ class CallController extends GetxController {
   var isMuted = false.obs;
 
   String? _channel; // current channel
-  String? _currentToken; // current token
+  String? _currentToken; // current Agora token
+  String? _serverAppId; // latest appId from server
   int _uid = 0; // uid used to join (must match server)
   bool _tearingDown = false; // cleanup guard
-  RtcEngineEventHandler? _handler; // keep same handler for unregister
+  RtcEngineEventHandler? _handler; // stored for unregister
 
   int _deriveUid() {
-    // Use the SAME UID your server signs for (0 or numeric user id).
     final parsed = int.tryParse(AppUrl.riolive_id.toString());
-    return parsed ?? 0;
-    // NOTE: If your server signs tokens for uid=0, leave this 0.
+    return parsed ?? 0; // if your server signs uid=0, keep it 0
   }
 
   Future<void> initAgora({
@@ -53,7 +53,8 @@ class CallController extends GetxController {
       _uid = _deriveUid(); // must match server-signed uid
 
       engine = createAgoraRtcEngine();
-      await engine!.initialize(const RtcEngineContext(appId: appId));
+      final appIdToUse = _serverAppId ?? fallbackAppId;
+      await engine!.initialize(RtcEngineContext(appId: appIdToUse));
 
       // Default audio route -> speaker
       await engine!.setDefaultAudioRouteToSpeakerphone(true);
@@ -233,6 +234,9 @@ class CallController extends GetxController {
         final data = jsonDecode(res.body);
         debugPrint("call start: $data");
 
+        // cache server appId (CRITICAL for token-appId match)
+        _serverAppId = data['agora']?['appId']?.toString() ?? _serverAppId;
+
         // Resolve common fields from response
         final callId = data['call']?['id'];
         final channelFromApi =
@@ -278,6 +282,10 @@ class CallController extends GetxController {
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         debugPrint("join call: $data");
+
+        // cache server appId
+        _serverAppId = data['agora']?['appId']?.toString() ?? _serverAppId;
+
         return data;
       } else {
         final body = jsonDecode(res.body);
@@ -322,6 +330,10 @@ class CallController extends GetxController {
       );
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
+
+        // cache server appId
+        _serverAppId = data['agora']?['appId']?.toString() ?? _serverAppId;
+
         return data;
       } else {
         final body = jsonDecode(res.body);

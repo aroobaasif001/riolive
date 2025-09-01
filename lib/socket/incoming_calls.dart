@@ -10,6 +10,9 @@ class SocketService extends GetxService {
 
   IO.Socket? socket;
 
+  // De-dupe dialogs per callId
+  final Set<String> _pendingCallDialogs = {};
+
   void initSocket(String token, String userId) {
     socket = IO.io(
       AppUrl.baseUrl,
@@ -28,29 +31,35 @@ class SocketService extends GetxService {
 
     socket?.onDisconnect((_) => debugPrint("❌ Socket disconnected"));
 
-    // ================= LISTENERS =================
+    // ======== LISTENERS ========
 
-    /// Host side — Incoming call (payload can contain: callId/id, userName/callerName, channel/channelName/roomId/roomName)
-    socket?.off("incoming_call");
-    socket?.on("incoming_call", (data) async {
-      debugPrint("📲 incoming_call: $data");
-      if (Get.isDialogOpen == true) Get.back();
+    // Broadcast from caller: everyone (or just hosts) receives this
+    socket?.off("call_started");
+    socket?.on("call_started", (raw) async {
+      final Map<String, dynamic> data = raw is Map
+          ? Map<String, dynamic>.from(raw)
+          : {};
 
+      final callId = (data['callId'] ?? data['id'] ?? '').toString();
       final callerName = (data['callerName'] ?? data['userName'] ?? 'Unknown')
           .toString();
-      final callId = (data['callId'] ?? data['id'] ?? '').toString();
-      final channelName =
-          (data['channel'] ??
-                  data['channelName'] ??
-                  data['roomId'] ??
-                  data['roomName'] ??
-                  '')
-              .toString();
 
       if (callId.isEmpty) {
-        debugPrint("⚠️ incoming_call missing callId; skipping");
+        debugPrint("⚠️ call_started without callId");
         return;
       }
+
+      // Ignore self
+      final callerId = (data['callerId'] ?? data['userId'] ?? '').toString();
+      if (callerId == AppUrl.riolive_id.toString()) return;
+
+      // (Optional) If only HOSTS should see this dialog, uncomment:
+      // if (AppUrl.user_role?.toLowerCase() != 'host') return;
+
+      if (_pendingCallDialogs.contains(callId)) return;
+      _pendingCallDialogs.add(callId);
+
+      if (Get.isDialogOpen == true) Get.back();
 
       Get.dialog(
         AlertDialog(
@@ -59,161 +68,104 @@ class SocketService extends GetxService {
           actions: [
             TextButton(
               onPressed: () {
-                // optionally notify backend about rejection
-                socket?.emit("call_rejected", {"callId": callId});
+                try {
+                  socket?.emit("call_rejected", {"callId": callId});
+                } catch (_) {}
+                _pendingCallDialogs.remove(callId);
                 Get.back();
               },
               child: const Text("Reject"),
             ),
             TextButton(
               onPressed: () async {
+                _pendingCallDialogs.remove(callId);
                 Get.back();
 
-                final callController = Get.find<CallController>();
-                final joinResp = await callController.joinCall(
-                  AppUrl.token,
-                  callId,
-                );
+                final c = Get.find<CallController>();
 
-                // Resolve channel
-                final resolvedChannel =
-                    (joinResp?['agora']?['channelName'] ??
-                            channelName ??
-                            joinResp?['call']?['room_id'] ??
+                // 1) Join API via callId
+                final joinResp = await c.joinCall(AppUrl.token, callId);
+                if (joinResp == null) {
+                  Get.snackbar("Error", "Join call failed.");
+                  return;
+                }
+
+                // 2) Resolve channel name
+                final channelName =
+                    (joinResp['agora']?['channelName'] ??
+                            joinResp['call']?['room_id'] ??
+                            data['channel'] ??
+                            data['channelName'] ??
+                            data['roomId'] ??
+                            data['roomName'] ??
                             '')
                         .toString();
 
-                // Resolve host token
-                String hostToken = (joinResp?['agora']?['hostToken'] ?? '')
-                    .toString();
-                if (hostToken.isEmpty && resolvedChannel.isNotEmpty) {
+                // 3) Resolve token
+                String token =
+                    (joinResp['agora']?['hostToken'] ??
+                            joinResp['agora']?['token'] ??
+                            joinResp['token'] ??
+                            data['agora']?['token'] ??
+                            '')
+                        .toString();
+
+                if (token.isEmpty && channelName.isNotEmpty) {
                   final uid = int.tryParse(AppUrl.riolive_id.toString()) ?? 0;
-                  hostToken =
-                      await callController.fetchAgoraToken(
+                  token =
+                      await c.fetchAgoraToken(
                         token: AppUrl.token,
-                        channelName: resolvedChannel,
+                        channelName: channelName,
                         uid: uid,
                         role: 'publisher',
                       ) ??
                       "";
                 }
 
-                if (resolvedChannel.isNotEmpty && hostToken.isNotEmpty) {
-                  // Notify caller that host accepted (optional; depends on your backend)
-                  socket?.emit("call_accepted", {
-                    "callId": callId,
-                    "channel": resolvedChannel,
-                    "channelName": resolvedChannel,
-                  });
-
-                  Get.to(
-                    () => VideoCallScreen(
-                      token: AppUrl.token,
-                      callId: callId,
-                      channelName: resolvedChannel,
-                      agoraToken: hostToken,
-                      isHost: true,
-                    ),
-                  );
-                } else {
+                if (channelName.isEmpty || token.isEmpty) {
                   Get.snackbar(
                     "Error",
                     "Invalid join data (token/channel missing).",
                   );
+                  return;
                 }
+
+                // 4) Notify caller accepted (optional UI sync)
+                try {
+                  socket?.emit("call_accepted", {
+                    "callId": callId,
+                    "channel": channelName,
+                    "channelName": channelName,
+                    "agora": {"token": token},
+                  });
+                } catch (_) {}
+
+                // 5) Open the call as host/broadcaster
+                Get.to(
+                  () => VideoCallScreen(
+                    token: AppUrl.token,
+                    callId: callId,
+                    channelName: channelName,
+                    agoraToken: token,
+                    isHost: true,
+                  ),
+                );
               },
               child: const Text("Accept"),
             ),
           ],
         ),
+        barrierDismissible: false,
       );
     });
 
-    /// Caller side — Host accepted (optional, only if your backend forwards it)
-    socket?.off("call_accepted");
-    socket?.on("call_accepted", (data) async {
-      debugPrint("✅ call_accepted: $data");
-
-      final callId = (data['callId'] ?? data['id'] ?? '').toString();
-      final channelName =
-          (data['channel'] ??
-                  data['channelName'] ??
-                  data['agora']?['channelName'] ??
-                  data['roomId'] ??
-                  data['roomName'] ??
-                  '')
-              .toString();
-
-      String token =
-          (data['agora']?['callerToken'] ??
-                  data['token'] ??
-                  data['agora']?['hostToken'] ??
-                  '')
-              .toString();
-
-      if (channelName.isEmpty) {
-        Get.snackbar("Error", "Missing channel info in call_accepted.");
-        return;
-      }
-
-      if (token.isEmpty) {
-        // Try to fetch a publisher token for caller as well
-        final c = Get.find<CallController>();
-        final uid = int.tryParse(AppUrl.riolive_id.toString()) ?? 0;
-        token =
-            await c.fetchAgoraToken(
-              token: AppUrl.token,
-              channelName: channelName,
-              uid: uid,
-              role: 'publisher',
-            ) ??
-            "";
-      }
-
-      if (token.isNotEmpty && callId.isNotEmpty) {
-        Get.to(
-          () => VideoCallScreen(
-            token: AppUrl.token,
-            callId: callId,
-            channelName: channelName,
-            agoraToken: token,
-            isHost: false,
-          ),
-        );
-      } else {
-        Get.snackbar("Error", "Invalid call acceptance data.");
-      }
-    });
-
-    /// Both sides — Call status updates
-    socket?.off("call_status");
-    socket?.on("call_status", (data) {
-      debugPrint("📡 call_status: $data");
-      final status = (data['status'] ?? '').toString();
-      if (status == "ended") {
-        if (Get.isDialogOpen == true) Get.back();
-        Get.snackbar(
-          "Call Ended",
-          data['message']?.toString() ?? "Call finished",
-        );
-      } else if (status == "rejected") {
-        Get.snackbar(
-          "Call Rejected",
-          data['message']?.toString() ?? "Host rejected the call",
-        );
-      }
-    });
-
-    /// Host status updates (optional)
-    socket?.off("host_status");
-    socket?.on("host_status", (data) {
-      debugPrint("🟢 host_status: $data");
-    });
+    // You can keep your other listeners (incoming_call, call_accepted, call_status, host_status)
+    // if you still rely on them elsewhere.
   }
 
   // ================= EMITS =================
 
-  /// Use synonym keys so backend can pick any mapping it expects
+  /// Caller emits after startCall() succeeds
   void notifyCallStarted(Map<String, dynamic> payload) {
     final enriched = {
       ...payload,
@@ -237,13 +189,20 @@ class SocketService extends GetxService {
     socket?.emit("call_ended", payload);
   }
 
-  /// Host goes live — if your backend expects only hostId:
+  /// If backend expects only hostId:
   void hostJoin(String hostId) {
     debugPrint("📤 host_join $hostId");
     socket?.emit("host_join", hostId);
   }
 
+  // Optional: payload variant
+  // void hostJoinWithPayload(Map<String, dynamic> payload) {
+  //   debugPrint("📤 host_join(payload) $payload");
+  //   socket?.emit("host_join", payload);
+  // }
+
   void disposeSocket() {
+    _pendingCallDialogs.clear();
     socket?.disconnect();
     socket?.dispose();
     socket = null;
