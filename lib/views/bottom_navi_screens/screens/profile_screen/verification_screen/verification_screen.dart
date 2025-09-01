@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:riolive/customwidgets/custom_gradient_button.dart';
-import 'package:riolive/views/bottom_navi_screens/screens/agency_screens/agency_screen.dart';
+import 'package:get/get.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/verification_screen/redirected_screens/bind_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/verification_screen/redirected_screens/face_auth_screen.dart';
 
-import '../JoinAgency_Screen/JoinAgencyScreen.dart';
-// ✅ import custom button
-
+import '../../../../../customwidgets/custom_gradient_button.dart';
 import '../../../../../customwidgets/customtext.dart';
+import '../JoinAgency_Screen/JoinAgencyScreen.dart';
 
 class VerificationScreen extends StatelessWidget {
   const VerificationScreen({super.key});
