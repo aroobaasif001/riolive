@@ -58,6 +58,7 @@ class SocketService extends GetxService {
       );
       debugPrint("✅ Socket instance created successfully");
       debugPrint("🔍 Socket instance: ${socket != null ? "Exists" : "Null"}");
+
       debugPrint("🔍 Socket connected immediately: ${socket?.connected}");
       debugPrint("🔍 Socket ID immediately: ${socket?.id}");
     } catch (e) {
@@ -71,7 +72,7 @@ class SocketService extends GetxService {
       debugPrint("🔍 Socket ID: ${socket?.id}");
       debugPrint("🔍 Socket connected: ${socket?.connected}");
       debugPrint("🔍 Socket instance: ${socket != null ? "Exists" : "Null"}");
-      socket?.emit("authenticate", userId);
+      socket?.emit("authenticate", int.parse(userId));
       debugPrint("📤 Sent authenticate event with userId: $userId");
     });
 

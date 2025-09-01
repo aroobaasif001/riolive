@@ -208,18 +208,13 @@ class PartyRoomScreen extends GetView<PartyRoomController> {
 /* ============================ REUSABLE WIDGETS ============================= */
 /* ========================================================================== */
 
-// 🔹 Profile, Coins, GiftStrip, EnteredRoomPill, JoinButton, SafetyBlock
-// 🔹 ChatList scrollable bana diya (ListView.builder instead of Column)
-// 🔹 Sab jagah CustomContainer / CustomText use kiya
-// 🔹 Overflow errors fix with Expanded/Flexible
-
 class _ProfileChip extends GetView<PartyRoomController> {
   const _ProfileChip();
   @override
   Widget build(BuildContext context) {
     return Obx(
       () => _FrostedPill(
-        height: 46,
+        height: 50,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -374,13 +369,9 @@ class _GiftStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _GradientPill(
-      width: 280,
       height: 58,
       gradient: const LinearGradient(
-        colors: [
-          Color(0xffD74FFF),
-          Color(0xff6CD6FF),
-        ], // closer to Figma pink→aqua
+        colors: [Color(0xffD74FFF), Color(0xff6CD6FF)],
         begin: Alignment.centerLeft,
         end: Alignment.centerRight,
       ),
@@ -391,38 +382,46 @@ class _GiftStrip extends StatelessWidget {
             image: AssetImage('assets/images/profile.jpg'),
           ),
           const SizedBox(width: 8),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const CustomText(
-                'David Son',
-                fontType: AppFont.poppins,
-                fontWeight: FontWeight.w700,
-                fontSize: 15,
-                color: Colors.white,
-              ),
-              _FrostedPill(
-                width: 140,
-                height: 24,
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                  children: const [
-                    Icon(Icons.ac_unit_rounded, size: 16, color: Colors.white),
-                    SizedBox(width: 6),
-                    CustomText(
-                      'Crystal Diamond',
-                      fontSize: 12,
-                      color: Colors.white,
-                    ),
-                  ],
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const CustomText(
+                  'David Son',
+                  fontType: AppFont.poppins,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                  color: Colors.white,
                 ),
-              ),
-            ],
+                const SizedBox(height: 4),
+                _FrostedPill(
+                  height: 24,
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Icon(
+                        Icons.ac_unit_rounded,
+                        size: 16,
+                        color: Colors.white,
+                      ),
+                      SizedBox(width: 6),
+                      Flexible(
+                        child: CustomText(
+                          'Crystal Diamond',
+                          fontSize: 12,
+                          color: Colors.white,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(width: 10),
-
-          const Spacer(),
           Row(
             children: const [
               Icon(Icons.auto_awesome, size: 18, color: Colors.white),
@@ -447,7 +446,6 @@ class _EnteredRoomPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _GradientPill(
-      width: 36,
       height: 36,
       gradient: const LinearGradient(
         colors: [Color(0xffFFB444), Color(0xffFF6A88)],
@@ -457,13 +455,19 @@ class _EnteredRoomPill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: const [
-          _TinyRound(size: 24, image: AssetImage('assets/images/story_1.jpg')),
-          SizedBox(width: 8),
-          CustomText(
-            'Alex : entered the room',
-            color: Colors.white,
-            fontSize: 12.5,
+        children: [
+          const _TinyRound(
+            size: 24,
+            image: AssetImage('assets/images/story_1.jpg'),
+          ),
+          const SizedBox(width: 8),
+          Flexible(
+            child: CustomText(
+              '$username : entered the room',
+              color: Colors.white,
+              fontSize: 12.5,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),
@@ -477,7 +481,6 @@ class _JoinButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _GradientPill(
-      width: 200,
       height: 30,
       padding: EdgeInsets.zero,
       gradient: const LinearGradient(
@@ -497,7 +500,7 @@ class _JoinButton extends StatelessWidget {
           SizedBox(width: 10),
           Padding(
             padding: EdgeInsets.only(top: 1.0, bottom: 1),
-            child: VerticalDivider(),
+            child: VerticalDivider(color: Colors.white, thickness: 1, width: 1),
           ),
           SizedBox(width: 10),
           CustomText('join', color: Colors.white, fontWeight: FontWeight.w600),
@@ -536,7 +539,7 @@ class _ChatBubbleModel {
   final int? level;
   final IconData? icon;
   final String text;
-  final String? subText; // 2nd line (like English translation under Russian)
+  final String? subText;
   final bool hasTranslate;
   final bool flagged;
   _ChatBubbleModel({
@@ -571,6 +574,7 @@ class _ChatBubble extends StatelessWidget {
                 children: [
                   // header row
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (m.level != null) _LevelTag(level: m.level!),
                       if (m.icon != null) ...[
@@ -578,42 +582,53 @@ class _ChatBubble extends StatelessWidget {
                         Icon(m.icon, size: 14, color: Colors.white70),
                       ],
                       const SizedBox(width: 6),
-                      CustomText(
-                        m.name,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 12,
-                      ),
-                      const CustomText(
-                        '  :  ',
-                        color: Colors.white70,
-                        fontSize: 12,
-                      ),
-                      // main text
-                      CustomText(
-                        m.text,
-                        color: Colors.white.withOpacity(0.96),
-                        fontSize: 12.5,
-                        lineHeight: 1.25,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                CustomText(
+                                  m.name,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 12,
+                                ),
+                                const CustomText(
+                                  ' : ',
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                                Expanded(
+                                  child: CustomText(
+                                    m.text,
+                                    color: Colors.white.withOpacity(0.96),
+                                    fontSize: 12.5,
+                                    lineHeight: 1.25,
+                                    overflow: TextOverflow.visible,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            if (m.subText != null) ...[
+                              const SizedBox(height: 6),
+                              CustomContainer(
+                                height: 1,
+                                width: double.infinity,
+                                conColor: Colors.white.withOpacity(0.28),
+                              ),
+                              const SizedBox(height: 6),
+                              CustomText(
+                                m.subText!,
+                                color: Colors.white.withOpacity(0.92),
+                                fontSize: 12.2,
+                              ),
+                            ],
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 6),
-                  if (m.subText != null) ...[
-                    const SizedBox(height: 6),
-                    // thin divider like Figma
-                    CustomContainer(
-                      height: 1,
-                      width: double.infinity,
-                      conColor: Colors.white.withOpacity(0.28),
-                    ),
-                    const SizedBox(height: 6),
-                    CustomText(
-                      m.subText!,
-                      color: Colors.white.withOpacity(0.92),
-                      fontSize: 12.2,
-                    ),
-                  ],
                 ],
               ),
             ),
@@ -811,7 +826,7 @@ class _GradientPill extends StatelessWidget {
 
   const _GradientPill({
     required this.child,
-    required this.width,
+    this.width,
     required this.gradient,
     this.height,
     this.padding = const EdgeInsets.symmetric(horizontal: 12),
@@ -848,11 +863,9 @@ class _RoundGlow extends StatelessWidget {
       height: size,
       width: size,
       shape: BoxShape.circle,
-
       boxShadow: [
         BoxShadow(
-          color: Color.alphaBlend(Color(0xff7F3DFF), Color(0xffEB5AE5)),
-
+          color: const Color(0xff7F3DFF).withOpacity(0.6),
           blurRadius: 10,
           spreadRadius: 1,
         ),

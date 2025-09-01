@@ -35,6 +35,7 @@ class CallController extends GetxController {
     required String agoraToken,
     bool isHost = false, // kept for API compatibility
     bool isAudience = false,
+    required String callId,
   }) async {
     try {
       final mic = await Permission.microphone.request();

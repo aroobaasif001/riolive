@@ -29,6 +29,5 @@ class AppUrl {
   static var token;
   static var user_name;
   static var email;
-  static var agoraToken;
   static var user_role;
 }
