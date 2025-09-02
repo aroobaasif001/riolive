@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:riolive/customwidgets/custom_container.dart';
 import 'package:riolive/customwidgets/round_glow.dart';
 import 'package:riolive/customwidgets/tiny_round.dart';
 
@@ -8,11 +9,14 @@ import 'customtext.dart';
 import 'frosted_pill.dart';
 
 class ProfileChip extends GetView<UserVideoCallController> {
-  const ProfileChip();
+  var visible = false;
+  final color;
+  ProfileChip(this.visible, this.color);
   @override
   Widget build(BuildContext context) {
     return Obx(
       () => FrostedPill(
+        color: color,
         height: 50,
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -41,15 +45,17 @@ class ProfileChip extends GetView<UserVideoCallController> {
               ],
             ),
             const SizedBox(width: 8),
-            const RoundGlow(
-              color: Colors.pinkAccent,
-              size: 28,
-              child: Icon(
-                Icons.person_add_alt_1,
-                size: 16,
-                color: Colors.white,
-              ),
-            ),
+            visible == true
+                ? RoundGlow(
+                    color: Colors.pinkAccent,
+                    size: 28,
+                    child: Icon(
+                      Icons.person_add_alt_1,
+                      size: 16,
+                      color: Colors.white,
+                    ),
+                  )
+                : CustomContainer(),
           ],
         ),
       ),

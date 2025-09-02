@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/become_a_agent_screen/become_a_agent_screen.dart';
 
 import '../profile_screen/JoinAgency_Screen/JoinAgencyScreen.dart';
+import '../profile_screen/become_a_agent_screen/become_a_agent_screen.dart';
 
 class CustomImageButton extends StatelessWidget {
   final String label;
@@ -70,7 +70,7 @@ class CustomImageButton extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: CustomText(
-                  text: label,
+                  label,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,

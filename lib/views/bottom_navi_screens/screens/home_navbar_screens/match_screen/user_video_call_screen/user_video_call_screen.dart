@@ -45,11 +45,11 @@ class UserVideoCallScreen extends GetView<UserVideoCallController> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Row(
+                          Row(
                             // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             // crossAxisAlignment: CrossAxisAlignment.,
                             children: [
-                              ProfileChip(),
+                              ProfileChip(true, Colors.white.withOpacity(0.2)),
                               SizedBox(width: 2),
                               Row(
                                 children: const [
@@ -96,7 +96,11 @@ class UserVideoCallScreen extends GetView<UserVideoCallController> {
                               mainAxisAlignment: MainAxisAlignment
                                   .spaceBetween, // 👈 dono ko max space par push karega
                               children: [
-                                CoinsChip(), // left side
+                                CoinsChip(
+                                  "100.10",
+                                  Colors.white.withOpacity(0.2),
+                                  true,
+                                ), // left side
                                 Padding(
                                   padding: const EdgeInsets.only(right: 12),
                                   child: Image.asset(

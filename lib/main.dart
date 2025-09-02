@@ -10,8 +10,9 @@ import 'package:riolive/views/splashscreen/splash_screen.dart';
 
 import 'controller/signin_controller.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized(); // IMPORTANT
+
   Get.put(SocketService()); // register SocketService globally
   runApp(const MyApp());
 }
