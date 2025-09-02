@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:riolive/views/bottom_navi_screens/screens/agency_screens/agency_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/settings_screen/settings_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/verification_screen/verification_screen.dart';
 import '../../../../utile/app_url.dart';
+import '../agency_screens/agency_screen.dart';
 import 'about_riolive_screen/about_screen.dart';
 import 'customer_service/customer_service_screen.dart';
 import 'customer_support/customer_support_screen.dart';
