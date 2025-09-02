@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/become_a_agent_screen/become_a_agent_screen.dart';
 
-import '../../../../customwidgets/customtext.dart';
+import '../../../../../customwidgets/customtext.dart';
 import '../profile_screen/JoinAgency_Screen/JoinAgencyScreen.dart';
-
 class CustomImageButton extends StatelessWidget {
   final String label;
   final LinearGradient gradient;
