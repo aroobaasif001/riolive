@@ -50,7 +50,7 @@ class UserVideoCallScreen extends GetView<UserVideoCallController> {
                             // crossAxisAlignment: CrossAxisAlignment.,
                             children: [
                               ProfileChip(),
-                              SizedBox(width: 5),
+                              SizedBox(width: 2),
                               Row(
                                 children: const [
                                   TinyRound(
@@ -59,24 +59,31 @@ class UserVideoCallScreen extends GetView<UserVideoCallController> {
                                       'assets/images/story_1.jpg',
                                     ),
                                   ),
-                                  SizedBox(width: 6),
+                                  SizedBox(width: 4),
                                   TinyRound(
                                     size: 30,
                                     image: AssetImage(
                                       'assets/images/story_2.png',
                                     ),
                                   ),
-                                  SizedBox(width: 6),
+                                  SizedBox(width: 4),
                                   TinyRound(
                                     size: 30,
                                     image: AssetImage(
                                       'assets/images/story_3.jpg',
                                     ),
                                   ),
-                                  SizedBox(width: 6),
+                                  SizedBox(width: 4),
                                   PlusCountChip(countText: '+98'),
-                                  SizedBox(width: 6),
-                                  CloseButton(),
+                                  SizedBox(width: 4),
+                                  CloseButton(
+                                    color: Colors.white,
+                                    style: ButtonStyle(
+                                      backgroundColor: WidgetStatePropertyAll(
+                                        Colors.red,
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ],

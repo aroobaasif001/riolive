@@ -1,6 +1,6 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:riolive/views/bottom_navi_screens/screens/live_streaming_screen/live_streaming_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/host_video_call_screen/host_video_call_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/messages_screen/messages_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/moment&message/moment_message_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/profile_screen.dart';
@@ -22,7 +22,7 @@ class _BottomNaviScreenState extends State<BottomNaviScreen> {
   final List<Widget> _screens = [
     HomeScreen(), // 0
     const MomentMessageScreen(), // 1
-    const StartCallDummyScreen(), // 2
+    const HostVideoCallScreen(), // 2
     const MessagesScreen(), // 3
     const ProfileDashboardScreen(), // 4
   ];
