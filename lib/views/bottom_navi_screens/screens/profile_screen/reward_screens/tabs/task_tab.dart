@@ -406,35 +406,35 @@ class TaskTab extends StatelessWidget {
                 _TaskCard(
                   title: 'call match 0/1',
                   subtitle:
-                  'Complete 1 random call matches for more than 1 minutes',
+                  'Complete 1 random call matches for\n more than 1 minutes',
                   reward: 'x100',
                   claimed: true,
                 ),
                 SizedBox(height: 8),
                 _TaskCard(
                   title: 'Friend interaction 0/1',
-                  subtitle: 'Send 5 messages to each other with friends',
+                  subtitle: 'Send 5 messages to each other\n with friends',
                   reward: 'x50',
                 ),
                 SizedBox(height: 8),
                 _TaskCard(
                   title: 'To attend a party 0/1',
                   subtitle:
-                  'Speak for more than 1 minutes in the party room',
+                  'Speak for more than 1 minutes in\n the party room',
                   reward: 'x100',
                 ),
                 SizedBox(height: 8),
                 _TaskCard(
                   title: 'invite Friend 0/1',
                   subtitle:
-                  'invite friend when they join app & top-up 15k with your reference you get extra',
+                  'invite friend when they join app\n & top-up 15k with your reference you get extra',
                   reward: 'x200',
                 ),
                 SizedBox(height: 8),
                 _TaskCard(
                   title: 'invite Friend 0/1',
                   subtitle:
-                  'invite friend when they join app & top-up 15k with your reference you get extra',
+                  'invite friend when they join app\n & top-up 15k with your\n reference you get extra',
                   reward: 'x1000',
                 ),
                 SizedBox(height: 16),
@@ -531,6 +531,7 @@ class _TaskCard extends StatelessWidget {
                   lineHeight: 1.25,
                   color: const Color(0xFF8A8A8F),
                   fontWeight: FontWeight.w500,
+                  maxLines: 2,
                   shadows: const [],
                 ),
               ],
