@@ -10,7 +10,8 @@ import '../socket/incoming_calls.dart';
 import '../utile/app_url.dart';
 
 class CallController extends GetxController {
-  static const String appId = "747241138f01491291af0d34b78a5e9c";
+  /// Keep a fallback in case server doesn't return appId
+  static const String fallbackAppId = "6569a35538f247de9b0e7a4b7de82604";
 
   var isLoading = false.obs;
   RtcEngine? engine;
@@ -18,16 +19,15 @@ class CallController extends GetxController {
   var isMuted = false.obs;
 
   String? _channel; // current channel
-  String? _currentToken; // current token
+  String? _currentToken; // current Agora token
+  String? _serverAppId; // latest appId from server
   int _uid = 0; // uid used to join (must match server)
   bool _tearingDown = false; // cleanup guard
-  RtcEngineEventHandler? _handler; // keep same handler for unregister
+  RtcEngineEventHandler? _handler; // stored for unregister
 
   int _deriveUid() {
-    // Use the SAME UID your server signs for (0 or numeric user id).
     final parsed = int.tryParse(AppUrl.riolive_id.toString());
-    return parsed ?? 0;
-    // NOTE: If your server signs tokens for uid=0, leave this 0.
+    return parsed ?? 0; // if your server signs uid=0, keep it 0
   }
 
   Future<void> initAgora({
@@ -35,6 +35,7 @@ class CallController extends GetxController {
     required String agoraToken,
     bool isHost = false, // kept for API compatibility
     bool isAudience = false,
+    required String callId,
   }) async {
     try {
       final mic = await Permission.microphone.request();
@@ -53,7 +54,8 @@ class CallController extends GetxController {
       _uid = _deriveUid(); // must match server-signed uid
 
       engine = createAgoraRtcEngine();
-      await engine!.initialize(const RtcEngineContext(appId: appId));
+      final appIdToUse = _serverAppId ?? fallbackAppId;
+      await engine!.initialize(RtcEngineContext(appId: appIdToUse));
 
       // Default audio route -> speaker
       await engine!.setDefaultAudioRouteToSpeakerphone(true);
@@ -223,25 +225,63 @@ class CallController extends GetxController {
 
   Future<Map<String, dynamic>?> startCall(String token) async {
     try {
+      debugPrint("🚀 startCall() - Making API request...");
+      debugPrint("🔍 API URL: ${AppUrl.startVideoCall}");
+      debugPrint("🔍 Token: ${token.isNotEmpty ? "Present" : "Missing"}");
+
       isLoading.value = true;
       final res = await http.post(
         Uri.parse(AppUrl.startVideoCall),
         headers: {"Authorization": "Bearer $token"},
       );
 
+      debugPrint("🔍 API Response Status: ${res.statusCode}");
+      debugPrint("🔍 API Response Body: ${res.body}");
+
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
-        debugPrint("call start: $data");
+        debugPrint("✅ call start success: $data");
+
+        // cache server appId (CRITICAL for token-appId match)
+        _serverAppId = data['agora']?['appId']?.toString() ?? _serverAppId;
+        debugPrint("🔍 Server App ID: $_serverAppId");
 
         // Resolve common fields from response
         final callId = data['call']?['id'];
         final channelFromApi =
             data['agora']?['channelName'] ?? data['call']?['room_id'];
-        final callerToken =
-            data['agora']?['callerToken'] ?? data['agora']?['token'];
+        
+        // 🔧 CRITICAL FIX: Fetch fresh Agora token before proceeding
+        debugPrint("🔄 Fetching fresh Agora token for channel: $channelFromApi");
+        final uid = int.tryParse(AppUrl.riolive_id.toString()) ?? 0;
+        final freshToken = await fetchAgoraToken(
+          token: token,
+          channelName: channelFromApi,
+          uid: uid,
+          role: 'publisher', // For random calls
+        );
+        
+        if (freshToken?.isNotEmpty == true) {
+          debugPrint("✅ Fresh Agora token fetched successfully");
+          // Update the data with fresh token
+          if (data['agora'] != null) {
+            data['agora']['token'] = freshToken;
+          }
+        } else {
+          debugPrint("❌ Failed to fetch fresh Agora token");
+        }
+        
+        final callerToken = data['agora']?['token'];
 
-        // Emit with synonym keys so backend listener doesn't miss it
-        SocketService.to.notifyCallStarted({
+        debugPrint("🔍 Extracted data:");
+        debugPrint("   Call ID: $callId");
+        debugPrint("   Channel: $channelFromApi");
+        debugPrint(
+          "   Caller Token: ${callerToken?.toString().isNotEmpty == true ? "Present" : "Missing"}",
+        );
+
+        // Prepare socket payload
+        final socketPayload = {
           "callId": callId,
           "callerId": AppUrl.riolive_id,
           "callerName": AppUrl.user_name,
@@ -252,14 +292,24 @@ class CallController extends GetxController {
           "roomName": channelFromApi,
           // pass caller side token if your server wants to forward it
           "callerToken": callerToken,
-        });
+        };
 
+        debugPrint("📡 Emitting call_started socket event...");
+        debugPrint("🔍 Socket payload: $socketPayload");
+
+        // Emit with synonym keys so backend listener doesn't miss it
+        SocketService.to.notifyCallStarted(socketPayload);
+
+        debugPrint("✅ Socket event emitted successfully");
         return data;
       } else {
+        debugPrint("❌ API Error - Status: ${res.statusCode}");
         final body = jsonDecode(res.body);
+        debugPrint("❌ Error body: $body");
         Get.snackbar("Error", body['message'] ?? "Start call failed");
       }
     } catch (e) {
+      debugPrint("❌ startCall() Exception: $e");
       Get.snackbar("Error", e.toString());
     } finally {
       isLoading.value = false;
@@ -278,6 +328,10 @@ class CallController extends GetxController {
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         debugPrint("join call: $data");
+
+        // cache server appId
+        _serverAppId = data['agora']?['appId']?.toString() ?? _serverAppId;
+
         return data;
       } else {
         final body = jsonDecode(res.body);
@@ -322,6 +376,10 @@ class CallController extends GetxController {
       );
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
+
+        // cache server appId
+        _serverAppId = data['agora']?['appId']?.toString() ?? _serverAppId;
+
         return data;
       } else {
         final body = jsonDecode(res.body);
@@ -336,43 +394,85 @@ class CallController extends GetxController {
   }
 
   // Your live-list response: {"status":"success","count":2,"hosts":[{...}]}
-  Future<List<dynamic>> getLiveHosts(String token) async {
+  Future<List<Map<String, dynamic>>> getLiveHosts(String token) async {
     try {
-      final res = await http.get(
-        Uri.parse(AppUrl.liveListCall),
-        headers: {"Authorization": "Bearer $token"},
+      final response = await http.get(
+        Uri.parse('${AppUrl.baseUrl}/api/hosts/live-list'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
       );
-      if (res.statusCode == 200) {
-        final data = jsonDecode(res.body);
-        // returns the array as-is; shape: [{id,username,email,role,is_live,updated_at}]
-        return (data['hosts'] as List?) ?? [];
+
+      debugPrint(
+        '🔍 Fetching live hosts from: ${AppUrl.baseUrl}/api/hosts/live-list',
+      );
+      debugPrint('🔍 Live hosts API response status: ${response.statusCode}');
+      debugPrint('🔍 Live hosts API response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        if (data['status'] == 'success' && data['hosts'] != null) {
+          final hosts = List<Map<String, dynamic>>.from(data['hosts']);
+          debugPrint('🔍 Parsed hosts count: ${hosts.length}');
+
+          if (hosts.isNotEmpty) {
+            debugPrint('🔍 First host data structure: ${hosts.first}');
+          }
+
+          return hosts;
+        }
       }
+
+      return [];
     } catch (e) {
-      debugPrint("Get live hosts error: $e");
+      debugPrint('❌ Error fetching live hosts: $e');
+      return [];
     }
-    return [];
   }
 
   Future<String?> fetchAgoraToken({
     required String token,
     required String channelName,
     required int uid,
-    String role = 'publisher', // 'publisher' for 1:1, 'subscriber' for viewer
+    String role = 'host', // Changed default to 'host' for live streaming
   }) async {
     try {
+      // Build dynamic URL with user-specific parameters
       final uri = Uri.parse(
         "${AppUrl.agoraToken}?channel=$channelName&uid=$uid&role=$role",
       );
+      
+      debugPrint("🔍 Fetching Agora token from: $uri");
+      
       final res = await http.get(
         uri,
         headers: {"Authorization": "Bearer $token"},
       );
+      
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
-        return (data['agora']?['token'] ?? data['token'])?.toString();
+        debugPrint("🔍 Agora token API response: $data");
+        
+        if (data['status'] == 'success' && data['agora'] != null) {
+          final agoraData = data['agora'];
+          final tokenValue = agoraData['token']?.toString();
+          
+          debugPrint("🔍 Extracted token: ${tokenValue?.isNotEmpty == true ? "Present" : "Missing"}");
+          debugPrint("🔍 Channel: ${agoraData['channelName']}");
+          debugPrint("🔍 UID: ${agoraData['uid']}");
+          debugPrint("🔍 Role: ${agoraData['role']}");
+          
+          return tokenValue;
+        } else {
+          debugPrint("❌ Invalid response structure from Agora token API");
+        }
+      } else {
+        debugPrint("❌ Agora token API error: ${res.statusCode} - ${res.body}");
       }
     } catch (e) {
-      debugPrint("fetchAgoraToken error: $e");
+      debugPrint("❌ fetchAgoraToken error: $e");
     }
     return null;
   }
