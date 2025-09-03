@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../customwidgets/customtext.dart';
 import '../profile_screen/JoinAgency_Screen/JoinAgencyScreen.dart';
 import '../profile_screen/become_a_agent_screen/become_a_agent_screen.dart';
 
@@ -137,7 +138,7 @@ class AgencyScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const CustomText(
-          text: 'Agency',
+          'Agency',
           fontSize: 20,
           fontWeight: FontWeight.bold,
           color: Colors.black,
@@ -211,35 +212,35 @@ class AgencyScreen extends StatelessWidget {
   }
 }
 
-/// =========================
-/// 🔥 Custom Widgets
-/// =========================
-class CustomText extends StatelessWidget {
-  final String text;
-  final double fontSize;
-  final FontWeight fontWeight;
-  final Color color;
-  final TextAlign textAlign;
-
-  const CustomText({
-    super.key,
-    required this.text,
-    required this.fontSize,
-    this.fontWeight = FontWeight.normal,
-    this.color = Colors.black,
-    this.textAlign = TextAlign.start,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      textAlign: textAlign,
-      style: TextStyle(
-        fontSize: fontSize,
-        fontWeight: fontWeight,
-        color: color,
-      ),
-    );
-  }
-}
+// /// =========================
+// /// 🔥 Custom Widgets
+// /// =========================
+// class CustomText extends StatelessWidget {
+//   final String text;
+//   final double fontSize;
+//   final FontWeight fontWeight;
+//   final Color color;
+//   final TextAlign textAlign;
+//
+//   const CustomText({
+//     super.key,
+//     required this.text,
+//     required this.fontSize,
+//     this.fontWeight = FontWeight.normal,
+//     this.color = Colors.black,
+//     this.textAlign = TextAlign.start,
+//   });
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Text(
+//       text,
+//       textAlign: textAlign,
+//       style: TextStyle(
+//         fontSize: fontSize,
+//         fontWeight: fontWeight,
+//         color: color,
+//       ),
+//     );
+//   }
+// }

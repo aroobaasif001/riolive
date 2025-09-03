@@ -42,7 +42,25 @@ class NewTab extends StatelessWidget {
                 final img = images[index % images.length];
 
                 return GestureDetector(
-                  onTap: () {
+                  onTap: () async {
+                    print(host.token);
+                    print(host.name);
+                    print(host.id);
+                    print(host.appId);
+                    print(host.channelName);
+                    print(host.roomId);
+                    // final res = await http.post(
+                    //   Uri.parse("${AppUrl.joinVideoCall}${host.id}"),
+                    //   headers: {"Authorization": "Bearer ${AppUrl.token}"},
+                    // );
+                    // print(res.body);
+                    // final data = json.decode(res.body);
+                    // if (data['status'] == 'error') {
+                    //   Get.snackbar(
+                    //     "Error",
+                    //     data?["message"] ?? "Failed to start live",
+                    //   );
+                    // } else {
                     Get.to(
                       () => const HostStartLiveStreamingScreen(),
                       arguments: {
@@ -53,6 +71,7 @@ class NewTab extends StatelessWidget {
                         "isHost": false,
                       },
                     );
+                    // }
                   },
                   child: Column(
                     children: [

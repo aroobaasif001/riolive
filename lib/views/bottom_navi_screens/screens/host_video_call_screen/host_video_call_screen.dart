@@ -9,6 +9,7 @@ import '../../../../controller/random_call_controller.dart';
 import '../../../../customwidgets/custom_container.dart';
 import '../../../../customwidgets/custombutton.dart';
 import '../../../../customwidgets/customtext.dart';
+import '../../../../socket/incoming_calls.dart';
 import 'host_start_live_streaming_screen/host_start_live_streaming_screen.dart';
 
 class HostVideoCallScreen extends StatefulWidget {
@@ -76,6 +77,18 @@ class _HostVideoCallScreenState extends State<HostVideoCallScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              Positioned(
+                top: 10,
+                right: 10,
+                child: IconButton(
+                  icon: Icon(Icons.wifi_find, color: Colors.white),
+                  onPressed: () {
+                    SocketService.to.debugSocketStatus();
+                    // Test socket connection
+                    SocketService.to.socket?.emit("test", {"message": "test"});
+                  },
+                ),
+              ),
               const SizedBox(height: 10),
               const Text(
                 "Select Filter",
@@ -446,6 +459,7 @@ class _HostVideoCallScreenState extends State<HostVideoCallScreen> {
                     );
                     if (data != null && data["status"] == "success") {
                       final agora = data["agora"];
+                      print(agora);
                       Get.to(
                         () => HostStartLiveStreamingScreen(),
                         arguments: {

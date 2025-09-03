@@ -16,6 +16,10 @@ class CallController extends GetxController {
   RtcEngine? engine;
   var remoteUid = RxnInt();
   var isMuted = false.obs;
+  var isJoined = false.obs;
+  var isPreviewStarted = false.obs;
+  var hasError = false.obs;
+  var errorMessage = ''.obs;
 
   String? channel;
   String? _currentToken;
@@ -32,11 +36,16 @@ class CallController extends GetxController {
   Future<void> initAgora({
     required String channelName,
     required String agoraToken,
+    String? appId,
     bool isHost = false,
     bool isAudience = false,
     required String callId,
   }) async {
     try {
+      debugPrint(
+        "Initializing Agora with channel: $channelName, isHost: $isHost",
+      );
+
       final mic = await Permission.microphone.request();
       final cam = await Permission.camera.request();
       if (!mic.isGranted || !cam.isGranted) {
@@ -52,46 +61,73 @@ class CallController extends GetxController {
       _currentToken = agoraToken;
       _uid = _deriveUid();
 
+      // Use provided appId or fallback
+      if (appId != null && appId.isNotEmpty) {
+        _serverAppId = appId;
+      }
+
       engine = createAgoraRtcEngine();
       final appIdToUse = _serverAppId ?? fallbackAppId;
+
+      debugPrint("Using App ID: $appIdToUse");
+
       await engine!.initialize(RtcEngineContext(appId: appIdToUse));
 
-      await engine!.setDefaultAudioRouteToSpeakerphone(true);
+      // Enable video and set encoder configuration
+      await engine!.enableVideo();
       await engine!.setVideoEncoderConfiguration(
         const VideoEncoderConfiguration(
           dimensions: VideoDimensions(width: 960, height: 540),
           frameRate: 15,
+          bitrate: 0,
         ),
       );
 
-      await engine!.enableVideo();
-      await engine!.enableLocalVideo(!isAudience);
+      // Set channel profile and client role
+      await engine!.setChannelProfile(
+        ChannelProfileType.channelProfileLiveBroadcasting,
+      );
 
+      final clientRole = isAudience
+          ? ClientRoleType.clientRoleAudience
+          : ClientRoleType.clientRoleBroadcaster;
+
+      await engine!.setClientRole(role: clientRole);
+
+      // Setup event handlers
       _handler = RtcEngineEventHandler(
-        onJoinChannelSuccess: (RtcConnection connection, int elapsed) async {
+        onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
           debugPrint(
             "✅ Joined ${connection.channelId} uid=${connection.localUid}",
           );
+          isJoined.value = true;
+          hasError.value = false;
+          errorMessage.value = '';
+
+          // If host, start preview
           if (!isAudience) {
-            await engine?.enableLocalVideo(true);
-            await engine?.startPreview();
-            await engine?.setupLocalVideo(
-              const VideoCanvas(
-                uid: 0,
-                sourceType: VideoSourceType.videoSourceCamera,
-              ),
-            );
+            _startPreview();
           }
         },
         onUserJoined: (RtcConnection _, int uid, int __) {
+          debugPrint("Remote user joined: $uid");
           remoteUid.value = uid;
         },
-
         onUserOffline: (RtcConnection _, int uid, UserOfflineReasonType __) {
+          debugPrint("Remote user offline: $uid");
           remoteUid.value = null;
         },
         onLeaveChannel: (RtcConnection _, RtcStats __) {
+          debugPrint("Left channel");
+          isJoined.value = false;
+          isPreviewStarted.value = false;
           remoteUid.value = null;
+        },
+        onError: (ErrorCodeType err, String msg) {
+          debugPrint("Agora error: $err, message: $msg");
+          hasError.value = true;
+          errorMessage.value = "Error: $err - $msg";
+          _handleAgoraError(err, isAudience);
         },
         onRequestToken: (RtcConnection _) {
           _handleTokenRefreshRequest(isAudience);
@@ -99,26 +135,43 @@ class CallController extends GetxController {
         onTokenPrivilegeWillExpire: (RtcConnection _, String __) {
           _handleTokenRefreshRequest(isAudience);
         },
-        onError: (ErrorCodeType err, String msg) {
-          _handleAgoraError(err, isAudience);
-        },
       );
+
       engine!.registerEventHandler(_handler!);
 
+      // Join channel
       await engine!.joinChannel(
         token: _currentToken!,
         channelId: channel!,
         uid: _uid,
         options: ChannelMediaOptions(
           channelProfile: ChannelProfileType.channelProfileLiveBroadcasting,
-          clientRoleType: isAudience
-              ? ClientRoleType.clientRoleAudience
-              : ClientRoleType.clientRoleBroadcaster,
+          clientRoleType: clientRole,
+          publishCameraTrack: !isAudience,
+          publishMicrophoneTrack: !isAudience,
         ),
       );
     } catch (e) {
       debugPrint("Agora init error: $e");
+      hasError.value = true;
+      errorMessage.value = "Initialization failed: $e";
       Get.snackbar("Error", "Agora init failed: $e");
+    }
+  }
+
+  Future<void> _startPreview() async {
+    try {
+      await engine!.startPreview();
+      await engine!.setupLocalVideo(
+        const VideoCanvas(
+          uid: 0,
+          sourceType: VideoSourceType.videoSourceCamera,
+        ),
+      );
+      isPreviewStarted.value = true;
+      debugPrint("Local preview started");
+    } catch (e) {
+      debugPrint("Failed to start preview: $e");
     }
   }
 
@@ -142,8 +195,12 @@ class CallController extends GetxController {
 
   void _handleAgoraError(ErrorCodeType err, bool isAudience) async {
     debugPrint("Agora error [$err]");
+
+    // Handle token errors
     if (err == ErrorCodeType.errInvalidToken ||
         err == ErrorCodeType.errTokenExpired) {
+      debugPrint("Token is invalid or expired, trying to refresh...");
+
       if (channel == null) return;
       try {
         final newToken = await fetchAgoraToken(
@@ -152,26 +209,37 @@ class CallController extends GetxController {
           uid: _uid,
           role: isAudience ? 'subscriber' : 'publisher',
         );
+
         if (newToken?.isNotEmpty == true) {
           _currentToken = newToken;
           await engine?.renewToken(newToken!);
-          try {
-            await engine?.leaveChannel();
-          } catch (_) {}
+
+          // Rejoin channel with new token
+          await engine?.leaveChannel();
+          await Future.delayed(Duration(milliseconds: 500));
+
+          final clientRole = isAudience
+              ? ClientRoleType.clientRoleAudience
+              : ClientRoleType.clientRoleBroadcaster;
+
           await engine?.joinChannel(
             token: newToken!,
             channelId: channel!,
             uid: _uid,
             options: ChannelMediaOptions(
               channelProfile: ChannelProfileType.channelProfileLiveBroadcasting,
-              clientRoleType: isAudience
-                  ? ClientRoleType.clientRoleAudience
-                  : ClientRoleType.clientRoleBroadcaster,
+              clientRoleType: clientRole,
+              publishCameraTrack: !isAudience,
+              publishMicrophoneTrack: !isAudience,
             ),
           );
+        } else {
+          debugPrint("Failed to get new token");
+          errorMessage.value = "Failed to refresh token. Please try again.";
         }
       } catch (e) {
         debugPrint("Token error handling failed: $e");
+        errorMessage.value = "Token refresh failed: $e";
       }
     }
   }
@@ -181,7 +249,6 @@ class CallController extends GetxController {
     _tearingDown = true;
     try {
       await engine?.stopPreview();
-      await engine?.enableLocalVideo(false);
       await engine?.leaveChannel();
       await Future.delayed(const Duration(milliseconds: 300));
       if (_handler != null) {
@@ -194,6 +261,8 @@ class CallController extends GetxController {
       engine = null;
       _handler = null;
       remoteUid.value = null;
+      isJoined.value = false;
+      isPreviewStarted.value = false;
       _tearingDown = false;
     }
   }
@@ -347,6 +416,8 @@ class CallController extends GetxController {
         if (data['status'] == 'success' && data['agora'] != null) {
           return data['agora']['token']?.toString();
         }
+      } else {
+        debugPrint("Token fetch failed with status: ${res.statusCode}");
       }
     } catch (e) {
       debugPrint("fetchAgoraToken error: $e");
