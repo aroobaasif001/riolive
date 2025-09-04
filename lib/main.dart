@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Rio Live App',
       debugShowCheckedModeBanner: false,
-      home: RewardsTabs(),
+      home: AppStartup(),
     );
   }
 }
