@@ -165,7 +165,7 @@ class HostScreen extends StatelessWidget {
                     Spacer(),
                     GestureDetector(
                       onTap: () {},
-                      child: const CustomContainer(
+                      child:  CustomContainer(
                         height: 40,
                         width: 40,
                         shape: BoxShape.circle,
