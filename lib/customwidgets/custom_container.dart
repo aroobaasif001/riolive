@@ -14,8 +14,15 @@ class CustomContainer extends StatelessWidget {
  final Gradient? gradient;
   final EdgeInsetsGeometry? margin;
   final EdgeInsetsGeometry? padding;
+  final bgImagePath;
+  final iconPath;
+  final label;
+  final onTap;
+  String ?title;
+  final subTitle;
+  final decoration;
 
-  const CustomContainer({super.key,
+   CustomContainer({super.key,
     this.height,
     this.width,
     this.conColor,
@@ -29,6 +36,13 @@ class CustomContainer extends StatelessWidget {
     this.gradient,
     this.margin,
     this.padding,
+    this.bgImagePath,
+    this.iconPath,
+    this.label,
+    this.title,
+     this.subTitle,
+     this.decoration,
+     this.onTap,
   });
 
   @override
