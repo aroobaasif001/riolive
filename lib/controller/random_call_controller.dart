@@ -6,38 +6,46 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
 
-import '../socket/incoming_calls.dart';
+import '../services/socket_service.dart';
 import '../utile/app_url.dart';
 
 class CallController extends GetxController {
-  /// Keep a fallback in case server doesn't return appId
-  static const String fallbackAppId = "6569a35538f247de9b0e7a4b7de82604";
+  static const String fallbackAppId = "747241138f01491291af0d34b78a5e9c";
 
   var isLoading = false.obs;
   RtcEngine? engine;
   var remoteUid = RxnInt();
   var isMuted = false.obs;
+  var isJoined = false.obs;
+  var isPreviewStarted = false.obs;
+  var hasError = false.obs;
+  var errorMessage = ''.obs;
 
-  String? _channel; // current channel
-  String? _currentToken; // current Agora token
-  String? _serverAppId; // latest appId from server
-  int _uid = 0; // uid used to join (must match server)
-  bool _tearingDown = false; // cleanup guard
-  RtcEngineEventHandler? _handler; // stored for unregister
+  String? channel;
+  String? _currentToken;
+  String? _serverAppId;
+  int _uid = 0;
+  bool _tearingDown = false;
+  RtcEngineEventHandler? _handler;
 
   int _deriveUid() {
     final parsed = int.tryParse(AppUrl.riolive_id.toString());
-    return parsed ?? 0; // if your server signs uid=0, keep it 0
+    return parsed ?? 0;
   }
 
   Future<void> initAgora({
     required String channelName,
     required String agoraToken,
-    bool isHost = false, // kept for API compatibility
+    String? appId,
+    bool isHost = false,
     bool isAudience = false,
     required String callId,
   }) async {
     try {
+      debugPrint(
+        "Initializing Agora with channel: $channelName, isHost: $isHost",
+      );
+
       final mic = await Permission.microphone.request();
       final cam = await Permission.camera.request();
       if (!mic.isGranted || !cam.isGranted) {
@@ -49,140 +57,189 @@ class CallController extends GetxController {
         await leaveChannel();
       }
 
-      _channel = channelName;
+      channel = channelName;
       _currentToken = agoraToken;
-      _uid = _deriveUid(); // must match server-signed uid
+      _uid = _deriveUid();
+
+      // Use provided appId or fallback
+      if (appId != null && appId.isNotEmpty) {
+        _serverAppId = appId;
+      }
 
       engine = createAgoraRtcEngine();
       final appIdToUse = _serverAppId ?? fallbackAppId;
+
+      debugPrint("Using App ID: $appIdToUse");
+
       await engine!.initialize(RtcEngineContext(appId: appIdToUse));
 
-      // Default audio route -> speaker
-      await engine!.setDefaultAudioRouteToSpeakerphone(true);
-
-      // Stable encoder profile (540p @ 15fps)
+      // Enable video and set encoder configuration
+      await engine!.enableVideo();
       await engine!.setVideoEncoderConfiguration(
         const VideoEncoderConfiguration(
           dimensions: VideoDimensions(width: 960, height: 540),
           frameRate: 15,
+          bitrate: 0,
         ),
       );
 
-      // Enable video; turn local capture on/off by role
-      await engine!.enableVideo();
-      await engine!.enableLocalVideo(!isAudience);
+      // Set channel profile and client role
+      await engine!.setChannelProfile(
+        ChannelProfileType.channelProfileLiveBroadcasting,
+      );
 
-      // Build ONE handler instance; store for unregister
+      final clientRole = isAudience
+          ? ClientRoleType.clientRoleAudience
+          : ClientRoleType.clientRoleBroadcaster;
+
+      await engine!.setClientRole(role: clientRole);
+
+      // Setup event handlers
       _handler = RtcEngineEventHandler(
-        onJoinChannelSuccess: (RtcConnection connection, int elapsed) async {
+        onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
           debugPrint(
             "✅ Joined ${connection.channelId} uid=${connection.localUid}",
           );
+          isJoined.value = true;
+          hasError.value = false;
+          errorMessage.value = '';
+
+          // If host, start preview
           if (!isAudience) {
-            await engine?.startPreview();
+            _startPreview();
           }
         },
         onUserJoined: (RtcConnection _, int uid, int __) {
+          debugPrint("Remote user joined: $uid");
           remoteUid.value = uid;
         },
         onUserOffline: (RtcConnection _, int uid, UserOfflineReasonType __) {
+          debugPrint("Remote user offline: $uid");
           remoteUid.value = null;
         },
         onLeaveChannel: (RtcConnection _, RtcStats __) {
+          debugPrint("Left channel");
+          isJoined.value = false;
+          isPreviewStarted.value = false;
           remoteUid.value = null;
         },
-
-        // Some SDK variants call this when they need a new token.
-        onRequestToken: (RtcConnection connection) {
-          _handleTokenRefreshRequest(isAudience);
-        },
-
-        // Correct signature: (RtcConnection, String)
-        onTokenPrivilegeWillExpire: (RtcConnection connection, String token) {
-          _handleTokenRefreshRequest(isAudience);
-        },
-
-        // Handle invalid/expired token paths
         onError: (ErrorCodeType err, String msg) {
+          debugPrint("Agora error: $err, message: $msg");
+          hasError.value = true;
+          errorMessage.value = "Error: $err - $msg";
           _handleAgoraError(err, isAudience);
         },
+        onRequestToken: (RtcConnection _) {
+          _handleTokenRefreshRequest(isAudience);
+        },
+        onTokenPrivilegeWillExpire: (RtcConnection _, String __) {
+          _handleTokenRefreshRequest(isAudience);
+        },
       );
+
       engine!.registerEventHandler(_handler!);
 
+      // Join channel
       await engine!.joinChannel(
         token: _currentToken!,
-        channelId: _channel!,
-        uid: _uid, // MUST match token
+        channelId: channel!,
+        uid: _uid,
         options: ChannelMediaOptions(
           channelProfile: ChannelProfileType.channelProfileLiveBroadcasting,
-          clientRoleType: isAudience
-              ? ClientRoleType.clientRoleAudience
-              : ClientRoleType.clientRoleBroadcaster, // 1-to-1 => broadcaster
+          clientRoleType: clientRole,
+          publishCameraTrack: !isAudience,
+          publishMicrophoneTrack: !isAudience,
         ),
       );
     } catch (e) {
       debugPrint("Agora init error: $e");
+      hasError.value = true;
+      errorMessage.value = "Initialization failed: $e";
       Get.snackbar("Error", "Agora init failed: $e");
     }
   }
 
-  // ---- Helper: Token refresh on request/privilege-will-expire
+  Future<void> _startPreview() async {
+    try {
+      await engine!.startPreview();
+      await engine!.setupLocalVideo(
+        const VideoCanvas(
+          uid: 0,
+          sourceType: VideoSourceType.videoSourceCamera,
+        ),
+      );
+      isPreviewStarted.value = true;
+      debugPrint("Local preview started");
+    } catch (e) {
+      debugPrint("Failed to start preview: $e");
+    }
+  }
+
   void _handleTokenRefreshRequest(bool isAudience) async {
-    if (_channel == null) return;
+    if (channel == null) return;
     try {
       final newToken = await fetchAgoraToken(
         token: AppUrl.token,
-        channelName: _channel!,
+        channelName: channel!,
         uid: _uid,
         role: isAudience ? 'subscriber' : 'publisher',
       );
       if (newToken?.isNotEmpty == true) {
         _currentToken = newToken;
         await engine?.renewToken(newToken!);
-        debugPrint("🔄 Token renewed (requested/expiring)");
       }
     } catch (e) {
       debugPrint("Token refresh error: $e");
     }
   }
 
-  // ---- Helper: Error handling, including invalid/expired token
   void _handleAgoraError(ErrorCodeType err, bool isAudience) async {
     debugPrint("Agora error [$err]");
+
+    // Handle token errors
     if (err == ErrorCodeType.errInvalidToken ||
         err == ErrorCodeType.errTokenExpired) {
-      if (_channel == null) return;
+      debugPrint("Token is invalid or expired, trying to refresh...");
+
+      if (channel == null) return;
       try {
         final newToken = await fetchAgoraToken(
           token: AppUrl.token,
-          channelName: _channel!,
+          channelName: channel!,
           uid: _uid,
           role: isAudience ? 'subscriber' : 'publisher',
         );
+
         if (newToken?.isNotEmpty == true) {
           _currentToken = newToken;
-          // Renew and safe re-join to cover early join failure as well
           await engine?.renewToken(newToken!);
-          try {
-            await engine?.leaveChannel();
-          } catch (_) {}
+
+          // Rejoin channel with new token
+          await engine?.leaveChannel();
+          await Future.delayed(Duration(milliseconds: 500));
+
+          final clientRole = isAudience
+              ? ClientRoleType.clientRoleAudience
+              : ClientRoleType.clientRoleBroadcaster;
+
           await engine?.joinChannel(
             token: newToken!,
-            channelId: _channel!,
+            channelId: channel!,
             uid: _uid,
             options: ChannelMediaOptions(
               channelProfile: ChannelProfileType.channelProfileLiveBroadcasting,
-              clientRoleType: isAudience
-                  ? ClientRoleType.clientRoleAudience
-                  : ClientRoleType.clientRoleBroadcaster,
+              clientRoleType: clientRole,
+              publishCameraTrack: !isAudience,
+              publishMicrophoneTrack: !isAudience,
             ),
           );
-          debugPrint("🔁 Re-joined with fresh token");
         } else {
-          Get.snackbar("Error", "Unable to refresh Agora token.");
+          debugPrint("Failed to get new token");
+          errorMessage.value = "Failed to refresh token. Please try again.";
         }
       } catch (e) {
         debugPrint("Token error handling failed: $e");
+        errorMessage.value = "Token refresh failed: $e";
       }
     }
   }
@@ -191,12 +248,9 @@ class CallController extends GetxController {
     if (engine == null || _tearingDown) return;
     _tearingDown = true;
     try {
-      await engine?.enableLocalVideo(false);
       await engine?.stopPreview();
       await engine?.leaveChannel();
-      await Future.delayed(
-        const Duration(milliseconds: 150),
-      ); // let Camera2 finish callbacks
+      await Future.delayed(const Duration(milliseconds: 300));
       if (_handler != null) {
         engine?.unregisterEventHandler(_handler!);
       }
@@ -207,6 +261,8 @@ class CallController extends GetxController {
       engine = null;
       _handler = null;
       remoteUid.value = null;
+      isJoined.value = false;
+      isPreviewStarted.value = false;
       _tearingDown = false;
     }
   }
@@ -225,91 +281,22 @@ class CallController extends GetxController {
 
   Future<Map<String, dynamic>?> startCall(String token) async {
     try {
-      debugPrint("🚀 startCall() - Making API request...");
-      debugPrint("🔍 API URL: ${AppUrl.startVideoCall}");
-      debugPrint("🔍 Token: ${token.isNotEmpty ? "Present" : "Missing"}");
-
       isLoading.value = true;
       final res = await http.post(
         Uri.parse(AppUrl.startVideoCall),
         headers: {"Authorization": "Bearer $token"},
       );
 
-      debugPrint("🔍 API Response Status: ${res.statusCode}");
-      debugPrint("🔍 API Response Body: ${res.body}");
-
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
-        debugPrint("✅ call start success: $data");
-
-        // cache server appId (CRITICAL for token-appId match)
         _serverAppId = data['agora']?['appId']?.toString() ?? _serverAppId;
-        debugPrint("🔍 Server App ID: $_serverAppId");
 
-        // Resolve common fields from response
-        final callId = data['call']?['id'];
-        final channelFromApi =
-            data['agora']?['channelName'] ?? data['call']?['room_id'];
-        
-        // 🔧 CRITICAL FIX: Fetch fresh Agora token before proceeding
-        debugPrint("🔄 Fetching fresh Agora token for channel: $channelFromApi");
-        final uid = int.tryParse(AppUrl.riolive_id.toString()) ?? 0;
-        final freshToken = await fetchAgoraToken(
-          token: token,
-          channelName: channelFromApi,
-          uid: uid,
-          role: 'publisher', // For random calls
-        );
-        
-        if (freshToken?.isNotEmpty == true) {
-          debugPrint("✅ Fresh Agora token fetched successfully");
-          // Update the data with fresh token
-          if (data['agora'] != null) {
-            data['agora']['token'] = freshToken;
-          }
-        } else {
-          debugPrint("❌ Failed to fetch fresh Agora token");
-        }
-        
-        final callerToken = data['agora']?['token'];
-
-        debugPrint("🔍 Extracted data:");
-        debugPrint("   Call ID: $callId");
-        debugPrint("   Channel: $channelFromApi");
-        debugPrint(
-          "   Caller Token: ${callerToken?.toString().isNotEmpty == true ? "Present" : "Missing"}",
-        );
-
-        // Prepare socket payload
-        final socketPayload = {
-          "callId": callId,
-          "callerId": AppUrl.riolive_id,
-          "callerName": AppUrl.user_name,
-          // synonyms for channel/room
-          "channel": channelFromApi,
-          "channelName": channelFromApi,
-          "roomId": channelFromApi,
-          "roomName": channelFromApi,
-          // pass caller side token if your server wants to forward it
-          "callerToken": callerToken,
-        };
-
-        debugPrint("📡 Emitting call_started socket event...");
-        debugPrint("🔍 Socket payload: $socketPayload");
-
-        // Emit with synonym keys so backend listener doesn't miss it
-        SocketService.to.notifyCallStarted(socketPayload);
-
-        debugPrint("✅ Socket event emitted successfully");
         return data;
       } else {
-        debugPrint("❌ API Error - Status: ${res.statusCode}");
         final body = jsonDecode(res.body);
-        debugPrint("❌ Error body: $body");
         Get.snackbar("Error", body['message'] ?? "Start call failed");
       }
     } catch (e) {
-      debugPrint("❌ startCall() Exception: $e");
       Get.snackbar("Error", e.toString());
     } finally {
       isLoading.value = false;
@@ -327,11 +314,7 @@ class CallController extends GetxController {
 
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
-        debugPrint("join call: $data");
-
-        // cache server appId
         _serverAppId = data['agora']?['appId']?.toString() ?? _serverAppId;
-
         return data;
       } else {
         final body = jsonDecode(res.body);
@@ -376,10 +359,7 @@ class CallController extends GetxController {
       );
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
-
-        // cache server appId
         _serverAppId = data['agora']?['appId']?.toString() ?? _serverAppId;
-
         return data;
       } else {
         final body = jsonDecode(res.body);
@@ -393,7 +373,6 @@ class CallController extends GetxController {
     return null;
   }
 
-  // Your live-list response: {"status":"success","count":2,"hosts":[{...}]}
   Future<List<Map<String, dynamic>>> getLiveHosts(String token) async {
     try {
       final response = await http.get(
@@ -404,27 +383,13 @@ class CallController extends GetxController {
         },
       );
 
-      debugPrint(
-        '🔍 Fetching live hosts from: ${AppUrl.baseUrl}/api/hosts/live-list',
-      );
-      debugPrint('🔍 Live hosts API response status: ${response.statusCode}');
-      debugPrint('🔍 Live hosts API response: ${response.body}');
-
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-
         if (data['status'] == 'success' && data['hosts'] != null) {
           final hosts = List<Map<String, dynamic>>.from(data['hosts']);
-          debugPrint('🔍 Parsed hosts count: ${hosts.length}');
-
-          if (hosts.isNotEmpty) {
-            debugPrint('🔍 First host data structure: ${hosts.first}');
-          }
-
           return hosts;
         }
       }
-
       return [];
     } catch (e) {
       debugPrint('❌ Error fetching live hosts: $e');
@@ -436,43 +401,26 @@ class CallController extends GetxController {
     required String token,
     required String channelName,
     required int uid,
-    String role = 'host', // Changed default to 'host' for live streaming
+    String role = 'host',
   }) async {
     try {
-      // Build dynamic URL with user-specific parameters
       final uri = Uri.parse(
         "${AppUrl.agoraToken}?channel=$channelName&uid=$uid&role=$role",
       );
-      
-      debugPrint("🔍 Fetching Agora token from: $uri");
-      
       final res = await http.get(
         uri,
         headers: {"Authorization": "Bearer $token"},
       );
-      
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
-        debugPrint("🔍 Agora token API response: $data");
-        
         if (data['status'] == 'success' && data['agora'] != null) {
-          final agoraData = data['agora'];
-          final tokenValue = agoraData['token']?.toString();
-          
-          debugPrint("🔍 Extracted token: ${tokenValue?.isNotEmpty == true ? "Present" : "Missing"}");
-          debugPrint("🔍 Channel: ${agoraData['channelName']}");
-          debugPrint("🔍 UID: ${agoraData['uid']}");
-          debugPrint("🔍 Role: ${agoraData['role']}");
-          
-          return tokenValue;
-        } else {
-          debugPrint("❌ Invalid response structure from Agora token API");
+          return data['agora']['token']?.toString();
         }
       } else {
-        debugPrint("❌ Agora token API error: ${res.statusCode} - ${res.body}");
+        debugPrint("Token fetch failed with status: ${res.statusCode}");
       }
     } catch (e) {
-      debugPrint("❌ fetchAgoraToken error: $e");
+      debugPrint("fetchAgoraToken error: $e");
     }
     return null;
   }

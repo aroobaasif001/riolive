@@ -13,8 +13,8 @@ class RoundIcon extends StatelessWidget {
       color: Colors.white.withOpacity(0.4),
       size: 52,
       child: CustomContainer(
-        height: 52,
-        width: 52,
+        height: 42,
+        width: 42,
         // shape: BoxShape.circle,
         image: DecorationImage(image: image, fit: BoxFit.fitWidth),
       ),

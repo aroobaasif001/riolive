@@ -6,7 +6,7 @@ import '../models/chat_bubble_model.dart';
 class UserVideoCallController extends GetxController {
   final hostName = 'Wamiqa J.'.obs;
   final hostId = '7205215'.obs;
-  final coin = 100100.obs;
+  var coin = ''.obs;
 
   final stories = <String>[
     'assets/images/story_1.png',

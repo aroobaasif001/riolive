@@ -5,6 +5,7 @@ import 'custom_container.dart';
 class FrostedPill extends StatelessWidget {
   final double? width;
   final double? height;
+  final color;
   final EdgeInsetsGeometry? padding;
   final Widget child;
 
@@ -13,6 +14,7 @@ class FrostedPill extends StatelessWidget {
     this.height,
     this.width,
     this.padding = const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+    this.color,
   });
 
   @override
@@ -21,15 +23,16 @@ class FrostedPill extends StatelessWidget {
       width: width,
       height: height,
       padding: padding,
+      conColor: color,
       borderRadius: BorderRadius.circular(100),
-      gradient: LinearGradient(
-        colors: [
-          Colors.white.withOpacity(0.20),
-          Colors.white.withOpacity(0.08),
-        ],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
+      // gradient: LinearGradient(
+      //   colors: [
+      //     Colors.white.withOpacity(0.20),
+      //     Colors.white.withOpacity(0.08),
+      //   ],
+      //   begin: Alignment.topLeft,
+      //   end: Alignment.bottomRight,
+      // ),
       boxShadow: [
         BoxShadow(
           color: Colors.black.withOpacity(0.35),

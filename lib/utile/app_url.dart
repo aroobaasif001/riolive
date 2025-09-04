@@ -20,7 +20,8 @@ class AppUrl {
   ///Live Streaming Api's
   static var goLiveCall = "${baseUrl}/api/hosts/go-live";
   static var offLiveLiveCall = "${baseUrl}/api/hosts/go-offline";
-  // static var liveListCall = "${baseUrl}/api/hosts/live-list"; // Removed - using direct URL now
+  static var liveListCall =
+      "${baseUrl}/api/hosts/live-list"; // Removed - using direct URL now
 
   ///Agora Token Api
   static var agoraToken = "${baseUrl}/api/agora/token";
