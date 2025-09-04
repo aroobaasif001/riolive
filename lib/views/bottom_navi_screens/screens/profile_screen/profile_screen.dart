@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:riolive/views/bottom_navi_screens/screens/agency_screens/agency_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/agency_screen1/agency_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/settings_screen/settings_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/verification_screen/verification_screen.dart';
 import '../../../../utile/app_url.dart';
-import 'about_riolive_screen/about_screen.dart';
-import 'customer_service/customer_service_screen.dart';
-import 'customer_support/customer_support_screen.dart';
+import 'customer_service/Contact_customer_service.dart';
 import 'edit_profile_screen.dart';
 import 'level_screens/rich_level_screen.dart';
 import 'ranking_screens/ranking_main_screen.dart';
@@ -20,6 +18,7 @@ class ProfileDashboardScreen extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
@@ -297,13 +296,13 @@ class ProfileDashboardScreen extends StatelessWidget {
               } else if (e.label == "Ranking List") {
                 Get.to(() => const RankingMainScreen());
               } else if (e.label == "Customer") {
-                Get.to(() => const ContactCustomerServiceScreen());
+                Get.to(() => ContactCustomerServiceScreen ());
               } else if (e.label == "Verification") {
                 Get.to(() => const VerificationScreen());
               } else if (e.label == "Official Support") {
-                Get.to(() => const SupportScreen());
+                Get.to(() => const ());
               } else if (e.label == "About Rio Live") {
-                Get.to(() => const AboutRioScreen());
+                Get.to(() => const ());
               } else if (e.label == "Settings") {
                 Get.to(() => const SettingsScreen());
               } else if (e.label == "Settings") {

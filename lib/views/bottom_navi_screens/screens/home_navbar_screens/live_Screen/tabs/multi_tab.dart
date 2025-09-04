@@ -207,9 +207,9 @@ class _ProfileCard extends StatelessWidget {
                 // CHANGED: Asset image instead of network
                 Image.asset(profile.imageUrl, fit: BoxFit.cover),
 
-                const Positioned.fill(
+                Positioned.fill(
                   child: CustomContainer(
-                    gradient: LinearGradient(
+                    gradient: const LinearGradient(
                       begin: Alignment.bottomCenter,
                       end: Alignment.center,
                       colors: [Colors.black45, Colors.transparent],
