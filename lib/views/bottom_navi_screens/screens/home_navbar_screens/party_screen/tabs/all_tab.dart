@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/home_navbar_screens/party_screen/party_room_screen/party_room_screen.dart';
 
 import '../../../../../../customwidgets/custom_container.dart';
 
@@ -64,23 +66,28 @@ class AllTab extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Rajesh Kumar",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+              InkWell(
+                onTap: () {
+                  Get.to(() => PartyRoomScreen());
+                },
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Rajesh Kumar",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    "Welcome Everyone",
-                    style: TextStyle(color: Colors.black54),
-                  ),
-                ],
+                    SizedBox(height: 4),
+                    Text(
+                      "Welcome Everyone",
+                      style: TextStyle(color: Colors.black54),
+                    ),
+                  ],
+                ),
               ),
               Spacer(),
               Align(

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/agency_screen1/agency_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/settings_screen/settings_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/verification_screen/verification_screen.dart';
 import '../../../../utile/app_url.dart';
+import '../DiamondTrading/diamond_trading_main_screen.dart';
+import 'about_riolive_screen/about_screen.dart';
+
+import 'agency_screen1/agency_screen.dart';
 import 'customer_service/Contact_customer_service.dart';
 import 'edit_profile_screen.dart';
 import 'level_screens/rich_level_screen.dart';
@@ -18,7 +21,6 @@ class ProfileDashboardScreen extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      resizeToAvoidBottomInset: true,
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
@@ -296,19 +298,21 @@ class ProfileDashboardScreen extends StatelessWidget {
               } else if (e.label == "Ranking List") {
                 Get.to(() => const RankingMainScreen());
               } else if (e.label == "Customer") {
-                Get.to(() => ContactCustomerServiceScreen ());
+                Get.to(() => const ContactCustomerServiceScreen());
               } else if (e.label == "Verification") {
                 Get.to(() => const VerificationScreen());
               } else if (e.label == "Official Support") {
                 Get.to(() => const ());
               } else if (e.label == "About Rio Live") {
-                Get.to(() => const ());
+                Get.to(() => const AboutRioScreen());
               } else if (e.label == "Settings") {
                 Get.to(() => const SettingsScreen());
               } else if (e.label == "Settings") {
                 Get.to(() => const SettingsScreen());
               } else if (e.label == "Agency Management") {
                 Get.to(() => AgencyScreen());
+              } else if (e.label == "Diamond Trading") {
+                Get.to(() => const DiamondTradingMainScreen());
               }
             },
             child: Container(
@@ -344,15 +348,15 @@ class ProfileDashboardScreen extends StatelessWidget {
                     child: Center(
                       child: e.icon is String
                           ? Image.asset(
-                              e.icon,
-                              width: iconSize,
-                              height: iconSize,
-                            )
+                        e.icon,
+                        width: iconSize,
+                        height: iconSize,
+                      )
                           : Icon(
-                              e.icon as IconData,
-                              size: iconSize,
-                              color: Colors.white,
-                            ),
+                        e.icon as IconData,
+                        size: iconSize,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 6),

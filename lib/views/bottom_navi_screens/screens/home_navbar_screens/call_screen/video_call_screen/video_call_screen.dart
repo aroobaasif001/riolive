@@ -29,24 +29,33 @@ class _VideoCallScreenState extends State<VideoCallScreen>
   final CallController controller = Get.find<CallController>();
   bool _isLoading = true;
   bool _ending = false;
+  bool _initialized = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    debugPrint(
+      "🎬 VideoCallScreen init - CallId: ${widget.callId}, Channel: ${widget.channelName}, IsHost: ${widget.isHost}",
+    );
     _initializeCall();
   }
 
   @override
   void dispose() {
+    debugPrint("🎬 VideoCallScreen disposing");
     WidgetsBinding.instance.removeObserver(this);
-    controller.leaveChannel();
+    if (!_ending) {
+      _endCallSilently();
+    }
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (controller.engine == null) return;
+    if (controller.engine == null || !_initialized) return;
+
+    debugPrint("📱 App lifecycle changed: $state");
     if (state == AppLifecycleState.paused) {
       controller.engine?.enableLocalVideo(false);
       controller.engine?.stopPreview();
@@ -58,40 +67,91 @@ class _VideoCallScreenState extends State<VideoCallScreen>
 
   Future<void> _initializeCall() async {
     try {
+      debugPrint(
+        "🚀 Initializing call with token: ${widget.agoraToken.substring(0, 20)}...",
+      );
+
       await controller.initAgora(
         channelName: widget.channelName,
         agoraToken: widget.agoraToken,
         isHost: widget.isHost,
+        isAudience: false, // Both participants are broadcasters in 1-to-1
+        callId: widget.callId,
       );
+
+      _initialized = true;
+      debugPrint("✅ Call initialized successfully");
     } catch (e) {
-      debugPrint("Agora init failed: $e");
-      if (mounted) Get.snackbar("Error", "Init failed: $e");
+      debugPrint("❌ Agora init failed: $e");
+      if (mounted) {
+        Get.snackbar("Error", "Failed to initialize call: $e");
+        Get.back(); // Go back if initialization fails
+      }
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
   Future<void> _endCall() async {
     if (_ending) return;
-    _ending = true;
+
+    setState(() => _ending = true);
+    debugPrint("☎️ Ending call...");
+
     try {
+      // Call the enhanced endCall method
       final success = await controller.endCall(widget.token, widget.callId);
-      await controller.leaveChannel();
+
       if (!mounted) return;
+
       Get.back();
       Get.snackbar(
         success ? "Call Ended" : "Error",
-        success ? "Call ended successfully" : "Failed to end call",
+        success ? "Call ended successfully" : "Failed to end call properly",
+        backgroundColor: success ? Colors.green : Colors.red,
+        colorText: Colors.white,
       );
     } catch (e) {
-      debugPrint("Error ending call: $e");
+      debugPrint("❌ Error ending call: $e");
       if (mounted) {
         Get.back();
-        Get.snackbar("Error", e.toString());
+        Get.snackbar("Error", "Error ending call: $e");
       }
-    } finally {
-      _ending = false;
     }
+  }
+
+  // Silent end for dispose (no UI feedback)
+  Future<void> _endCallSilently() async {
+    try {
+      await controller.leaveChannel();
+    } catch (e) {
+      debugPrint("❌ Silent end error: $e");
+    }
+  }
+
+  Widget _buildLocalVideoView() {
+    if (controller.engine == null) return const SizedBox();
+
+    return AgoraVideoView(
+      controller: VideoViewController(
+        rtcEngine: controller.engine!,
+        canvas: const VideoCanvas(uid: 0),
+      ),
+    );
+  }
+
+  Widget _buildRemoteVideoView(int uid) {
+    if (controller.engine == null) return const SizedBox();
+
+    return AgoraVideoView(
+      controller: VideoViewController.remote(
+        rtcEngine: controller.engine!,
+        canvas: VideoCanvas(uid: uid),
+        connection: RtcConnection(channelId: widget.channelName),
+      ),
+    );
   }
 
   @override
@@ -104,110 +164,272 @@ class _VideoCallScreenState extends State<VideoCallScreen>
       child: Scaffold(
         backgroundColor: Colors.black,
         body: _isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(color: Colors.white),
+                    SizedBox(height: 20),
+                    Text(
+                      "Connecting...",
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ],
+                ),
+              )
             : SafeArea(
                 child: Stack(
                   children: [
-                    // Remote video
+                    // Remote video (full screen)
                     Obx(() {
                       final uid = controller.remoteUid.value;
-                      if (uid != null && controller.engine != null) {
-                        return AgoraVideoView(
-                          controller: VideoViewController.remote(
-                            rtcEngine: controller.engine!,
-                            canvas: VideoCanvas(uid: uid),
-                            connection: RtcConnection(
-                              channelId: widget.channelName,
-                            ),
-                          ),
-                        );
+                      if (uid != null) {
+                        return _buildRemoteVideoView(uid);
                       }
-                      return const Center(
-                        child: Column(
+                      return Container(
+                        width: double.infinity,
+                        height: double.infinity,
+                        color: Colors.black87,
+                        child: const Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            CircularProgressIndicator(),
+                            CircularProgressIndicator(color: Colors.white),
                             SizedBox(height: 20),
                             Text(
-                              "Waiting for participant...",
-                              style: TextStyle(color: Colors.white),
+                              "Waiting for other participant...",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              "This may take a few moments",
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 14,
+                              ),
                             ),
                           ],
                         ),
                       );
                     }),
 
-                    // Local preview
+                    // Local preview (top right)
                     Positioned(
                       top: 20,
                       right: 20,
                       width: 120,
                       height: 160,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: controller.engine != null
-                            ? AgoraVideoView(
-                                controller: VideoViewController(
-                                  rtcEngine: controller.engine!,
-                                  canvas: const VideoCanvas(uid: 0),
-                                ),
-                              )
-                            : const SizedBox(),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white24, width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: _buildLocalVideoView(),
+                        ),
                       ),
                     ),
 
-                    // Controls
+                    // Call info (top left)
+                    Positioned(
+                      top: 20,
+                      left: 20,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black54,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 8,
+                              height: 8,
+                              decoration: const BoxDecoration(
+                                color: Colors.green,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              widget.isHost ? "Host" : "Caller",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // Controls (bottom)
                     Positioned(
                       bottom: 40,
                       left: 0,
                       right: 0,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          CircleAvatar(
-                            radius: 28,
-                            backgroundColor: Colors.blue,
-                            child: IconButton(
-                              onPressed: _ending ? null : controller.muteUnmute,
-                              icon: Obx(
-                                () => Icon(
-                                  controller.isMuted.value
-                                      ? Icons.mic_off
-                                      : Icons.mic,
-                                  color: Colors.white,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            // Mute/Unmute
+                            Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.3),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: CircleAvatar(
+                                radius: 28,
+                                backgroundColor: Colors.blue.withOpacity(0.9),
+                                child: IconButton(
+                                  onPressed: _ending
+                                      ? null
+                                      : controller.muteUnmute,
+                                  icon: Obx(
+                                    () => Icon(
+                                      controller.isMuted.value
+                                          ? Icons.mic_off
+                                          : Icons.mic,
+                                      color: Colors.white,
+                                      size: 24,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          CircleAvatar(
-                            radius: 32,
-                            backgroundColor: Colors.red,
-                            child: IconButton(
-                              onPressed: _ending ? null : _endCall,
-                              icon: const Icon(
-                                Icons.call_end,
-                                color: Colors.white,
-                                size: 32,
+
+                            // End Call
+                            Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.3),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: CircleAvatar(
+                                radius: 32,
+                                backgroundColor: Colors.red.withOpacity(0.9),
+                                child: IconButton(
+                                  onPressed: _ending ? null : _endCall,
+                                  icon: _ending
+                                      ? const SizedBox(
+                                          width: 24,
+                                          height: 24,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : const Icon(
+                                          Icons.call_end,
+                                          color: Colors.white,
+                                          size: 32,
+                                        ),
+                                ),
                               ),
                             ),
-                          ),
-                          CircleAvatar(
-                            radius: 28,
-                            backgroundColor: Colors.orange,
-                            child: IconButton(
-                              onPressed: _ending
-                                  ? null
-                                  : controller.switchCamera,
-                              icon: const Icon(
-                                Icons.cameraswitch,
-                                color: Colors.white,
-                                size: 28,
+
+                            // Switch Camera
+                            Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.3),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: CircleAvatar(
+                                radius: 28,
+                                backgroundColor: Colors.orange.withOpacity(0.9),
+                                child: IconButton(
+                                  onPressed: _ending
+                                      ? null
+                                      : controller.switchCamera,
+                                  icon: const Icon(
+                                    Icons.cameraswitch,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
+
+                    // Debug info (only in debug mode)
+                    if (false) // Set to true for debugging
+                      Positioned(
+                        bottom: 120,
+                        left: 20,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.black54,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                "Call ID: ${widget.callId}",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                ),
+                              ),
+                              Text(
+                                "Channel: ${widget.channelName}",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                ),
+                              ),
+                              Obx(
+                                () => Text(
+                                  "Remote UID: ${controller.remoteUid.value ?? 'None'}",
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),

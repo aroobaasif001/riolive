@@ -3,15 +3,23 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:riolive/socket/incoming_calls.dart';
+import 'package:riolive/services/socket_service.dart';
 import 'package:riolive/utile/app_url.dart';
 import 'package:riolive/views/bottom_navi_screens/bottom_navi_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/invite_screens/invitefriends_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/invite_screens/invitehost_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/live_data_screens/live_broadcast_data_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/reward_screens/reward_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/shop_screens/frame_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/shop_screens/shop_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/wallet_sceens/exhange_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/wallet_sceens/wallet_screen.dart';
 import 'package:riolive/views/splashscreen/splash_screen.dart';
-
 import 'controller/signin_controller.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized(); // IMPORTANT
+
   Get.put(SocketService()); // register SocketService globally
   runApp(const MyApp());
 }
@@ -24,7 +32,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Rio Live App',
       debugShowCheckedModeBanner: false,
-      home: const AppStartup(),
+      home: AppStartup(),
     );
   }
 }

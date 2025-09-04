@@ -564,6 +564,496 @@ void showCountryDialogTop(BuildContext context) {
 
 
 
+/// ✅ Rules Popup Box Widget
+/// NEW WAY: call this from onTap
+void showRulesDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierColor: Colors.transparent, // 👈 fully transparent behind
+    builder: (ctx) => rulesPopupBox(),
+  );
+}
+
+Widget rulesPopupBox() {
+  return Center(
+    child: Transform.translate(
+      offset: const Offset(0, -40), // thoda upar shift
+      child: Material(
+        type: MaterialType.transparency, // 👈 removes blur & yellow border
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            // 🔳 Main dark box using CustomContainer
+            CustomContainer(
+              width: 320,
+              borderRadius: BorderRadius.circular(12),
+              conColor: const Color(0xFF222222), // dark background
+              padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
+              child: const Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: CustomText(
+                      'Rules',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                      shadows: [],
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  CustomText(
+                    '1. Sent invitation to your Friend',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.white,
+                    maxLines: 3,
+                    shadows: [],
+                  ),
+                  SizedBox(height: 10),
+                  CustomText(
+                    '2. Download Application from your reference and create account',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.white,
+                    maxLines: 3,
+                    shadows: [],
+                  ),
+                  SizedBox(height: 10),
+                  CustomText(
+                    '3. On first 5 recharge Diamond you got up-to 5% of diamond which they recharge',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.white,
+                    maxLines: 3,
+                    shadows: [],
+                  ),
+                ],
+              ),
+            ),
+
+            // ▲ triangle top-right
+            const Positioned(
+              right: 26,
+              top: -10,
+              child: _TrianglePointer(),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+/// Little black triangle
+class _TrianglePointer extends StatelessWidget {
+  const _TrianglePointer();
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipPath(
+      clipper: _TriangleClipper(),
+      child: Container(
+        width: 16,
+        height: 16,
+        color: const Color(0xFF222222),
+      ),
+    );
+  }
+}
+
+class _TriangleClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final p = Path();
+    p.moveTo(0, size.height);
+    p.lineTo(size.width / 2, 0);
+    p.lineTo(size.width, size.height);
+    p.close();
+    return p;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
+}
+
+
+
+
+// invite box
+
+
+
+
+
+
+class InviteDialog {
+  static Future<void> showInviteSheet(BuildContext context) async {
+    // inline share item
+    Widget shareItem({
+      required String label,
+      required String asset,
+      VoidCallback? onTap,
+    }) {
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap ?? () {},
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              asset,
+              height: 50,
+              width: 50,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: 72,
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent, // transparent base
+      builder: (ctx) {
+        return ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+          child: SafeArea(
+            top: false,
+            bottom: false,
+            child: Container(
+              height: 260,
+              decoration: BoxDecoration(
+                // ⬇️ ONLY CHANGE: make sheet color a bit more opaque for a clean glass look
+                color: Colors.white.withOpacity(0.80),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+              child: BackdropFilter(
+                filter: ui.ImageFilter.blur(sigmaX: 15, sigmaY: 15), // blur effect behind
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Center(
+                        child: Text(
+                          'Invite user',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      const Text(
+                        'Share To',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          shareItem(label: 'Copy Link', asset: 'assets/images/link.png'),
+                          shareItem(label: 'Image Sharing', asset: 'assets/images/gallery.png'),
+                          shareItem(label: 'WhatsApp', asset: 'assets/images/whatsapp.png'),
+                          shareItem(label: 'Facebook', asset: 'assets/images/facebook.png'),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+
+// purchase box
+
+
+Future<void> showAngelGiftBottomSheet(BuildContext context) {
+  return showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+    ),
+    builder: (ctx) {
+      return SafeArea(
+        top: false,
+        child: CustomContainer(
+          height: 514, // aapka current layout ke hisaab se
+          conColor: const Color(0xFFEFD2F7),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          padding: const EdgeInsets.fromLTRB(16, 60, 16, 18),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 75),
+
+                    // ------- White Card -------
+                    CustomContainer(
+                      padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+                      conColor: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.02),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const CustomText(
+                            'Angel',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black,
+                          ),
+                          const SizedBox(height: 14),
+
+                          const CustomText(
+                            'Props Classification',
+                            fontSize: 14,
+                            color: Colors.black54,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          const SizedBox(height: 18),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: const [
+                              CustomText(
+                                'Validity period',
+                                fontSize: 14,
+                                color: Colors.black54,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              CustomText(
+                                '2025-02-06',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.black,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 18),
+
+                          const CustomText(
+                            'Days',
+                            fontSize: 14,
+                            color: Colors.black54,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          const SizedBox(height: 12),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: const [
+                              _DayChip('5 Days', false),
+                              _DayChip('14 Days', true),
+                              _DayChip('30 Days', false),
+                            ],
+                          ),
+
+                          const SizedBox(height: 18),
+                          // Divider
+                          CustomContainer(
+                            height: 1,
+                            conColor: const Color(0xFFE7E7E7),
+                            margin: const EdgeInsets.only(bottom: 14),
+                          ),
+
+                          // Gift to friend row
+                          CustomContainer(
+                            height: 42,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 8),
+                            conColor: const Color(0xFFF5F5F5),
+                            borderRadius: BorderRadius.circular(18),
+                            child: Row(
+                              children: [
+                                const Expanded(
+                                  child: CustomText(
+                                    'Gift to friend :',
+                                    fontSize: 13,
+                                    color: Colors.black54,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                                CustomContainer(
+                                  height: 30,
+                                  width: 79,
+                                  alignment: Alignment.center,
+                                  conColor: const Color(0xFFA976E5),
+                                  borderRadius: BorderRadius.circular(18),
+                                  child: const CustomText(
+                                    'Send',
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 25),
+
+                    // ------- Bottom Price Pill -------
+                    CustomContainer(
+                      width: 237,
+                      height: 50,
+                      padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 1),
+                      conColor: const Color(0xFFC7FF87),
+                      borderRadius: BorderRadius.circular(28),
+                      border: Border.all(color: Colors.grey, width: 0.5),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 16,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Image(
+                            image: AssetImage('assets/images/f15daimend.png'),
+                            height: 23,
+                            width: 23,
+                          ),
+                          SizedBox(width: 10),
+                          CustomText(
+                            '15000',
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                ),
+              ),
+
+              // ------- Ring Image on top -------
+              Positioned(
+                top: -40,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: SizedBox(
+                    height: 110,
+                    child: Image.asset(
+                      'assets/images/f12.png',
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+// ---------- Chip (CustomContainer + CustomText) ----------
+class _DayChip extends StatelessWidget {
+  final String text;
+  final bool selected;
+  const _DayChip(this.text, this.selected);
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomContainer(
+      height: 25,
+      width: 84,
+      alignment: Alignment.center,
+      borderRadius: BorderRadius.circular(12),
+      conColor: selected ? const Color(0xFF7BE3A3) : const Color(0xFFEFEFEF),
+      child: CustomText(
+        text,
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        color: selected ? Colors.black : Colors.black87,
+      ),
+    );
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
