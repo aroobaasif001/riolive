@@ -4,7 +4,6 @@ import 'package:riolive/customwidgets/customtext.dart';
 
 class TaskTab extends StatelessWidget {
   const TaskTab({super.key});
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -13,7 +12,6 @@ class TaskTab extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 30),
-
           // ⏱️ timer pill (left edge sharp)
           Align(
             alignment: Alignment.centerLeft,
@@ -59,7 +57,6 @@ class TaskTab extends StatelessWidget {
                 children: [
                   // base height to fit everything (tiles + bar + belt)
                   const SizedBox(height: 300),
-
                   // 1) "Require x50" + subtitle
                   const Positioned(
                     top: 40,
@@ -106,7 +103,6 @@ class TaskTab extends StatelessWidget {
                       ],
                     ),
                   ),
-
                   // 2) Day tiles + capsule ruler + 10/20/30 (positions tuned to screenshot)
                   Positioned(
                     top: 110,
@@ -117,7 +113,6 @@ class TaskTab extends StatelessWidget {
                         const double barH = 7.0;
                         const double borderW = 0.5;
                         final double barW = c.maxWidth;
-
                         return Column(
                           children: [
                             // Day 1 / Day 2 / Day 3 tiles (above the bar)
@@ -355,9 +350,7 @@ class TaskTab extends StatelessWidget {
               ),
             ),
           ),
-
-          const SizedBox(height: 30),
-
+          const SizedBox(height: 50),
           // Header row
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -395,9 +388,7 @@ class TaskTab extends StatelessWidget {
               ],
             ),
           ),
-
-          const SizedBox(height: 8),
-
+          const SizedBox(height: 15),
           // 📜 Task list
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 25),
