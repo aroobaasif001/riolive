@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 import 'package:riolive/services/socket_service.dart';
 import 'package:riolive/utile/app_url.dart';
 import 'package:riolive/views/bottom_navi_screens/bottom_navi_screen.dart';
-import 'package:riolive/views/bottom_navi_screens/screens/agency_screens/agency_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/invite_screens/invitefriends_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/invite_screens/invitehost_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/live_data_screens/live_broadcast_data_screen.dart';

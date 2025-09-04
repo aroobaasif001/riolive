@@ -3,6 +3,7 @@ import 'package:riolive/customwidgets/custom_gradient_button.dart';
 import 'package:riolive/customwidgets/customappbar_agencyscreen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/settings_screen/settings_screen.dart';
 
+import '../../../../../customwidgets/customtext.dart';
 import '../../../../../utile/dialog_helper.dart';
 
 class FrameScreen extends StatefulWidget {
@@ -121,7 +122,7 @@ class _FrameScreenState extends State<FrameScreen> {
                       children: [
                         Image(image: AssetImage('assets/images/daimondlastframe.png'),height: 18,width: 16,),
                         SizedBox(width: 5,),
-                        CustomText(text: '360,000',fontWeight: FontWeight.w400,fontSize: 14,),
+                        CustomText( '360,000',fontWeight: FontWeight.w400,fontSize: 14,),
                         SizedBox(width: 150,),
                         CustomGradientButton(text: 'Purchase', onPressed: () {
                           showAngelGiftBottomSheet(context);

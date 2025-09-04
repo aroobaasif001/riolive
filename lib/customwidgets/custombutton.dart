@@ -9,6 +9,11 @@ class CustomButton extends StatelessWidget {
   final double? width;
   final Color backgroundColor;
   final VoidCallback onPressed;
+  final borderRadius;
+  final gradientColors;
+  final color;
+  final onTap;
+
 
   const CustomButton({
     super.key,
@@ -18,6 +23,11 @@ class CustomButton extends StatelessWidget {
     this.width,
     this.backgroundColor = Colors.white,
     required this.onPressed,
+    this.borderRadius,
+    this.gradientColors,
+    this.color,
+    this.onTap,
+
   });
 
   @override

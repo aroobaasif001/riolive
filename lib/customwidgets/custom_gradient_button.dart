@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:riolive/customwidgets/customtext.dart';
+import 'package:riolive/customwidgets/custom_container.dart';
 
 class CustomGradientButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
-
-  // ✅ Customization options
   final double? width;
   final double? height;
   final EdgeInsetsGeometry? padding;
@@ -12,6 +12,10 @@ class CustomGradientButton extends StatelessWidget {
   final double fontSize;
   final FontWeight fontWeight;
   final List<Color> gradientColors;
+  final textColor;
+  final onTap;
+  final AlignmentGeometry? begin;
+  final AlignmentGeometry? end;
 
   const CustomGradientButton({
     Key? key,
@@ -24,6 +28,10 @@ class CustomGradientButton extends StatelessWidget {
     this.fontSize = 14,
     this.fontWeight = FontWeight.bold,
     this.gradientColors = const [Color(0xFF8EC2FB), Color(0xFFE496FF)],
+    this.textColor,
+    this.onTap,
+    this.begin,
+    this.end,
   }) : super(key: key);
 
   @override
@@ -39,26 +47,23 @@ class CustomGradientButton extends StatelessWidget {
       ),
       onPressed: onPressed,
       child: Ink(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: gradientColors,
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          ),
-          borderRadius: BorderRadius.circular(borderRadius),
-        ),
-        child: Container(
+        child: CustomContainer(
           width: width,
           height: height,
+          borderRadius: BorderRadius.circular(borderRadius),
+          gradient: LinearGradient(
+            colors: gradientColors,
+            begin: begin??Alignment.topCenter,
+            end: end??Alignment.bottomCenter,
+          ),
           padding: padding ?? const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
           alignment: Alignment.center,
-          child: Text(
+          child: CustomText(
             text,
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: fontWeight,
-              fontSize: fontSize,
-            ),
+            color: Colors.white,
+            fontWeight: fontWeight,
+            fontSize: fontSize,
+            textAlign: TextAlign.center,
           ),
         ),
       ),
