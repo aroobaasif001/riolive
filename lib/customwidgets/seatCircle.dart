@@ -8,18 +8,21 @@ class SeatCircle extends StatelessWidget {
   final SeatState state;
   final String label;
   final String? image;
+  final String frameImage; // Added frame image parameter
+
   const SeatCircle({
     super.key,
     required this.state,
     required this.label,
     this.image,
+    required this.frameImage, // Initialize frame image
   });
 
   @override
   Widget build(BuildContext context) {
     Widget inner;
     if (state == SeatState.occupied && image != null) {
-      inner = CircleAvatar(backgroundImage: AssetImage(image!), radius: 32);
+      inner = CircleAvatar(backgroundImage: AssetImage(image!), radius: 30);
     } else if (state == SeatState.locked) {
       inner = const Icon(Icons.lock, color: Colors.white, size: 30);
     } else {
@@ -28,12 +31,30 @@ class SeatCircle extends StatelessWidget {
 
     return Column(
       children: [
-        CustomContainer(
-          width: 72,
-          height: 72,
-          shape: BoxShape.circle,
-          conColor: Colors.black54,
-          child: Center(child: inner),
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            // Background frame image
+            CustomContainer(
+              width: 72,
+              height: 72,
+              shape: BoxShape.circle,
+              image: DecorationImage(
+                image: AssetImage(frameImage),
+                fit: BoxFit.cover,
+              ),
+            ),
+            // Inner content (avatar or icon)
+            CustomContainer(
+              width: 72,
+              height: 72,
+              shape: BoxShape.circle,
+              conColor: state == SeatState.locked
+                  ? Colors.black.withOpacity(0.5)
+                  : Colors.white.withOpacity(0.2),
+              child: Center(child: inner),
+            ),
+          ],
         ),
         const SizedBox(height: 6),
         CustomText(label, color: Colors.white, fontSize: 11),

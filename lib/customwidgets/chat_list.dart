@@ -16,7 +16,7 @@ class ChatList extends GetView<UserVideoCallController> {
         itemBuilder: (_, i) {
           final m = controller.messages[i];
           return Padding(
-            padding: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.only(bottom: 5),
             child: ChatBubble(m, maxWidth: screenW * 0.68),
           );
         },

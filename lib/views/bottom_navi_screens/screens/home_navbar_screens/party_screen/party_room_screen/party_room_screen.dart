@@ -6,8 +6,6 @@ import '../../../../../../controller/user_video_call_controller.dart';
 import '../../../../../../customwidgets/chat_list.dart';
 import '../../../../../../customwidgets/coins_chip.dart';
 import '../../../../../../customwidgets/custom_container.dart';
-import '../../../../../../customwidgets/customtext.dart';
-import '../../../../../../customwidgets/entered_room_pill.dart';
 import '../../../../../../customwidgets/hostCircle.dart';
 import '../../../../../../customwidgets/join_button.dart';
 import '../../../../../../customwidgets/message_field.dart';
@@ -103,7 +101,6 @@ class PartyRoomScreen extends GetView<UserVideoCallController> {
                             ],
                           ),
 
-                          // const SizedBox(height: 5),
                           CustomContainer(
                             width: 360,
                             child: Row(
@@ -132,15 +129,13 @@ class PartyRoomScreen extends GetView<UserVideoCallController> {
                   ),
                 ),
 
-                // const SizedBox(height: 20),
-
                 /* ----------------- MID CONTENT ----------------- */
                 Expanded(
                   child: Column(
                     children: [
                       // Hosts row
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -148,6 +143,7 @@ class PartyRoomScreen extends GetView<UserVideoCallController> {
                               name: 'Wamiqa Jain',
                               image: 'assets/images/story_1.jpg',
                               highlight: true,
+                              isHost: true,
                             ),
                             Image.asset(
                               'assets/images/match.png', // 👈 yahan apna path dal do
@@ -163,23 +159,37 @@ class PartyRoomScreen extends GetView<UserVideoCallController> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 10),
 
                       // Seats row 1 (3,4)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: const [
                           SeatCircle(
+                            label: 'Meet Bros',
+                            state: SeatState.occupied,
+                            image: 'assets/images/story_1.jpg',
+                            frameImage: "assets/images/frame_3.png",
+                          ),
+                          SeatCircle(
+                            label: 'Anushka',
+                            state: SeatState.occupied,
+                            image: 'assets/images/story_2.png',
+                            frameImage: "assets/images/frame_3.png",
+                          ),
+                          SeatCircle(
                             label: 'Seat No:-3',
                             state: SeatState.empty,
+                            frameImage: "",
                           ),
                           SeatCircle(
                             label: 'Seat No:-4',
                             state: SeatState.empty,
+                            frameImage: "",
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 8),
 
                       // Seats row 2 (5..8)
                       Row(
@@ -188,58 +198,44 @@ class PartyRoomScreen extends GetView<UserVideoCallController> {
                           SeatCircle(
                             label: 'Seat No:-5',
                             state: SeatState.empty,
+                            frameImage: "",
                           ),
                           SeatCircle(
                             label: 'Seat No:-6',
                             state: SeatState.locked,
+                            frameImage: "",
                           ),
                           SeatCircle(
                             label: 'Seat No:-7',
                             state: SeatState.locked,
+                            frameImage: "",
                           ),
                           SeatCircle(
                             label: 'Seat No:-8',
                             state: SeatState.locked,
+                            frameImage: "",
                           ),
                         ],
                       ),
 
-                      const Spacer(),
+                      const SizedBox(height: 12),
 
                       // Right side overlay (entered/join)
                       Align(
                         alignment: Alignment.bottomRight,
                         child: Padding(
-                          padding: const EdgeInsets.only(right: 8, bottom: 12),
+                          padding: const EdgeInsets.only(right: 8, bottom: 8),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             mainAxisSize: MainAxisSize.min,
-                            children: const [
-                              EnteredRoomPill(username: 'Alexander'),
-                              SizedBox(height: 10),
-                              JoinButton(),
-                            ],
+                            children: const [JoinButton()],
                           ),
                         ),
                       ),
 
-                      const SizedBox(height: 12),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        child: CustomText(
-                          maxLines: 6,
-                          'Welcome to the party room. We\nmonitor every LIVE Party to keep the\ncommunity safe and healthy.\nBehaviors of bullies, harasses, or\nintimidates will be reported or\nbanned from use.',
-                          color: Colors.white,
-                          fontSize: 12.5,
-                          lineHeight: 1.35,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
                           child: ChatList(),
                         ),
                       ),
