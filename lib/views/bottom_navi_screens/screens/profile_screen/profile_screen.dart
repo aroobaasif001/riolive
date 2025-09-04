@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/invite_screens/invitefriends_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/live_data_screens/live_broadcast_data_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/reward_screens/reward_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/settings_screen/settings_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/shop_screens/shop_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/verification_screen/verification_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/wallet_sceens/wallet_screen.dart';
 import '../../../../utile/app_url.dart';
 import '../agency_screens/agency_screen.dart';
 import '../DiamondTrading/diamond_trading_main_screen.dart';
@@ -313,7 +318,18 @@ class ProfileDashboardScreen extends StatelessWidget {
                 Get.to(() => AgencyScreen());
               } else if (e.label == "Diamond Trading") {
                 Get.to(() => const DiamondTradingMainScreen());
+              }else if (e.label == "Shop") {
+                Get.to(() => const ShopScreen());
+              }else if (e.label == "Reward") {
+                Get.to(() => RewardsTabs());
+              }else if (e.label == "Wallet") {
+                Get.to(() => WalletScreen());
+              }else if (e.label == "Live Data") {
+                Get.to(() => LiveBroadcastDataScreen());
+              }else if (e.label == "Invite User") {
+                Get.to(() => InviteFriendsScreen());
               }
+
             },
             child: Container(
               padding: const EdgeInsets.all(6),

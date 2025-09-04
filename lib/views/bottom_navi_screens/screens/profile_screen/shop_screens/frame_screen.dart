@@ -121,7 +121,7 @@ class _FrameScreenState extends State<FrameScreen> {
                       children: [
                         Image(image: AssetImage('assets/images/daimondlastframe.png'),height: 18,width: 16,),
                         SizedBox(width: 5,),
-                        CustomText(text: '360,000',fontWeight: FontWeight.w400,fontSize: 14,),
+                        CustomText(text:'360,000',fontWeight: FontWeight.w400,fontSize: 14,),
                         SizedBox(width: 150,),
                         CustomGradientButton(text: 'Purchase', onPressed: () {
                           showAngelGiftBottomSheet(context);
