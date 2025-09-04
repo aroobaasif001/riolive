@@ -2,171 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:riolive/utile/app_url.dart';
 
-import '../../../../../../controller/random_call_controller.dart'
-    as random_call_controller;
 import '../../../../../../controller/user_video_call_controller.dart';
 import '../../../../../../customwidgets/chat_list.dart';
 import '../../../../../../customwidgets/coins_chip.dart';
 import '../../../../../../customwidgets/custom_container.dart';
 import '../../../../../../customwidgets/customtext.dart';
 import '../../../../../../customwidgets/entered_room_pill.dart';
-import '../../../../../../customwidgets/gift_strip.dart';
+import '../../../../../../customwidgets/hostCircle.dart';
 import '../../../../../../customwidgets/join_button.dart';
 import '../../../../../../customwidgets/message_field.dart';
 import '../../../../../../customwidgets/plus_count_chip.dart';
 import '../../../../../../customwidgets/profile_chip.dart';
 import '../../../../../../customwidgets/round_icon.dart';
+import '../../../../../../customwidgets/seatCircle.dart';
 import '../../../../../../customwidgets/showGamesSheet.dart';
 import '../../../../../../customwidgets/showGiftPopUp.dart';
 import '../../../../../../customwidgets/showProfilePopup.dart';
 import '../../../../../../customwidgets/tiny_round.dart';
 import '../../../../../../customwidgets/userVideoCallShowRoomToolSheet.dart';
-import '../../../../../../services/socket_service.dart';
-import '../../call_screen/video_call_screen/video_call_screen.dart';
 
-class UserVideoCallScreen extends StatefulWidget {
-  const UserVideoCallScreen({super.key});
-
-  @override
-  State<UserVideoCallScreen> createState() => _UserVideoCallScreenState();
-}
-
-class _UserVideoCallScreenState extends State<UserVideoCallScreen> {
-  late final UserVideoCallController controller;
-
-  @override
-  void initState() {
-    super.initState();
-    controller = Get.put(UserVideoCallController());
-    _attachIncomingCallListeners();
-  }
-
-  void _attachIncomingCallListeners() {
-    // screen-local popup (zyada pretty control ke liye)
-    SocketService.to.socket?.off('incoming_call', _onIncomingCall);
-    SocketService.to.socket?.off('call_started', _onIncomingCall);
-
-    SocketService.to.socket?.on('incoming_call', _onIncomingCall);
-    SocketService.to.socket?.on('call_started', _onIncomingCall);
-  }
-
-  void _onIncomingCall(dynamic raw) {
-    try {
-      final Map<String, dynamic> data = raw is Map
-          ? Map<String, dynamic>.from(raw)
-          : {};
-      final callId = (data['callId'] ?? data['id'] ?? '').toString();
-      final callerName = (data['callerName'] ?? data['userName'] ?? 'Unknown')
-          .toString();
-
-      if (callId.isEmpty) return;
-
-      if (Get.isDialogOpen == true) Get.back();
-
-      Get.dialog(
-        _incomingCallSheet(callId, callerName, data),
-        barrierDismissible: false,
-      );
-    } catch (e) {
-      debugPrint("user screen incoming_call parse error: $e");
-    }
-  }
-
-  Widget _incomingCallSheet(
-    String callId,
-    String callerName,
-    Map<String, dynamic> data,
-  ) {
-    return AlertDialog(
-      title: const Text("📞 Incoming Call"),
-      content: Text("$callerName is calling you."),
-      actions: [
-        TextButton(
-          onPressed: () {
-            SocketService.to.socket?.emit("call_rejected", {
-              "callId": callId,
-              "userId": AppUrl.riolive_id,
-              "timestamp": DateTime.now().millisecondsSinceEpoch,
-            });
-            Get.back();
-          },
-          child: const Text("Reject", style: TextStyle(color: Colors.red)),
-        ),
-        TextButton(
-          onPressed: () async {
-            Get.back();
-            // Accept flow -> SocketService ke through join + navigate
-            // (yeh method token/channel resolve karke navigate karta hai)
-            // public helper expose nahi hai, to hum minimal duplicate:
-            try {
-              final c = Get.find<random_call_controller.CallController>();
-              final joinResp = await c.joinCall(AppUrl.token, callId);
-
-              if (joinResp == null) {
-                Get.snackbar("Error", "Failed to join call");
-                return;
-              }
-
-              final channelName =
-                  (joinResp['agora']?['channelName'] ??
-                          joinResp['call']?['room_id'] ??
-                          data['channelName'] ??
-                          data['channel'] ??
-                          data['roomId'] ??
-                          '')
-                      .toString();
-
-              final token =
-                  (joinResp['agora']?['hostToken'] ??
-                          joinResp['agora']?['token'] ??
-                          joinResp['token'] ??
-                          data['agora']?['token'] ??
-                          data['token'] ??
-                          '')
-                      .toString();
-
-              if (channelName.isEmpty || token.isEmpty) {
-                Get.snackbar("Error", "Invalid call data received");
-                return;
-              }
-
-              SocketService.to.socket?.emit("call_accepted", {
-                "callId": callId,
-                "userId": AppUrl.riolive_id,
-                "userName": AppUrl.user_name,
-                "channelName": channelName,
-                "timestamp": DateTime.now().millisecondsSinceEpoch,
-              });
-
-              Get.to(
-                () => VideoCallScreen(
-                  token: AppUrl.token,
-                  callId: callId,
-                  channelName: channelName,
-                  agoraToken: token,
-                  isHost: false,
-                ),
-              );
-            } catch (e) {
-              Get.snackbar("Error", "Failed to accept call: $e");
-            }
-          },
-          child: const Text("Accept", style: TextStyle(color: Colors.green)),
-        ),
-      ],
-    );
-  }
-
-  @override
-  void dispose() {
-    // screen-unmount par listeners cleanup
-    SocketService.to.socket?.off('incoming_call', _onIncomingCall);
-    SocketService.to.socket?.off('call_started', _onIncomingCall);
-    super.dispose();
-  }
+class PartyRoomScreen extends GetView<UserVideoCallController> {
+  const PartyRoomScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    Get.put(UserVideoCallController());
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -242,8 +102,8 @@ class _UserVideoCallScreenState extends State<UserVideoCallScreen> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 10),
 
+                          // const SizedBox(height: 5),
                           CustomContainer(
                             width: 360,
                             child: Row(
@@ -272,32 +132,97 @@ class _UserVideoCallScreenState extends State<UserVideoCallScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 60),
+                // const SizedBox(height: 20),
 
                 /* ----------------- MID CONTENT ----------------- */
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Hosts row
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: GiftStrip(),
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const HostCircle(
+                              name: 'Wamiqa Jain',
+                              image: 'assets/images/story_1.jpg',
+                              highlight: true,
+                            ),
+                            Image.asset(
+                              'assets/images/match.png', // 👈 yahan apna path dal do
+                              width: 162,
+                              height: 52,
+                              // color: Colors
+                              //     .pinkAccent, // optional agar color overlay chahiye
+                            ),
+                            const HostCircle(
+                              name: 'Wamiqa Jain',
+                              image: 'assets/images/story_2.png',
+                            ),
+                          ],
+                        ),
                       ),
+                      const SizedBox(height: 30),
+
+                      // Seats row 1 (3,4)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: const [
+                          SeatCircle(
+                            label: 'Seat No:-3',
+                            state: SeatState.empty,
+                          ),
+                          SeatCircle(
+                            label: 'Seat No:-4',
+                            state: SeatState.empty,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Seats row 2 (5..8)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: const [
+                          SeatCircle(
+                            label: 'Seat No:-5',
+                            state: SeatState.empty,
+                          ),
+                          SeatCircle(
+                            label: 'Seat No:-6',
+                            state: SeatState.locked,
+                          ),
+                          SeatCircle(
+                            label: 'Seat No:-7',
+                            state: SeatState.locked,
+                          ),
+                          SeatCircle(
+                            label: 'Seat No:-8',
+                            state: SeatState.locked,
+                          ),
+                        ],
+                      ),
+
+                      const Spacer(),
+
+                      // Right side overlay (entered/join)
                       Align(
                         alignment: Alignment.bottomRight,
                         child: Padding(
-                          padding: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.only(right: 8, bottom: 12),
                           child: Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
                             crossAxisAlignment: CrossAxisAlignment.end,
+                            mainAxisSize: MainAxisSize.min,
                             children: const [
-                              EnteredRoomPill(username: 'Alex'),
+                              EnteredRoomPill(username: 'Alexander'),
                               SizedBox(height: 10),
                               JoinButton(),
                             ],
                           ),
                         ),
                       ),
+
                       const SizedBox(height: 12),
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16),
@@ -310,12 +235,11 @@ class _UserVideoCallScreenState extends State<UserVideoCallScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-
                       const SizedBox(height: 12),
 
-                      const Expanded(
+                      Expanded(
                         child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
                           child: ChatList(),
                         ),
                       ),
@@ -367,3 +291,5 @@ class _UserVideoCallScreenState extends State<UserVideoCallScreen> {
     );
   }
 }
+
+enum SeatState { occupied, empty, locked }

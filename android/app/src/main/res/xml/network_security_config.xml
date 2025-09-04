@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- For development: Allow HTTP connections -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">10.0.2.2</domain> <!-- Android Emulator -->
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+        <!-- Add your server IP/domain here -->
+        <domain includeSubdomains="true">your-server-ip.com</domain>
+        <domain includeSubdomains="true">192.168.1.*</domain> <!-- Local network -->
+    </domain-config>
+
+    <!-- For production: Use proper HTTPS -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

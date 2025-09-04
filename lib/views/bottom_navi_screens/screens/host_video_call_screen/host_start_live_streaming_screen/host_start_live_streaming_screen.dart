@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 
 import '../../../../../controller/random_call_controller.dart';
 import '../../../../../controller/user_video_call_controller.dart';
-import '../../../../../customwidgets/buttom_icon.dart';
 import '../../../../../customwidgets/coins_chip.dart';
 import '../../../../../customwidgets/custom_container.dart';
 import '../../../../../customwidgets/customtext.dart';
@@ -13,8 +12,11 @@ import '../../../../../customwidgets/message_field.dart';
 import '../../../../../customwidgets/plus_count_chip.dart';
 import '../../../../../customwidgets/profile_chip.dart';
 import '../../../../../customwidgets/round_icon.dart';
+import '../../../../../customwidgets/showRoomToolSheet.dart';
 import '../../../../../customwidgets/tiny_round.dart';
+import '../../../../../services/socket_service.dart';
 import '../../../../../utile/app_url.dart';
+import '../../home_navbar_screens/call_screen/video_call_screen/video_call_screen.dart';
 
 class HostStartLiveStreamingScreen extends StatefulWidget {
   const HostStartLiveStreamingScreen({super.key});
@@ -34,7 +36,115 @@ class _HostStartLiveStreamingScreenState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeAgora();
+      _attachIncomingCallListeners();
     });
+  }
+
+  void _attachIncomingCallListeners() {
+    SocketService.to.socket?.off('incoming_call', _onIncomingCall);
+    SocketService.to.socket?.off('call_started', _onIncomingCall);
+
+    SocketService.to.socket?.on('incoming_call', _onIncomingCall);
+    SocketService.to.socket?.on('call_started', _onIncomingCall);
+  }
+
+  void _onIncomingCall(dynamic raw) async {
+    try {
+      final Map<String, dynamic> data = raw is Map
+          ? Map<String, dynamic>.from(raw)
+          : {};
+      final callId = (data['callId'] ?? data['id'] ?? '').toString();
+      final callerName = (data['callerName'] ?? data['userName'] ?? 'Unknown')
+          .toString();
+
+      if (callId.isEmpty) return;
+
+      if (Get.isDialogOpen == true) Get.back();
+
+      Get.dialog(
+        AlertDialog(
+          title: const Text("📞 Incoming Call"),
+          content: Text("$callerName is calling you."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                SocketService.to.socket?.emit("call_rejected", {
+                  "callId": callId,
+                  "userId": AppUrl.riolive_id,
+                  "timestamp": DateTime.now().millisecondsSinceEpoch,
+                });
+                Get.back();
+              },
+              child: const Text("Reject", style: TextStyle(color: Colors.red)),
+            ),
+            TextButton(
+              onPressed: () async {
+                Get.back();
+                try {
+                  final c = Get.find<CallController>();
+                  final joinResp = await c.joinCall(AppUrl.token, callId);
+                  if (joinResp == null) {
+                    Get.snackbar("Error", "Failed to join call");
+                    return;
+                  }
+
+                  final channelName =
+                      (joinResp['agora']?['channelName'] ??
+                              joinResp['call']?['room_id'] ??
+                              data['channelName'] ??
+                              data['channel'] ??
+                              data['roomId'] ??
+                              '')
+                          .toString();
+
+                  final token =
+                      (joinResp['agora']?['hostToken'] ??
+                              joinResp['agora']?['token'] ??
+                              joinResp['token'] ??
+                              data['agora']?['token'] ??
+                              data['token'] ??
+                              '')
+                          .toString();
+
+                  if (channelName.isEmpty || token.isEmpty) {
+                    Get.snackbar("Error", "Invalid call data received");
+                    return;
+                  }
+
+                  SocketService.to.socket?.emit("call_accepted", {
+                    "callId": callId,
+                    "userId": AppUrl.riolive_id,
+                    "userName": AppUrl.user_name,
+                    "channelName": channelName,
+                    "timestamp": DateTime.now().millisecondsSinceEpoch,
+                  });
+
+                  Get.to(
+                    () => VideoCallScreen(
+                      token: AppUrl.token,
+                      callId: callId,
+                      channelName: channelName,
+                      agoraToken: token,
+                      isHost:
+                          false, // host yahan live tha, ye call accept as user
+                    ),
+                  );
+                } catch (e) {
+                  Get.snackbar("Error", "Failed to accept call: $e");
+                }
+              },
+              child: const Text(
+                "Accept",
+                style: TextStyle(color: Colors.green),
+              ),
+            ),
+          ],
+        ),
+        barrierDismissible: false,
+      );
+    } catch (e) {
+      debugPrint("host live incoming_call parse error: $e");
+    }
   }
 
   void _initializeAgora() async {
@@ -60,6 +170,10 @@ class _HostStartLiveStreamingScreenState
 
   @override
   void dispose() {
+    // cleanup listeners
+    SocketService.to.socket?.off('incoming_call', _onIncomingCall);
+    SocketService.to.socket?.off('call_started', _onIncomingCall);
+
     callController.leaveChannel();
     super.dispose();
   }
@@ -75,24 +189,25 @@ class _HostStartLiveStreamingScreenState
           /// 🔹 Agora Video
           Obx(() {
             if (callController.hasError.value) {
-              // Show error message
               return Container(
                 color: Colors.black,
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.error, color: Colors.red, size: 64),
-                      SizedBox(height: 16),
+                      const Icon(Icons.error, color: Colors.red, size: 64),
+                      const SizedBox(height: 16),
                       Text(
                         callController.errorMessage.value,
-                        style: TextStyle(color: Colors.white, fontSize: 16),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
                         textAlign: TextAlign.center,
                       ),
-                      SizedBox(height: 24),
+                      const SizedBox(height: 24),
                       ElevatedButton(
                         onPressed: () {
-                          // Retry initialization
                           final args = Get.arguments as Map<String, dynamic>;
                           callController.initAgora(
                             channelName: args["channelName"],
@@ -103,7 +218,7 @@ class _HostStartLiveStreamingScreenState
                             callId: args["channelName"],
                           );
                         },
-                        child: Text("Retry"),
+                        child: const Text("Retry"),
                       ),
                     ],
                   ),
@@ -121,7 +236,6 @@ class _HostStartLiveStreamingScreenState
                   ),
                 );
               } else {
-                // Show local preview when no remote user
                 return AgoraVideoView(
                   controller: VideoViewController(
                     rtcEngine: callController.engine!,
@@ -130,10 +244,9 @@ class _HostStartLiveStreamingScreenState
                 );
               }
             } else {
-              // Show loading/placeholder while connecting
               return Container(
                 color: Colors.black,
-                child: Center(
+                child: const Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -165,7 +278,12 @@ class _HostStartLiveStreamingScreenState
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               /// Left: Profile info
-                              ProfileChip(false, Colors.white.withOpacity(0.2)),
+                              ProfileChip(
+                                false,
+                                Colors.white.withOpacity(0.2),
+                                "${AppUrl.user_name}",
+                                "${AppUrl.riolive_id}",
+                              ),
 
                               /// Right: Story circles + close button
                               Row(
@@ -204,7 +322,7 @@ class _HostStartLiveStreamingScreenState
                                               "Bearer ${AppUrl.token}",
                                         },
                                       );
-                                      print(response.body);
+                                      debugPrint(response.body);
                                       final args =
                                           Get.arguments as Map<String, dynamic>;
                                       if (args["isHost"] == true) {
@@ -429,16 +547,14 @@ class _HostStartLiveStreamingScreenState
                             children: [
                               const Expanded(child: MessageField()),
                               const SizedBox(width: 12),
-                              RoundIcon(
-                                image: const AssetImage('assets/icons/pk.png'),
+                              const RoundIcon(
+                                image: AssetImage('assets/icons/pk.png'),
                               ),
                               const SizedBox(width: 14),
                               InkWell(
                                 onTap: () => showRoomToolsSheet(context),
-                                child: RoundIcon(
-                                  image: const AssetImage(
-                                    'assets/icons/apps.png',
-                                  ),
+                                child: const RoundIcon(
+                                  image: AssetImage('assets/icons/apps.png'),
                                 ),
                               ),
                             ],
@@ -447,155 +563,10 @@ class _HostStartLiveStreamingScreenState
                       ],
                     ),
                   )
-                : SizedBox.shrink(),
+                : const SizedBox.shrink(),
           ),
         ],
       ),
     );
   }
-}
-
-void showRoomToolsSheet(BuildContext context) {
-  showModalBottomSheet(
-    context: context,
-    backgroundColor: Colors.transparent,
-    isScrollControlled: true,
-    barrierColor: Colors.black.withOpacity(0.3),
-    builder: (context) {
-      return GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => Navigator.pop(context),
-        child: DraggableScrollableSheet(
-          initialChildSize: 0.4,
-          minChildSize: 0.2,
-          maxChildSize: 0.8,
-          builder: (_, controller) {
-            return CustomContainer(
-              conColor: const Color(0xff2D2A2A),
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(20),
-              ),
-              padding: const EdgeInsets.all(16),
-              child: ListView(
-                controller: controller,
-                children: const [
-                  Center(
-                    child: SizedBox(
-                      width: 40,
-                      height: 5,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: Colors.grey,
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 12),
-                  CustomText(
-                    "Room Tools",
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 20,
-                  ),
-                  SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      BottomIcon(
-                        asset: 'assets/icons/share_3.png',
-                        label: 'Share',
-                      ),
-                      BottomIcon(
-                        asset: 'assets/icons/flip_camera.png',
-                        label: 'Flip Camera',
-                      ),
-                      BottomIcon(
-                        asset: 'assets/icons/sticker.png',
-                        label: 'Sticker',
-                      ),
-                      BottomIcon(
-                        asset: 'assets/icons/micro_phone.png',
-                        label: 'Micro',
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  CustomText(
-                    "Other Tools",
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 20,
-                  ),
-                  SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      BottomIcon(
-                        asset: 'assets/icons/three_circle.png',
-                        label: 'Filter',
-                      ),
-                      BottomIcon(
-                        asset: 'assets/icons/live_time.png',
-                        label: 'Live Time',
-                      ),
-                      BottomIcon(
-                        asset: 'assets/icons/private_call.png',
-                        label: 'Private Call',
-                      ),
-                      BottomIcon(
-                        asset: 'assets/icons/admin.png',
-                        label: 'Admin',
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  CustomText(
-                    "Games",
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 20,
-                  ),
-                  SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      BottomIcon(
-                        asset: 'assets/icons/talk_guess.png',
-                        label: 'Talk Guess',
-                      ),
-                      BottomIcon(
-                        asset: 'assets/icons/draw_guess.png',
-                        label: 'Draw Guess',
-                      ),
-                      BottomIcon(
-                        asset: 'assets/icons/digit_bomb.png',
-                        label: 'Digit-Bomb',
-                      ),
-                      BottomIcon(
-                        asset: 'assets/icons/to_be_honest.png',
-                        label: 'To Be Honest',
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  Padding(
-                    padding: EdgeInsets.only(left: 19.0),
-                    child: Row(
-                      children: [
-                        BottomIcon(
-                          asset: 'assets/icons/clap_at_7.png',
-                          label: 'Clap at 7',
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      );
-    },
-  );
 }

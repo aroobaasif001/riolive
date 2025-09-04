@@ -9,7 +9,7 @@ import '../../../../controller/random_call_controller.dart';
 import '../../../../customwidgets/custom_container.dart';
 import '../../../../customwidgets/custombutton.dart';
 import '../../../../customwidgets/customtext.dart';
-import '../../../../socket/incoming_calls.dart';
+import '../../../../services/socket_service.dart';
 import 'host_start_live_streaming_screen/host_start_live_streaming_screen.dart';
 
 class HostVideoCallScreen extends StatefulWidget {

@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
 
-import '../socket/incoming_calls.dart';
+import '../services/socket_service.dart';
 import '../utile/app_url.dart';
 
 class CallController extends GetxController {

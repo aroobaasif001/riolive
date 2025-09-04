@@ -13,11 +13,9 @@ class SocketService extends GetxService {
   int _reconnectAttempts = 0;
   final int _maxReconnectAttempts = 5;
 
-  // De-dupe dialogs per callId
   final Set<String> _pendingCallDialogs = {};
   final Set<String> _processedCallIds = {};
 
-  // Connection state management
   final RxBool isConnected = false.obs;
   final RxString connectionStatus = 'disconnected'.obs;
 
@@ -29,7 +27,7 @@ class SocketService extends GetxService {
 
   void initSocket(String token, String userId) {
     if (_isConnecting || socket?.connected == true) {
-      debugPrint("⚠️ Socket already connected or connecting");
+      debugPrint("⚠ Socket already connected or connecting");
       return;
     }
 
@@ -37,7 +35,6 @@ class SocketService extends GetxService {
     connectionStatus.value = 'connecting';
     _isConnecting = true;
 
-    // Dispose any existing socket first
     disposeSocket();
 
     try {
@@ -61,7 +58,6 @@ class SocketService extends GetxService {
 
       _setupEventListeners(userId);
 
-      // Force connection
       socket?.connect();
     } catch (e) {
       debugPrint("❌ Error creating socket: $e");
@@ -73,7 +69,6 @@ class SocketService extends GetxService {
   void _setupEventListeners(String userId) {
     if (socket == null) return;
 
-    // Connection events
     socket?.onConnect((_) {
       debugPrint("✅ Socket connected successfully!");
       debugPrint("🔍 Socket ID: ${socket?.id}");
@@ -82,7 +77,6 @@ class SocketService extends GetxService {
       _isConnecting = false;
       _reconnectAttempts = 0;
 
-      // Authenticate with server
       socket?.emit("authenticate", {
         "userId": userId,
         "userName": AppUrl.user_name,
@@ -124,32 +118,47 @@ class SocketService extends GetxService {
       debugPrint("❌ Socket reconnect error: $error");
     });
 
-    // Application-specific events
     _setupApplicationListeners();
   }
 
   void _setupApplicationListeners() {
-    // Clear existing listeners to avoid duplicates
+    socket?.off("incoming_call");
+    socket?.off("call_status");
+    socket?.off("host_status");
     socket?.off("call_started");
     socket?.off("call_accepted");
     socket?.off("call_rejected");
     socket?.off("call_ended");
-    socket?.off("host_joined");
     socket?.off("host_joined_live");
 
-    // Listen for incoming calls
+    // 🔔 Backend: incoming call
+    socket?.on("incoming_call", (raw) async {
+      debugPrint("🔔 Received incoming_call event: $raw");
+      _handleIncomingCall(raw);
+    });
+
+    // 🔔 Frontend/client side: call started (agar backend isko broadcast karta hai)
     socket?.on("call_started", (raw) async {
       debugPrint("🔔 Received call_started event: $raw");
       _handleIncomingCall(raw);
     });
 
-    // Listen for live stream notifications
+    // 🔔 Backend: call status updates (active/ended)
+    socket?.on("call_status", (data) {
+      debugPrint("📞 Call status update: $data");
+    });
+
+    // 🔔 Backend: host online/offline
+    socket?.on("host_status", (data) {
+      debugPrint("👤 Host status update: $data");
+    });
+
+    // Other events
     socket?.on("host_joined_live", (raw) async {
-      debugPrint("🔔 Received host_joined_live event: $raw");
+      debugPrint("🔴 Host joined live: $raw");
       _handleLiveStreamNotification(raw);
     });
 
-    // Add other event listeners as needed
     socket?.on("call_accepted", (data) {
       debugPrint("✅ Call accepted: $data");
     });
@@ -175,24 +184,31 @@ class SocketService extends GetxService {
       final callerId = (data['callerId'] ?? data['userId'] ?? '').toString();
 
       if (callId.isEmpty) {
-        debugPrint("⚠️ call_started without callId");
+        debugPrint("⚠ incoming_call without callId");
         return;
       }
 
-      // Ignore self calls
       if (callerId == AppUrl.riolive_id.toString()) {
         debugPrint("🚫 Ignoring self call");
         return;
       }
 
-      // Prevent duplicate dialogs
       if (_pendingCallDialogs.contains(callId)) return;
       _pendingCallDialogs.add(callId);
 
-      // Close any existing dialogs
       if (Get.isDialogOpen == true) Get.back();
 
-      // Show incoming call dialog
+      // ✅ Toast notification
+      Get.snackbar(
+        "Incoming Call",
+        "$callerName is calling...",
+        snackPosition: SnackPosition.TOP,
+        duration: const Duration(seconds: 4),
+        backgroundColor: Colors.blueAccent,
+        colorText: Colors.white,
+      );
+
+      // ✅ Simple popup (global fallback)
       Get.dialog(
         _buildIncomingCallDialog(callId, callerName, data),
         barrierDismissible: false,
@@ -246,15 +262,13 @@ class SocketService extends GetxService {
   void _acceptCall(String callId, Map<String, dynamic> data) async {
     try {
       final c = Get.find<CallController>();
-
-      // Join the call
       final joinResp = await c.joinCall(AppUrl.token, callId);
+
       if (joinResp == null) {
         Get.snackbar("Error", "Failed to join call");
         return;
       }
 
-      // Extract channel and token information
       final channelName = _extractChannelName(joinResp, data);
       final token = _extractToken(joinResp, data);
 
@@ -263,7 +277,6 @@ class SocketService extends GetxService {
         return;
       }
 
-      // Notify caller that call was accepted
       socket?.emit("call_accepted", {
         "callId": callId,
         "userId": AppUrl.riolive_id,
@@ -272,14 +285,13 @@ class SocketService extends GetxService {
         "timestamp": DateTime.now().millisecondsSinceEpoch,
       });
 
-      // Navigate to video call screen
       Get.to(
         () => VideoCallScreen(
           token: AppUrl.token,
           callId: callId,
           channelName: channelName,
           agoraToken: token,
-          isHost: true,
+          isHost: false, // ✅ accept pe audience/user
         ),
       );
     } catch (e) {
@@ -317,19 +329,19 @@ class SocketService extends GetxService {
   }
 
   void _handleLiveStreamNotification(dynamic raw) {
-    // Similar implementation for live stream notifications
-    // You can adapt the pattern from _handleIncomingCall
+    // extend kar sakte ho agar lives ke liye toast/popup dikhani ho
   }
 
   // ================= EMIT METHODS =================
 
+  // ⚠ NOTE: aapki requirement ke mutabiq, "start call" pe koi emit NHI karna.
+  // Ye helper rehne diya hai lekin use na karein.
   void notifyCallStarted(Map<String, dynamic> payload) {
     if (!isConnected.value) {
       debugPrint("❌ Socket not connected - cannot emit call_started");
       _attemptReconnectionThenEmit("call_started", payload);
       return;
     }
-
     try {
       final enrichedPayload = {
         ...payload,
@@ -338,9 +350,8 @@ class SocketService extends GetxService {
         "timestamp": DateTime.now().millisecondsSinceEpoch,
         "device": "mobile",
       };
-
-      debugPrint("📤 Emitting call_started: $enrichedPayload");
-      socket?.emit("call_started", enrichedPayload);
+      debugPrint("📤 (DISCOURAGED) Emitting call_started: $enrichedPayload");
+      // socket?.emit("call_started", enrichedPayload); // ← INTENTIONALLY DISABLED
     } catch (e) {
       debugPrint("❌ Error emitting call_started: $e");
     }
@@ -353,7 +364,6 @@ class SocketService extends GetxService {
       initSocket(AppUrl.token, AppUrl.riolive_id.toString());
     }
 
-    // Wait a bit and try again
     Future.delayed(const Duration(seconds: 2), () {
       if (isConnected.value) {
         socket?.emit(event, data);
@@ -396,6 +406,16 @@ class SocketService extends GetxService {
     _isConnecting = false;
 
     if (socket != null) {
+      // important: saare listeners band karo
+      socket?.off("incoming_call");
+      socket?.off("call_started");
+      socket?.off("call_status");
+      socket?.off("host_status");
+      socket?.off("call_accepted");
+      socket?.off("call_rejected");
+      socket?.off("call_ended");
+      socket?.off("host_joined_live");
+
       socket?.disconnect();
       socket?.dispose();
       socket = null;
@@ -405,7 +425,6 @@ class SocketService extends GetxService {
     connectionStatus.value = 'disconnected';
   }
 
-  // Debug and utility methods
   void debugSocketStatus() {
     debugPrint("🔍 === SOCKET STATUS ===");
     debugPrint("🔍 Connected: ${isConnected.value}");
@@ -424,6 +443,5 @@ class SocketService extends GetxService {
     });
   }
 
-  // Check if socket is properly connected
   bool get isSocketReady => isConnected.value && socket != null;
 }
