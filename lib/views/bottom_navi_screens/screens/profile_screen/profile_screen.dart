@@ -5,6 +5,7 @@ import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/setting
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/verification_screen/verification_screen.dart';
 import '../../../../utile/app_url.dart';
 import '../agency_screens/agency_screen.dart';
+import '../DiamondTrading/diamond_trading_main_screen.dart';
 import 'about_riolive_screen/about_screen.dart';
 import 'customer_service/customer_service_screen.dart';
 import 'customer_support/customer_support_screen.dart';
@@ -310,6 +311,8 @@ class ProfileDashboardScreen extends StatelessWidget {
                 Get.to(() => const SettingsScreen());
               } else if (e.label == "Agency Management") {
                 Get.to(() => AgencyScreen());
+              } else if (e.label == "Diamond Trading") {
+                Get.to(() => const DiamondTradingMainScreen());
               }
             },
             child: Container(
