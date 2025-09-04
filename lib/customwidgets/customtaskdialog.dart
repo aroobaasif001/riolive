@@ -124,10 +124,7 @@ class TaskDialog extends StatelessWidget {
                                       Color(0x80FFFFFF),
                                     ],
                                   ),
-                                  child: Image.asset(
-                                    'assets/images/2.png',
-                                    fit: BoxFit.contain,
-                                  ),
+                                  child: Image.asset('assets/images/2.png', fit: BoxFit.contain),
                                 ),
                                 const SizedBox(height: 6),
                                 SizedBox(

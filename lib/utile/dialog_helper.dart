@@ -425,12 +425,36 @@ void showCountryDialogTop(BuildContext context) {
     context: context,
     barrierDismissible: true,
     barrierLabel: 'country-dialog',
-    barrierColor: Colors.black.withOpacity(.0), // CHANGED: slight dim so bg is visible
+    barrierColor: Colors.black.withOpacity(.0),
     transitionDuration: const Duration(milliseconds: 220),
     pageBuilder: (ctx, a1, a2) {
-      // pill chip
-      Widget chip(String label, String flagPath, {bool highlighted = false}) {
+      // NULL-SAFE chip
+      Widget chip(String? label, String? flagPath, {bool highlighted = false}) {
         final Color txt = highlighted ? const Color(0xFF1C2B74) : const Color(0xFF202124);
+
+        Widget flagBox;
+        if (flagPath == null || flagPath.isEmpty) {
+          // fallback if image path missing
+          flagBox = CustomContainer(
+            height: 16, width: 16,
+            borderRadius: BorderRadius.circular(11),
+            conColor: Colors.white,
+          );
+        } else {
+          flagBox = CustomContainer(
+            height: 16, width: 16,
+            borderRadius: BorderRadius.circular(11),
+            conColor: Colors.white,
+            boxShadow: [
+              BoxShadow(color: Colors.black.withOpacity(.30), blurRadius: 20, offset: const Offset(5, 2)),
+            ],
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(11),
+              child: Image.asset(flagPath, fit: BoxFit.cover),
+            ),
+          );
+        }
+
         return CustomContainer(
           conColor: Colors.white,
           height: 26,
@@ -440,21 +464,10 @@ void showCountryDialogTop(BuildContext context) {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CustomContainer(
-                height: 16, width: 16,
-                borderRadius: BorderRadius.circular(11),
-                conColor: Colors.white,
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(.30),
-                      blurRadius: 20, offset: const Offset(5, 2))],
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(11),
-                  child: Image.asset(flagPath, fit: BoxFit.cover),
-                ),
-              ),
+              flagBox,
               const SizedBox(width: 10),
               CustomText(
-                label,
+                label ?? '',          // <- safe
                 color: txt,
                 fontWeight: FontWeight.w400,
                 fontSize: 12,
@@ -480,30 +493,21 @@ void showCountryDialogTop(BuildContext context) {
             padding: const EdgeInsets.only(top: 70),
             child: CustomContainer(
               height: 380,
-              width: MediaQuery.of(ctx).size.width, // full width
-              padding: const EdgeInsets.symmetric(vertical: 20,horizontal: 5), // no horizontal padding
+              width: MediaQuery.of(ctx).size.width,
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 5),
               borderRadius: cardRadius,
               gradient: const LinearGradient(
                 begin: Alignment.topLeft, end: Alignment.bottomRight,
                 colors: [Color(0xA0FFFFFF), Color(0x80FFFFFF), Color(0x66E6EAFF)],
               ),
               border: Border.all(color: Colors.white.withOpacity(.35), width: 1),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(.26), blurRadius: 24, offset: const Offset(0, 12))],
+              boxShadow: [BoxShadow(color: Colors.black.withOpacity(.26), blurRadius: 24, offset: Offset(0, 12))],
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomText(
-                      'Recent',
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: false,
-                      shadows: const [],
-                    ),
+                    const CustomText('Recent', color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12, shadows: []),
                     const SizedBox(height: 12),
                     Wrap(
                       spacing: 16, runSpacing: 14,
@@ -515,16 +519,7 @@ void showCountryDialogTop(BuildContext context) {
                       ],
                     ),
                     const SizedBox(height: 22),
-                    CustomText(
-                      'Country list',
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: false,
-                      shadows: const [],
-                    ),
+                    const CustomText('Country list', color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12, shadows: []),
                     const SizedBox(height: 12),
                     Wrap(
                       spacing: 16, runSpacing: 14,
@@ -543,40 +538,30 @@ void showCountryDialogTop(BuildContext context) {
         ),
       );
 
-      // Wrap in Dialog (transparent) to keep constraints & animations nice
       return Dialog(
         backgroundColor: Colors.transparent,
         insetPadding: EdgeInsets.zero,
         elevation: 0,
         child: Stack(
           children: [
-            // ⬇️ Background blur with subtle dark tint (so screen is slightly visible)
             Positioned.fill(
               child: BackdropFilter(
-                filter: ui.ImageFilter.blur(sigmaX: 3, sigmaY: 3), // CHANGED: lighter blur for slight visibility
-                child: Container(color: Colors.black.withOpacity(0.08)), // CHANGED: subtle tint
+                filter: ui.ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                child: Container(color: Colors.black.withOpacity(0.08)),
               ),
             ),
-            Align(
-              alignment: Alignment.topCenter,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 14),
-                child: dialogCard,
-              ),
-            ),
+            Align(alignment: Alignment.topCenter, child: Padding(padding: const EdgeInsets.only(top: 14), child: dialogCard)),
           ],
         ),
       );
     },
     transitionBuilder: (ctx, anim, _, child) {
       final a = CurvedAnimation(parent: anim, curve: Curves.easeOutCubic);
-      return SlideTransition(
-        position: Tween<Offset>(begin: const Offset(0, -0.06), end: Offset.zero).animate(a),
-        child: child,
-      );
+      return SlideTransition(position: Tween<Offset>(begin: const Offset(0, -0.06), end: Offset.zero).animate(a), child: child);
     },
   );
 }
+
 
 
 

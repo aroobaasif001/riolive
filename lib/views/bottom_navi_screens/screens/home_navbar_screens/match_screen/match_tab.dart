@@ -28,6 +28,8 @@ class _MatchTabState extends State<MatchTab> {
     });
   }
 
+  final CallController _callController = CallController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

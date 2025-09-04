@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:riolive/customwidgets/custom_gradient_button.dart';
 
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
-  const CustomAppBar({Key? key, required this.title}) : super(key: key);
+  const CustomAppBar({Key? key, required this.title, }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -16,10 +18,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),
-      backgroundColor: const Color(0xFFB6F2E3),
+      backgroundColor: Colors.transparent,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back),
-        onPressed: () => Navigator.pop(context),
+        onPressed: () => Get.back(),
       ),
       centerTitle: true,
     );

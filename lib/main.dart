@@ -6,8 +6,9 @@ import 'package:http/http.dart' as http;
 import 'package:riolive/services/socket_service.dart';
 import 'package:riolive/utile/app_url.dart';
 import 'package:riolive/views/bottom_navi_screens/bottom_navi_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/agency_screens/agency_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/reward_screens/reward_screen.dart';
 import 'package:riolive/views/splashscreen/splash_screen.dart';
-
 import 'controller/signin_controller.dart';
 
 Future<void> main() async {
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Rio Live App',
       debugShowCheckedModeBanner: false,
-      home: const AppStartup(),
+      home: RewardsTabs(),
     );
   }
 }

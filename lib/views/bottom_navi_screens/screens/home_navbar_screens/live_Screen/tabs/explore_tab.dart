@@ -353,30 +353,25 @@ class _CountryChip extends StatelessWidget {
 
 class _FlagBadge extends StatelessWidget {
   final double diameter;
-  final String? emoji; // fallback if image not provided
+  final String? emoji;
   final String? flagAsset;
   const _FlagBadge({required this.diameter, this.emoji, this.flagAsset});
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: diameter,
-      height: diameter,
-      child: ClipOval(
-        child: flagAsset != null
-            ? Image.asset(
-          flagAsset!,
-          width: diameter,
-          height: diameter,
-          fit: BoxFit.cover,
-        )
-            : Center(
-          child: CustomText(
-            emoji ?? '',
-            fontSize: diameter * 0.72,
-          ),
+    if (flagAsset != null && flagAsset!.isNotEmpty) {
+      return SizedBox(
+        width: diameter, height: diameter,
+        child: ClipOval(
+          child: Image.asset(flagAsset!, width: diameter, height: diameter, fit: BoxFit.cover),
         ),
-      ),
+      );
+    }
+    // fallback to emoji or blank
+    return SizedBox(
+      width: diameter, height: diameter,
+      child: Center(child: CustomText(emoji ?? '', fontSize: diameter * 0.72)),
     );
   }
 }
+
