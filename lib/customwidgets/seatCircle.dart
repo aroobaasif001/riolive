@@ -9,6 +9,7 @@ class SeatCircle extends StatelessWidget {
   final String label;
   final String? image;
   final String frameImage; // Added frame image parameter
+  final onTap;
 
   const SeatCircle({
     super.key,
@@ -16,6 +17,7 @@ class SeatCircle extends StatelessWidget {
     required this.label,
     this.image,
     required this.frameImage, // Initialize frame image
+    this.onTap,
   });
 
   @override
@@ -29,36 +31,39 @@ class SeatCircle extends StatelessWidget {
       inner = const Icon(Icons.mic, color: Colors.white70, size: 30);
     }
 
-    return Column(
-      children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            // Background frame image
-            CustomContainer(
-              width: 72,
-              height: 72,
-              shape: BoxShape.circle,
-              image: DecorationImage(
-                image: AssetImage(frameImage),
-                fit: BoxFit.cover,
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              // Background frame image
+              CustomContainer(
+                width: 72,
+                height: 72,
+                shape: BoxShape.circle,
+                image: DecorationImage(
+                  image: AssetImage(frameImage),
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
-            // Inner content (avatar or icon)
-            CustomContainer(
-              width: 72,
-              height: 72,
-              shape: BoxShape.circle,
-              conColor: state == SeatState.locked
-                  ? Colors.black.withOpacity(0.5)
-                  : Colors.white.withOpacity(0.2),
-              child: Center(child: inner),
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        CustomText(label, color: Colors.white, fontSize: 11),
-      ],
+              // Inner content (avatar or icon)
+              CustomContainer(
+                width: 72,
+                height: 72,
+                shape: BoxShape.circle,
+                conColor: state == SeatState.locked
+                    ? Colors.black.withOpacity(0.5)
+                    : Colors.white.withOpacity(0.2),
+                child: Center(child: inner),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          CustomText(label, color: Colors.white, fontSize: 11),
+        ],
+      ),
     );
   }
 }

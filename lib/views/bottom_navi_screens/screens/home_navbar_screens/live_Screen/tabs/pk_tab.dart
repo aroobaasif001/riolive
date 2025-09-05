@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:riolive/customwidgets/custom_container.dart';
 import 'package:riolive/customwidgets/customtext.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/home_navbar_screens/live_Screen/tabs/pk_room_screen/pk_room_screen.dart';
 
 class PKTab extends StatelessWidget {
   const PKTab({super.key});
@@ -20,10 +22,18 @@ class PKTab extends StatelessWidget {
           SliverPadding(
             padding: EdgeInsets.fromLTRB(hPad, vGap, hPad, vGap),
             sliver: SliverList.builder(
-              itemCount: 6,  // Changed from 3 to 6 items
+              itemCount: 6, // Changed from 3 to 6 items
               itemBuilder: (context, i) => Padding(
                 padding: EdgeInsets.only(bottom: vGap * 1.2),
-                child: PKCard(match: _matches[i % _matches.length], scale: scale),
+                child: InkWell(
+                  onTap: () {
+                    Get.to(() => PkRoomScreen());
+                  },
+                  child: PKCard(
+                    match: _matches[i % _matches.length],
+                    scale: scale,
+                  ),
+                ),
               ),
             ),
           ),
@@ -45,39 +55,55 @@ class PKCard extends StatelessWidget {
     final borderWidth = 3.0;
 
     return CustomContainer(
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.18),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFFFFA475), Color(0xFF9356F9)],
+      borderRadius: BorderRadius.circular(18),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.18),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
+      ],
+      gradient: const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Color(0xFFFFA475), Color(0xFF9356F9)],
       ),
       child: CustomContainer(
         margin: EdgeInsets.all(borderWidth),
-          conColor: Colors.white,
-          borderRadius: BorderRadius.circular(18),
+        conColor: Colors.white,
+        borderRadius: BorderRadius.circular(18),
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.fromLTRB(16 * scale, 12 * scale, 16 * scale, 8 * scale),
+              padding: EdgeInsets.fromLTRB(
+                16 * scale,
+                12 * scale,
+                16 * scale,
+                8 * scale,
+              ),
               child: Row(
                 children: [
-                  _UserAvatarSection(user: match.left, scale: scale, isLeft: true),
+                  _UserAvatarSection(
+                    user: match.left,
+                    scale: scale,
+                    isLeft: true,
+                  ),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10 * scale),
                     child: SizedBox(
                       width: 38,
                       height: 38,
-                      child: Image.asset('assets/images/vs.png', fit: BoxFit.contain),
+                      child: Image.asset(
+                        'assets/images/vs.png',
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
-                  _UserAvatarSection(user: match.right, scale: scale, isLeft: false),
+                  _UserAvatarSection(
+                    user: match.right,
+                    scale: scale,
+                    isLeft: false,
+                  ),
                 ],
               ),
             ),
@@ -103,12 +129,12 @@ class PKCard extends StatelessWidget {
                     child: Container(
                       height: 38,
                       width: 150,
-                      padding: EdgeInsets.symmetric(horizontal: 12,),
+                      padding: EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF95252),
                         borderRadius: BorderRadius.only(
-                            bottomRight: Radius.circular(18),
-                            bottomLeft: Radius.circular(18),
+                          bottomRight: Radius.circular(18),
+                          bottomLeft: Radius.circular(18),
                         ),
                       ),
                       child: Row(
@@ -125,18 +151,26 @@ class PKCard extends StatelessWidget {
                                 colors: [Color(0xFFFFF08A), Color(0xFFFFC64A)],
                               ),
                               boxShadow: const [
-                                BoxShadow(color: Color(0x33000000), blurRadius: 4, offset: Offset(0, 2)),
+                                BoxShadow(
+                                  color: Color(0x33000000),
+                                  blurRadius: 4,
+                                  offset: Offset(0, 2),
+                                ),
                               ],
                             ),
                             alignment: Alignment.center,
-                            child: Image.asset('assets/icons/hearticon.png', width: 20, height: 20), // Updated image path
+                            child: Image.asset(
+                              'assets/icons/hearticon.png',
+                              width: 20,
+                              height: 20,
+                            ), // Updated image path
                           ),
                           SizedBox(width: 6),
                           CustomText(
                             '${match.leftCoins}',
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 12,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
                           ),
                         ],
                       ),
@@ -144,7 +178,7 @@ class PKCard extends StatelessWidget {
                   ),
                   Positioned(
                     child: Padding(
-                      padding: EdgeInsets.only(right: 12 ),
+                      padding: EdgeInsets.only(right: 12),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -168,11 +202,19 @@ class PKCard extends StatelessWidget {
                                 colors: [Color(0xFFFFF08A), Color(0xFFFFC64A)],
                               ),
                               boxShadow: const [
-                                BoxShadow(color: Color(0x33000000), blurRadius: 4, offset: Offset(0, 2)),
+                                BoxShadow(
+                                  color: Color(0x33000000),
+                                  blurRadius: 4,
+                                  offset: Offset(0, 2),
+                                ),
                               ],
                             ),
                             alignment: Alignment.center,
-                            child: Image.asset('assets/icons/hearticon.png', width: 20, height: 20), // Updated image path
+                            child: Image.asset(
+                              'assets/icons/hearticon.png',
+                              width: 20,
+                              height: 20,
+                            ), // Updated image path
                           ),
                         ],
                       ),
@@ -193,18 +235,26 @@ class _UserAvatarSection extends StatelessWidget {
   final double scale;
   final bool isLeft;
 
-  const _UserAvatarSection({required this.user, required this.scale, required this.isLeft});
+  const _UserAvatarSection({
+    required this.user,
+    required this.scale,
+    required this.isLeft,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Column(
-        crossAxisAlignment: isLeft ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+        crossAxisAlignment: isLeft
+            ? CrossAxisAlignment.start
+            : CrossAxisAlignment.end,
         children: [
           Padding(
             padding: isLeft
                 ? EdgeInsets.only(left: 5 * scale)
-                : EdgeInsets.only(right: 5 * scale), // Adjust for 5 units movement
+                : EdgeInsets.only(
+                    right: 5 * scale,
+                  ), // Adjust for 5 units movement
             child: _AvatarCircle(image: user.image, size: 64 * scale),
           ),
           SizedBox(height: 10 * scale),
@@ -248,9 +298,7 @@ class _AvatarCircle extends StatelessWidget {
         shape: BoxShape.circle,
         color: Colors.white,
       ),
-      child: ClipOval(
-        child: Image.asset(image, fit: BoxFit.cover),
-      ),
+      child: ClipOval(child: Image.asset(image, fit: BoxFit.cover)),
     );
   }
 }
@@ -276,27 +324,63 @@ class _PKMatch {
 
 const _matches = <_PKMatch>[
   _PKMatch(
-    left: _PKUser(name: 'Himanshi Khurana', image: 'assets/images/girl_img1.png'),
-    right: _PKUser(name: 'Himanshi Khurana', image: 'assets/images/girl_img1.png'),
+    left: _PKUser(
+      name: 'Himanshi Khurana',
+      image: 'assets/images/girl_img1.png',
+    ),
+    right: _PKUser(
+      name: 'Himanshi Khurana',
+      image: 'assets/images/girl_img1.png',
+    ),
   ),
   _PKMatch(
-    left: _PKUser(name: 'Himanshi Khurana', image: 'assets/images/girl_img1.png'),
-    right: _PKUser(name: 'Himanshi Khurana', image: 'assets/images/girl_img1.png'),
+    left: _PKUser(
+      name: 'Himanshi Khurana',
+      image: 'assets/images/girl_img1.png',
+    ),
+    right: _PKUser(
+      name: 'Himanshi Khurana',
+      image: 'assets/images/girl_img1.png',
+    ),
   ),
   _PKMatch(
-    left: _PKUser(name: 'Himanshi Khurana', image: 'assets/images/girl_img1.png'),
-    right: _PKUser(name: 'Himanshi Khurana', image: 'assets/images/girl_img1.png'),
+    left: _PKUser(
+      name: 'Himanshi Khurana',
+      image: 'assets/images/girl_img1.png',
+    ),
+    right: _PKUser(
+      name: 'Himanshi Khurana',
+      image: 'assets/images/girl_img1.png',
+    ),
   ),
   _PKMatch(
-    left: _PKUser(name: 'Himanshi Khurana', image: 'assets/images/girl_img1.png'),
-    right: _PKUser(name: 'Himanshi Khurana', image: 'assets/images/girl_img1.png'),
+    left: _PKUser(
+      name: 'Himanshi Khurana',
+      image: 'assets/images/girl_img1.png',
+    ),
+    right: _PKUser(
+      name: 'Himanshi Khurana',
+      image: 'assets/images/girl_img1.png',
+    ),
   ),
   _PKMatch(
-    left: _PKUser(name: 'Himanshi Khurana', image: 'assets/images/girl_img1.png'),
-    right: _PKUser(name: 'Himanshi Khurana', image: 'assets/images/girl_img1.png'),
+    left: _PKUser(
+      name: 'Himanshi Khurana',
+      image: 'assets/images/girl_img1.png',
+    ),
+    right: _PKUser(
+      name: 'Himanshi Khurana',
+      image: 'assets/images/girl_img1.png',
+    ),
   ),
   _PKMatch(
-    left: _PKUser(name: 'Himanshi Khurana', image: 'assets/images/girl_img1.png'),
-    right: _PKUser(name: 'Himanshi Khurana', image: 'assets/images/girl_img1.png'),
+    left: _PKUser(
+      name: 'Himanshi Khurana',
+      image: 'assets/images/girl_img1.png',
+    ),
+    right: _PKUser(
+      name: 'Himanshi Khurana',
+      image: 'assets/images/girl_img1.png',
+    ),
   ),
 ];
