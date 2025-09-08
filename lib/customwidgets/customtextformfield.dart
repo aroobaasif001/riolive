@@ -14,6 +14,11 @@ class CustomTextFormField extends StatelessWidget {
   final double width;  // Custom width
   final EdgeInsetsGeometry padding; // Custom padding
   final Color hintTextColor; // Custom hintText color
+  final hint;
+  final maxLines;
+  final maxLength;
+  final readOnly;
+  final suffixIcon;
 
   const CustomTextFormField({
     super.key,
@@ -27,7 +32,12 @@ class CustomTextFormField extends StatelessWidget {
     this.height = 50.0, // Default height
     this.width = 300.0, // Default width
     this.padding = const EdgeInsets.symmetric(horizontal: 16.0), // Default padding
-    this.hintTextColor = Colors.black38, // Default hintText color
+    this.hintTextColor = Colors.black38,
+    this.hint,
+    this.maxLines,
+    this.maxLength,
+    this.readOnly,
+    this.suffixIcon, // Default hintText color
   });
 
   @override

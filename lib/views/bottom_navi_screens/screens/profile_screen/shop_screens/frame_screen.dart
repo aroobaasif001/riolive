@@ -3,6 +3,7 @@ import 'package:riolive/customwidgets/custom_gradient_button.dart';
 import 'package:riolive/customwidgets/customappbar_agencyscreen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/settings_screen/settings_screen.dart';
 
+import '../../../../../customwidgets/customtext.dart';
 import '../../../../../utile/dialog_helper.dart';
 
 class FrameScreen extends StatefulWidget {

@@ -11,16 +11,18 @@ class CustomContainer extends StatelessWidget {
   final BoxShape shape;
   final AlignmentGeometry? alignment;
   final List<BoxShadow>? boxShadow;
-  final Gradient? gradient;
+ final Gradient? gradient;
   final EdgeInsetsGeometry? margin;
   final EdgeInsetsGeometry? padding;
+  final bgImagePath;
+  final iconPath;
+  final label;
+  final onTap;
+  String ?title;
+  final subTitle;
+  final decoration;
 
-  // 🔹 Added new props
-  final VoidCallback? onTap;     // for simple tap
-  final VoidCallback? onPressed; // alias for button-style usage
-
-  const CustomContainer({
-    super.key,
+   CustomContainer({super.key,
     this.height,
     this.width,
     this.conColor,
@@ -34,38 +36,33 @@ class CustomContainer extends StatelessWidget {
     this.gradient,
     this.margin,
     this.padding,
-    this.onTap,
-    this.onPressed,
+    this.bgImagePath,
+    this.iconPath,
+    this.label,
+    this.title,
+     this.subTitle,
+     this.decoration,
+     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final container = Container(
+    return Container(
       padding: padding,
-      margin: margin,
+      margin:margin ,
       alignment: alignment,
       height: height,
       width: width,
       decoration: BoxDecoration(
-        gradient: gradient,
+        gradient:gradient,
         image: image,
         color: conColor,
         borderRadius: borderRadius,
         shape: shape,
         border: border,
-        boxShadow: boxShadow,
+        boxShadow: boxShadow
       ),
       child: child,
     );
-
-    // agar onTap / onPressed diya gaya ho, to tappable banao
-    if (onTap != null || onPressed != null) {
-      return GestureDetector(
-        onTap: onTap ?? onPressed,
-        child: container,
-      );
-    }
-
-    return container;
   }
 }

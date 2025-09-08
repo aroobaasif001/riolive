@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:riolive/customwidgets/custom_container.dart';
+import 'package:riolive/customwidgets/customtext.dart';
+import 'package:riolive/customwidgets/custom_gradient_button.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/verification_screen/redirected_screens/bind_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/verification_screen/redirected_screens/face_auth_screen.dart';
 
-import '../../../../../customwidgets/custom_gradient_button.dart';
-import '../../../../../customwidgets/customtext.dart';
-import '../JoinAgency_Screen/JoinAgencyScreen.dart';
+import '../agency_screen1/agency_screen.dart';
 
 class VerificationScreen extends StatelessWidget {
   const VerificationScreen({super.key});
@@ -15,162 +16,226 @@ class VerificationScreen extends StatelessWidget {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      body: Container(
-        width: size.width,
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          onPressed: () => Get.back(),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+        ),
+        centerTitle: true,
+        title: const CustomText(
+          "Authentication",
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      body: CustomContainer(
         height: size.height,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFB6F2E3), Color(0xFFF2D6F9)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
+        width: size.width,
+        image: const DecorationImage(
+          image: AssetImage("assets/images/bg11.png"), // 👈 background image path
+          fit: BoxFit.cover,
         ),
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                /// 🔙 AppBar Row
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.black),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    Expanded(
-                      child: Center(
-                        child: CustomText(
-                          "Authentication",
-                          fontSize: size.width * 0.05,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 48),
-                  ],
-                ),
                 const SizedBox(height: 20),
 
-                /// 🔐 Info Section
+                // 🔹 My Authentication + Description (left) + Illustration (right)
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CustomText(
-                          "My Authentication",
-                          fontSize: size.width * 0.05,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                        const SizedBox(height: 20),
-                        CustomText(
-                          "To protect you and other \naccount security, we \nrecommend you to complete\nverification.",
-                          fontSize: size.width * 0.035,
-                          color: Colors.black54,
-                        ),
-                      ],
-                    ),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.asset(
-                        'assets/images/verification.png',
-                        width: 60,
-                        height: 60,
-                        fit: BoxFit.cover,
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CustomText(
+                            "My Authentication",
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          SizedBox(height: 8),
+                          CustomText(
+                            "To protect you and other account security.\n"
+                                "we recommend you to complete verification.",
+                            fontSize: 13,
+                            maxLines: 4,
+                          ),
+                        ],
                       ),
+                    ),
+                    const SizedBox(width: 10),
+                    Image.asset(
+                      "assets/images/auth_illustration.png",
+                      height: 90,
+                      width: 90,
+                      fit: BoxFit.contain,
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 40),
 
-                /// 🔹 Auth Options
-                _buildAuthCard(
-                  context,
-                  imageAsset: 'assets/images/v2.png',
-                  title: "Face Authentication",
-                  subtitle: "Please complete real person ...",
-                  buttonText: "Go",
-                  onPressed: () {
-                    Get.to(() => Faceauthenticationscreen());
-                  },
-                ),
-                _buildAuthCard(
-                  context,
-                  imageAsset: 'assets/images/v2.png',
-                  title: "Bind a Phone",
-                  subtitle: "Please bind mobile number...",
-                  buttonText: "Bind",
-                  onPressed: () {
-                    Get.to(() => BindPhoneScreen());
-                  },
-                ),
-                _buildAuthCard(
-                  context,
-                  imageAsset: 'assets/images/v2.png',
-                  title: "Join Agency",
-                  subtitle: "Please enter agency invite code",
-                  buttonText: "Join",
-                  onPressed: () {
-                    Get.to(() => JoinAgencyScreen());
-                    /*Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AgencyScreen(),
+                // 1️⃣ Face Authentication
+                CustomContainer(
+                  height: 90,
+                  width: double.infinity,
+                  borderRadius: BorderRadius.circular(16),
+                  conColor: Colors.white,
+                  border: Border.all(
+                    color: Color(0x66000000),
+                    width: 1,
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  child: Row(
+                    children: [
+                      Image.asset("assets/images/face7.png", height: 40, width: 40),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CustomText(
+                              "Face Authentication",
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                            SizedBox(height: 9),
+                            CustomText(
+                              "Please complete real person verification...",
+                              fontSize: 12,
+                              color: Colors.black54,
+                            ),
+                          ],
+                        ),
                       ),
-                    );*/
-                  },
+                      CustomGradientButton(
+                        text: "Go",
+                        onPressed: () {
+                          Get.to(() => const Faceauthenticationscreen());
+                        },
+                        height: 36,
+                        width: 70,
+                        borderRadius: 20,
+                        gradientColors: [Color(0xFF8EC2FB), Color(0xFFE496FF)],
+                      ),
+                    ],
+                  ),
                 ),
+
+                const SizedBox(height: 16),
+
+                // 2️⃣ Bind a Phone
+                CustomContainer(
+                  height: 90,
+                  width: double.infinity,
+                  borderRadius: BorderRadius.circular(16),
+                  conColor: Colors.white,
+                  border: Border.all(           // 👈 Black border added
+                    color: Color(0x66000000),
+                    width: 1,
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  child: Row(
+                    children: [
+                      Image.asset("assets/images/bind7.png", height: 40, width: 40),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CustomText(
+                              "Bind a Phone",
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                            SizedBox(height: 9),
+                            CustomText(
+                              "Please bind mobile number...",
+                              fontSize: 12,
+                              color: Colors.black54,
+                            ),
+                          ],
+                        ),
+                      ),
+                      CustomGradientButton(
+                        text: "Bind",
+                        onPressed: () {
+                          Get.to(() => const BindPhoneScreen());
+                        },
+                        height: 36,
+                        width: 70,
+                        borderRadius: 20,
+                        gradientColors: [Color(0xFF8EC2FB), Color(0xFFE496FF)],
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // 3️⃣ Join Agency
+                CustomContainer(
+                  height: 90,
+                  width: double.infinity,
+                  borderRadius: BorderRadius.circular(16),
+                  conColor: Colors.white,
+                  border: Border.all(
+                    color: Color(0x66000000),
+                    width: 1,
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  child: Row(
+                    children: [
+                      Image.asset("assets/images/bind7.png", height: 40, width: 40),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CustomText(
+                              "Join Agency",
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                            SizedBox(height: 9),
+                            CustomText(
+                              "Please enter agency invite code",
+                              fontSize: 11,
+
+                              color: Colors.black54,
+                            ),
+                          ],
+                        ),
+                      ),
+                      CustomGradientButton(
+                        text: "Join",
+                        onPressed: () {
+                          Get.to(() => const AgencyScreen());
+                        },
+                        height: 36,
+                        width: 70,
+                        borderRadius: 20,
+                        gradientColors: [Color(0xFF8EC2FB), Color(0xFFE496FF)],
+                      ),
+                    ],
+                  ),
+                ),
+
               ],
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  /// 🔹 Auth Card Widget
-  Widget _buildAuthCard(
-    BuildContext context, {
-    required String imageAsset,
-    required String title,
-    required String subtitle,
-    required String buttonText,
-    required VoidCallback onPressed,
-  }) {
-    final size = MediaQuery.of(context).size;
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: const Color(0xffF0EEF4),
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 6, offset: const Offset(0, 3)),
-        ],
-      ),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.asset(imageAsset, width: 44, height: 44, fit: BoxFit.cover),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomText(title, fontSize: size.width * 0.04, fontWeight: FontWeight.w600),
-                const SizedBox(height: 4),
-                CustomText(subtitle, fontSize: size.width * 0.032, color: Colors.black54),
-              ],
-            ),
-          ),
-          CustomGradientButton(text: buttonText, onPressed: onPressed),
-        ],
       ),
     );
   }

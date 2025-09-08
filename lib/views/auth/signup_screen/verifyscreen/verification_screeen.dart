@@ -12,7 +12,6 @@ class VerificationScreeen extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        // (default true hota hai) explicit rakh rahe hain:
         resizeToAvoidBottomInset: true,
         body: Container(
           width: double.infinity,
@@ -20,7 +19,7 @@ class VerificationScreeen extends StatelessWidget {
           decoration: BoxDecoration(
             image: const DecorationImage(
               image: AssetImage("assets/images/backgrondimage.png"),
-              fit: BoxFit.fill, // 👈 Image poora screen cover karegi
+              fit: BoxFit.fill,
             ),
           ),
           child: Padding(
@@ -53,7 +52,7 @@ class VerificationScreeen extends StatelessWidget {
                         SizedBox(height: 138),
                         CustomText('Verify', fontSize: 36, fontWeight: FontWeight.w600),
                         CustomText(
-                          'Please enter the 4-digit code\n         sent to your email',
+                          'Please enter the 4-digit code sent to your email',
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                         ),

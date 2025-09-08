@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:riolive/customwidgets/customtext.dart';
 
-import '../../../../../customwidgets/custom_gradient_button.dart';
-import 'AgencyManagementScreen.dart';
+import '../../../../../../customwidgets/custom_gradient_button.dart';
+import 'Agency_Management_Screen.dart';
 
 class MyAgentScreen extends StatelessWidget {
   const MyAgentScreen({super.key});
@@ -68,6 +68,8 @@ class MyAgentScreen extends StatelessWidget {
                 fontSize: 13,
                 textAlign: TextAlign.center,
                 color: Colors.black54,
+                softWrap: true,
+                maxLines: 4,
               ),
             ),
 
