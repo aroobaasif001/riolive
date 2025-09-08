@@ -31,93 +31,104 @@ class _LiveBroadcastDataScreenState extends State<LiveBroadcastDataScreen> {
   }
 
   void _showHelp() {
-    final rb = _helpKey.currentContext!.findRenderObject() as RenderBox;
-    final Offset anchor = rb.localToGlobal(Offset.zero);
-    final Size aSize = rb.size;
-    final Size screen = MediaQuery.of(context).size;
+    // Guard double-schedule
+    if (_helpEntry != null) return;
 
-    const double panelW = 350;
-    const double arrowW = 16;
-    const double arrowH = 10;
-    const double gap = 8;
+    // Wait until after layout so the anchor has a concrete RenderBox
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final ctx = _helpKey.currentContext;
+      if (ctx == null) return;
 
-    final double anchorCenterX = anchor.dx + aSize.width / 2;
+      final render = ctx.findRenderObject();
+      if (render is! RenderBox) return;
 
-    // panel left/top (clamped to screen)
-    double left = anchorCenterX - panelW / 2;
-    left = left.clamp(12.0, screen.width - panelW - 12.0);
-    final double top = anchor.dy + aSize.height + gap;
+      final anchor = render.localToGlobal(Offset.zero);
+      final aSize  = render.size;
+      final screen = MediaQuery.of(context).size;
 
-    // arrow position (kept within panel bounds)
-    double arrowLeft = anchorCenterX - arrowW / 2;
-    final double minArrowLeft = left + 12;
-    final double maxArrowLeft = left + panelW - 12 - arrowW;
-    arrowLeft = arrowLeft.clamp(minArrowLeft, maxArrowLeft);
+      const panelW = 350.0;
+      const arrowW = 16.0;
+      const arrowH = 10.0;
+      const gap    = 8.0;
 
-    _helpEntry = OverlayEntry(
-      builder: (_) => Stack(
-        children: [
-          // dim barrier — tap to close
-          Positioned.fill(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: _hideHelp,
-              child: Container(color: Colors.black.withOpacity(0.55)),
+      final anchorCenterX = anchor.dx + aSize.width / 2;
+
+      // panel left/top (clamped to screen)
+      double left = anchorCenterX - panelW / 2;
+      left = left.clamp(12.0, screen.width - panelW - 12.0);
+      final double top = anchor.dy + aSize.height + gap;
+
+      // arrow position (kept within panel bounds)
+      double arrowLeft = anchorCenterX - arrowW / 2;
+      final double minArrowLeft = left + 12;
+      final double maxArrowLeft = left + panelW - 12 - arrowW;
+      arrowLeft = arrowLeft.clamp(minArrowLeft, maxArrowLeft);
+
+      _helpEntry = OverlayEntry(
+        builder: (_) => Stack(
+          children: [
+            // dim barrier — tap to close
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _hideHelp,
+                child: Container(color: Colors.black.withOpacity(0.55)),
+              ),
             ),
-          ),
 
-          // popover panel
-          Positioned(
-            left: left,
-            top: top,
-            child: Material(
-              color: Colors.transparent,
-              child: CustomContainer(
-
-                width: panelW,
-                padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-                borderRadius: BorderRadius.circular(12),
-                conColor: const Color(0xFF111111),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.35),
-                    blurRadius: 12,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    _BulletLine(
-                      no: '1.',
-                      text:
-                      'On Withdraw Transaction fees will vary depending on the payment method',
-                    ),
-                    SizedBox(height: 10),
-                    _BulletLine(
-                      no: '2.',
-                      text: 'Settlement time: 0:00 (UTC+1)',
+            // popover panel
+            Positioned(
+              left: left,
+              top: top,
+              child: Material(
+                color: Colors.transparent,
+                child: CustomContainer(
+                  width: panelW,
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                  borderRadius: BorderRadius.circular(12),
+                  conColor: const Color(0xFF111111),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.35),
+                      blurRadius: 12,
+                      offset: const Offset(0, 6),
                     ),
                   ],
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _BulletLine(
+                        no: '1.',
+                        text: 'On Withdraw Transaction fees will vary depending on the payment method',
+                      ),
+                      SizedBox(height: 10),
+                      _BulletLine(
+                        no: '2.',
+                        text: 'Settlement time: 0:00 (UTC+1)',
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
 
-          // little up-arrow
-          Positioned(
-            left: arrowLeft,
-            top: top - arrowH,
-            child: CustomPaint(
-              size: const Size(arrowW, arrowH),
-              painter: _ArrowUpPainter(color: const Color(0xFF111111)),
+            // little up-arrow
+            Positioned(
+              left: arrowLeft,
+              top: top - arrowH,
+              child: CustomPaint(
+                size: const Size(arrowW, arrowH),
+                painter: _ArrowUpPainter(color: Color(0xFF111111)),
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
 
-    Overlay.of(context)!.insert(_helpEntry!);
+      // Use the root overlay to guarantee visibility above everything
+      Overlay.of(context, rootOverlay: true)?.insert(_helpEntry!);
+    });
   }
 
   void _hideHelp() {
@@ -168,10 +179,10 @@ class _LiveBroadcastDataScreenState extends State<LiveBroadcastDataScreen> {
                             ),
                           ),
                           const SizedBox(width: 14),
-                          Expanded(
+                          const Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
+                              children: [
                                 CustomText(
                                   "Shadow King",
                                   fontSize: 18,
@@ -215,8 +226,8 @@ class _LiveBroadcastDataScreenState extends State<LiveBroadcastDataScreen> {
                                 offset: const Offset(0, 10),
                               ),
                             ],
-                            child: Row(
-                              children: const [
+                            child: const Row(
+                              children: [
                                 Image(image: AssetImage('assets/icons/dolloricon.png'), height: 35, width: 33),
                                 Spacer(),
                                 CustomText(
@@ -231,14 +242,19 @@ class _LiveBroadcastDataScreenState extends State<LiveBroadcastDataScreen> {
 
                           const SizedBox(width: 16),
 
-                          // question mark (ANCHOR + TAP)
-                          CustomContainer(
-                            key: _helpKey,        // <-- anchor
-                            onTap: _toggleHelp,   // <-- show/hide popover
-                            height: 24,
-                            width: 24,
-                            image: const DecorationImage(
-                              image: AssetImage('assets/icons/quetionmarlicon.png'),
+                          // question mark (ANCHOR + TAP) — use SizedBox so RenderBox is guaranteed
+                          GestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            onTap: _toggleHelp,
+                            child: SizedBox(
+                              key: _helpKey, // <-- anchor
+                              height: 24,
+                              width: 24,
+                              child:  CustomContainer(
+                                image: DecorationImage(
+                                  image: AssetImage('assets/icons/quetionmarlicon.png'),
+                                ),
+                              ),
                             ),
                           ),
                           const Spacer(),
@@ -248,8 +264,8 @@ class _LiveBroadcastDataScreenState extends State<LiveBroadcastDataScreen> {
                       ),
 
                       const SizedBox(height: 10),
-                      Row(
-                        children: const [
+                      const Row(
+                        children: [
                           Expanded(
                             child: CustomText(
                               "Coins Balance",
@@ -287,8 +303,8 @@ class _LiveBroadcastDataScreenState extends State<LiveBroadcastDataScreen> {
                         offset: const Offset(0, 8),
                       ),
                     ],
-                    child: Column(
-                      children: const [
+                    child: const Column(
+                      children: [
                         Row(
                           children: [
                             Expanded(child: _StatCell(value: "0", label: "Earn Coins")),
@@ -347,9 +363,9 @@ class _LiveBroadcastDataScreenState extends State<LiveBroadcastDataScreen> {
                 const SizedBox(height: 60),
 
                 // ======= NO DATA =======
-                Center(
+                const Center(
                   child: Column(
-                    children: const [
+                    children: [
                       Image(image: AssetImage('assets/icons/emptyicon.png'), height: 92, width: 92),
                       SizedBox(height: 16),
                       CustomText(

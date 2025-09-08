@@ -1266,6 +1266,106 @@ Widget _chip(String text, double s) {
   );
 }
 
+// receipt sheet
+
+Future<void> showUploadReceiptSheet(
+    BuildContext context, {
+      VoidCallback? onTapUpload,
+      VoidCallback? onTapSubmit,
+      bool submitEnabled = false,
+    }) {
+  return showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    useRootNavigator: true,           // 👈 critical with GetX / nested navigators
+    backgroundColor: Colors.transparent,
+    builder: (ctx) {
+      final size = MediaQuery.of(ctx).size;
+      double sw(double v) => v * (size.width / 390);
+      double sh(double v) => v * (size.height / 844);
+      double sp(double v) => v * (size.width / 390);
+
+      return SafeArea(
+        top: false,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(sw(28)),
+              topRight: Radius.circular(sw(28)),
+            ),
+          ),
+          padding: EdgeInsets.fromLTRB(
+            sw(20), sh(18), sw(20),
+            sh(24) + MediaQuery.of(ctx).padding.bottom,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CustomText('Upload payment receipt:',
+                  fontSize: sp(16), fontWeight: FontWeight.w700, color: Colors.black),
+              SizedBox(height: sh(12)),
+              CustomText(
+                'Please confirm that the payment amount is exactly the same as the voucher',
+                fontSize: sp(12), fontWeight: FontWeight.w700,
+                color: Colors.black.withOpacity(0.85), lineHeight: 1.35,
+                maxLines: 2,
+              ),
+              SizedBox(height: sh(22)),
+              // Upload tile
+              GestureDetector(
+                onTap: onTapUpload,
+                child: CustomContainer(
+                  width: sw(160), height: sh(120),
+                  conColor: const Color(0xFFE6E6E6),
+                  borderRadius: BorderRadius.circular(sw(10)),
+                  child: Center(
+                    child: Icon(Icons.add, size: sw(55), color: Colors.black.withOpacity(0.55)),
+                  ),
+                ),
+              ),
+
+              SizedBox(height: sh(34)),
+
+              // Submit
+              Align(
+                alignment: Alignment.center,
+                child: Opacity(
+                  opacity: submitEnabled ? 1 : 0.65,
+                  child: IgnorePointer(
+                    ignoring: !submitEnabled,
+                    child: GestureDetector(
+                      onTap: onTapSubmit,
+                      child: CustomContainer(
+                        width: sw(200), height: sh(52),
+                        conColor: const Color(0xFFBFD0F2),
+                        borderRadius: BorderRadius.circular(sw(100)),
+                        border: Border.all(width: 0.5,color: Colors.grey),
+                        child: Center(
+                          child: CustomText(
+                            'Submit',
+                            fontSize: sp(16), fontWeight: FontWeight.w600,
+                            color: submitEnabled
+                                ? Colors.black.withOpacity(0.5)
+                                : Colors.black.withOpacity(0.55),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+
+
 
 
 

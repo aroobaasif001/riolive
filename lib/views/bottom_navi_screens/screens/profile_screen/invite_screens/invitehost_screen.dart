@@ -385,39 +385,37 @@ class _InviteHostScreenState extends State<InviteHostScreen> {
                                     ),
                                     conColor: const Color(0xFFCDB3F6),
                                   ),
-                                  Align(
-                                    alignment: Alignment.center,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        // TODO: invite now action
-                                      },
-                                      child: CustomContainer(
-                                        onTap: () {
-                                          InviteDialog.showInviteSheet(context);
-                                        },
-                                        height: 55,
-                                        width: 187,
-                                        borderRadius: BorderRadius.circular(28),
-                                        conColor: const Color(0xFF73F277),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withOpacity(0.15),
-                                            blurRadius: 12,
-                                            offset: const Offset(0, 6),
-                                          ),
-                                        ],
-                                        alignment: Alignment.center,
-                                        child: const CustomText(
-                                          'Invite Now',
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.black,
-                                          shadows: [],
-                                        ),
+                              Align(
+                                alignment: Alignment.center,
+                                child: GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () => InviteDialog.showInviteSheet(context),
+                                  child: CustomContainer(
+                                    // ❌ onTap: ...  <-- remove this
+                                    height: 55,
+                                    width: 187,
+                                    borderRadius: BorderRadius.circular(28),
+                                    conColor: const Color(0xFF73F277),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.15),
+                                        blurRadius: 12,
+                                        offset: const Offset(0, 6),
                                       ),
+                                    ],
+                                    alignment: Alignment.center,
+                                    child: const CustomText(
+                                      'Invite Now',
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.black,
+                                      shadows: [],
                                     ),
                                   ),
-                                ],
+                                ),
+                              ),
+
+                              ],
                               ),
                             ),
                           ),
