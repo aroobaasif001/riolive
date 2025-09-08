@@ -30,6 +30,10 @@ class StartCallDummyScreen extends StatelessWidget {
               AppUrl.user_role = 'host';
 
               debugPrint("✅ Live stream started successfully: $response");
+              
+              // ✅ Setup host for receiving calls only when live streaming starts
+              debugPrint("🔴 Setting up host for incoming calls...");
+              await SocketService.to.setupHostForCalls();
 
               final host = response['host'];
               final agora = response['agora'];

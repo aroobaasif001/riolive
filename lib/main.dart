@@ -78,6 +78,9 @@ class _AppStartupState extends State<AppStartup> {
         AppUrl.token = token;
         AppUrl.email = response['user']['email'];
         AppUrl.user_name = response['user']['username'];
+        AppUrl.user_role = response['user']['role'] ?? 'user'; // Default to 'user'
+        
+        debugPrint("🔄 Stay login successful - Role: ${AppUrl.user_role}");
 
         // 🔌 Initialize socket **now** (AFTER we know token & userId)
         final socketSvc = SocketService.to;

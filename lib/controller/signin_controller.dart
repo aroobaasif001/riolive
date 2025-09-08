@@ -34,6 +34,9 @@ class SignInController extends GetxController {
         AppUrl.riolive_id = data['user']['riolive_id'];
         AppUrl.user_name = data['user']['username'];
         AppUrl.email = data['user']['email'];
+        AppUrl.user_role = data['user']['role'] ?? 'user'; // Default to 'user'
+        
+        debugPrint("🔑 Login successful - Role: ${AppUrl.user_role}");
 
         // Save the token in SharedPreferences
         _saveToken(token);

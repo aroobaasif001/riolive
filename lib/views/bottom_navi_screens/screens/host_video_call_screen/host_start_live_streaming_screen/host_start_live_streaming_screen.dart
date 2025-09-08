@@ -8,6 +8,7 @@ import '../../../../../controller/user_video_call_controller.dart';
 import '../../../../../customwidgets/coins_chip.dart';
 import '../../../../../customwidgets/custom_container.dart';
 import '../../../../../customwidgets/customtext.dart';
+import '../../../../../customwidgets/filter_bottom_sheet.dart';
 import '../../../../../customwidgets/message_field.dart';
 import '../../../../../customwidgets/plus_count_chip.dart';
 import '../../../../../customwidgets/profile_chip.dart';
@@ -37,7 +38,20 @@ class _HostStartLiveStreamingScreenState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeAgora();
       _attachIncomingCallListeners();
+      
+      // ✅ Setup host for calls when live streaming screen loads
+      _setupHostForCalls();
     });
+  }
+  
+  /// Setup host for receiving calls when live streaming starts
+  Future<void> _setupHostForCalls() async {
+    try {
+      debugPrint("🔴 Host live streaming - setting up for calls...");
+      await SocketService.to.setupHostForCalls();
+    } catch (e) {
+      debugPrint("❌ Error setting up host for calls: $e");
+    }
   }
 
   void _attachIncomingCallListeners() {
@@ -151,7 +165,12 @@ class _HostStartLiveStreamingScreenState
     if (_isInitialized) return;
 
     /// get the args passed from previous screen
-    final args = Get.arguments as Map<String, dynamic>;
+    final args = Get.arguments as Map<String, dynamic>?;
+
+    if (args == null) {
+      debugPrint("❌ No arguments provided for Agora initialization");
+      return;
+    }
 
     debugPrint("Initializing Agora with args: $args");
 
@@ -167,6 +186,54 @@ class _HostStartLiveStreamingScreenState
 
     _isInitialized = true;
   }
+  
+  /// Reinitialize Agora for live streaming after call ends
+  Future<void> reinitializeLiveStreaming() async {
+    try {
+      debugPrint("🔄 Reinitializing live streaming after call...");
+      
+      // Reset initialization flag
+      _isInitialized = false;
+      
+      // Get current arguments or use stored ones
+      final args = Get.arguments as Map<String, dynamic>?;
+      
+      if (args != null) {
+        // Reinitialize with existing arguments
+        debugPrint("🔄 Using existing arguments for reinitialization");
+        _initializeAgora();
+      } else {
+        debugPrint("⚠ No arguments available - live stream may need manual restart");
+        
+        // Show message to user
+        Get.snackbar(
+          "Live Stream", 
+          "Please restart live streaming manually",
+          backgroundColor: Colors.orange.withOpacity(0.8),
+          colorText: Colors.white,
+          duration: const Duration(seconds: 3),
+        );
+      }
+      
+      // Reattach call listeners
+      _attachIncomingCallListeners();
+      
+      // Re-setup host for calls
+      await _setupHostForCalls();
+      
+      debugPrint("✅ Live streaming reinitialization completed");
+      
+    } catch (e) {
+      debugPrint("❌ Error reinitializing live streaming: $e");
+      Get.snackbar(
+        "Error", 
+        "Failed to reinitialize live streaming: $e",
+        backgroundColor: Colors.red.withOpacity(0.8),
+        colorText: Colors.white,
+      );
+    }
+  }
+  
 
   @override
   void dispose() {
@@ -174,8 +241,21 @@ class _HostStartLiveStreamingScreenState
     SocketService.to.socket?.off('incoming_call', _onIncomingCall);
     SocketService.to.socket?.off('call_started', _onIncomingCall);
 
+    // ✅ Remove host from calls when live streaming ends
+    _removeHostFromCalls();
+
     callController.leaveChannel();
     super.dispose();
+  }
+  
+  /// Remove host from calls when live streaming ends
+  Future<void> _removeHostFromCalls() async {
+    try {
+      debugPrint("⚫ Host ending live stream - removing from calls...");
+      await SocketService.to.removeHostFromCalls();
+    } catch (e) {
+      debugPrint("❌ Error removing host from calls: $e");
+    }
   }
 
   @override
@@ -547,6 +627,33 @@ class _HostStartLiveStreamingScreenState
                             children: [
                               const Expanded(child: MessageField()),
                               const SizedBox(width: 12),
+                              
+                              // ✅ Filter button (responsive) - opens bottom sheet
+                              InkWell(
+                                onTap: () {
+                                  debugPrint("🎨 Filter button tapped!");
+                                  FilterBottomSheet.show(context);
+                                },
+                                child: Container(
+                                  width: size.width > 600 ? 48 : 40,
+                                  height: size.width > 600 ? 48 : 40,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white.withOpacity(0.3),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Icon(
+                                    Icons.filter_vintage,
+                                    color: Colors.white,
+                                    size: size.width > 600 ? 24 : 20,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              
                               const RoundIcon(
                                 image: AssetImage('assets/icons/pk.png'),
                               ),
