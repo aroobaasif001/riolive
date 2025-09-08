@@ -13,7 +13,10 @@ import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/reward_
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/shop_screens/frame_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/shop_screens/shop_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/wallet_sceens/exhange_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/wallet_sceens/grab_orders1_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/wallet_sceens/my_order_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/wallet_sceens/wallet_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/wallet_sceens/withdraw_screen.dart';
 import 'package:riolive/views/splashscreen/splash_screen.dart';
 import 'controller/signin_controller.dart';
 
@@ -32,7 +35,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Rio Live App',
       debugShowCheckedModeBanner: false,
-      home: AppStartup(),
+      home: MyOrderScreen(),
     );
   }
 }
