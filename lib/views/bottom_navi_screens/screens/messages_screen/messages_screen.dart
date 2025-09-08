@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:riolive/customwidgets/customtext.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/messages_screen/event_screen.dart';
 
 import 'chat_screen.dart';
 
@@ -57,7 +60,9 @@ class MessagesScreen extends StatelessWidget {
                           Color(0xFFFA66BD),
                           Color(0xFFFEB05C),
                         ],
-                        onTap: () {},
+                        onTap: () {
+                          Get.to(()=> EventScreen());
+                        },
                         screenWidth: screenWidth,
                       ),
                       _buildCategoryItem(

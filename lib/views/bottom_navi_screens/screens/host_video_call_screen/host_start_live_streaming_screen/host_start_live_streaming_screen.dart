@@ -18,6 +18,7 @@ import '../../../../../customwidgets/tiny_round.dart';
 import '../../../../../services/socket_service.dart';
 import '../../../../../utile/app_url.dart';
 import '../../home_navbar_screens/call_screen/video_call_screen/video_call_screen.dart';
+// import '../../home_navbar_screens/match_screen/host_screen.dart';
 
 class HostStartLiveStreamingScreen extends StatefulWidget {
   const HostStartLiveStreamingScreen({super.key});
@@ -31,6 +32,29 @@ class _HostStartLiveStreamingScreenState
     extends State<HostStartLiveStreamingScreen> {
   final callController = Get.put(CallController());
   bool _isInitialized = false;
+
+  /// Ensure we navigate back from this live screen reliably
+  Future<void> _exitLiveScreen() async {
+    try {
+      if (Get.isDialogOpen == true) {
+        Get.back();
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+
+      // Try normal pop with a result for the previous screen
+      Future.microtask(() => Get.back(result: 'ended'));
+      await Future.delayed(const Duration(milliseconds: 250));
+
+      // Fallback: if still here, keep popping until we're off this screen
+      final routeName = Get.currentRoute;
+      if (routeName.contains('HostStartLiveStreamingScreen')) {
+        Get.until((route) {
+          final name = route.settings.name ?? '';
+          return name.isEmpty || !name.contains('HostStartLiveStreamingScreen');
+        });
+      }
+    } catch (_) {}
+  }
 
   @override
   void initState() {
@@ -192,6 +216,13 @@ class _HostStartLiveStreamingScreenState
     try {
       debugPrint("🔄 Reinitializing live streaming after call...");
       
+      // ✅ Force complete cleanup first
+      await callController.leaveChannel();
+      debugPrint("📱 Left channel for reinitialization");
+      
+      // ✅ Wait for cleanup to complete
+      await Future.delayed(const Duration(milliseconds: 800));
+      
       // Reset initialization flag
       _isInitialized = false;
       
@@ -199,19 +230,32 @@ class _HostStartLiveStreamingScreenState
       final args = Get.arguments as Map<String, dynamic>?;
       
       if (args != null) {
-        // Reinitialize with existing arguments
-        debugPrint("🔄 Using existing arguments for reinitialization");
-        _initializeAgora();
+        debugPrint("🔄 Using existing arguments for reinitialization: $args");
+        
+        // ✅ Reinitialize with fresh Agora settings
+        await callController.initAgora(
+          channelName: args["channelName"],
+          agoraToken: args["token"],
+          appId: args["appId"],
+          isHost: args["isHost"] ?? true,
+          isAudience: false,
+          callId: args["channelName"],
+        );
+        
+        _isInitialized = true;
+        debugPrint("✅ Camera reinitialized successfully");
+        
       } else {
         debugPrint("⚠ No arguments available - live stream may need manual restart");
         
         // Show message to user
         Get.snackbar(
-          "Live Stream", 
-          "Please restart live streaming manually",
+          "Camera Restart Needed", 
+          "Please restart live streaming manually for best results",
           backgroundColor: Colors.orange.withOpacity(0.8),
           colorText: Colors.white,
-          duration: const Duration(seconds: 3),
+          duration: const Duration(seconds: 4),
+          icon: const Icon(Icons.refresh, color: Colors.white),
         );
       }
       
@@ -226,8 +270,64 @@ class _HostStartLiveStreamingScreenState
     } catch (e) {
       debugPrint("❌ Error reinitializing live streaming: $e");
       Get.snackbar(
-        "Error", 
-        "Failed to reinitialize live streaming: $e",
+        "❌ Reinitialization Failed", 
+        "Camera restart failed. Please restart live streaming manually.",
+        backgroundColor: Colors.red.withOpacity(0.8),
+        colorText: Colors.white,
+        duration: const Duration(seconds: 4),
+      );
+    }
+  }
+
+  /// ✅ New: Force restart camera if hanging
+  Future<void> restartCameraForcefully() async {
+    try {
+      debugPrint("🔄 Force restarting camera due to hanging...");
+      
+      // Show loading indicator
+      Get.dialog(
+        AlertDialog(
+          backgroundColor: Colors.black87,
+          content: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(color: Colors.blue),
+              SizedBox(width: 16),
+              Text('🔄 Restarting camera...', style: TextStyle(color: Colors.white)),
+            ],
+          ),
+        ),
+        barrierDismissible: false,
+      );
+      
+      // Complete shutdown and restart
+      await reinitializeLiveStreaming();
+      
+      // Close loading dialog
+      await Future.delayed(const Duration(milliseconds: 1000));
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
+      
+      Get.snackbar(
+        "🔄 Camera Restarted",
+        "Camera has been refreshed for smooth streaming!",
+        backgroundColor: Colors.green.withOpacity(0.8),
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+        icon: const Icon(Icons.videocam, color: Colors.white),
+      );
+      
+    } catch (e) {
+      debugPrint("❌ Error in force camera restart: $e");
+      
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
+      
+      Get.snackbar(
+        "❌ Camera Restart Failed",
+        "Please restart live streaming manually",
         backgroundColor: Colors.red.withOpacity(0.8),
         colorText: Colors.white,
       );
@@ -244,7 +344,10 @@ class _HostStartLiveStreamingScreenState
     // ✅ Remove host from calls when live streaming ends
     _removeHostFromCalls();
 
+    try { callController.engine?.stopPreview(); } catch (_) {}
     callController.leaveChannel();
+    try { callController.engine?.release(); } catch (_) {}
+    callController.engine = null;
     super.dispose();
   }
   
@@ -263,8 +366,62 @@ class _HostStartLiveStreamingScreenState
     final size = MediaQuery.of(context).size;
     Get.put(UserVideoCallController());
 
-    return Scaffold(
-      body: Stack(
+    return WillPopScope(
+      onWillPop: () async {
+        final bool? confirm = await Get.dialog<bool>(
+          AlertDialog(
+            backgroundColor: Colors.black87,
+            title: const Text(
+              "End Live Stream?",
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+            content: const Text(
+              "Are you sure you want to end your live stream?",
+              style: TextStyle(color: Colors.white70),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Get.back(result: false),
+                child: const Text("No", style: TextStyle(color: Colors.grey)),
+              ),
+              TextButton(
+                onPressed: () => Get.back(result: true),
+                child: const Text("Yes, End", style: TextStyle(color: Colors.red)),
+              ),
+            ],
+          ),
+          barrierDismissible: false,
+        );
+
+        if (confirm == true) {
+          try {
+            // Inform backend host is off live (best-effort)
+            await http.post(
+              Uri.parse(AppUrl.offLiveLiveCall),
+              headers: {'Authorization': "Bearer ${AppUrl.token}"},
+            );
+
+            final args = Get.arguments as Map<String, dynamic>?;
+            if (args != null && (args["isHost"] == true)) {
+              await callController.endCall(AppUrl.token, args["channelName"]);
+            }
+
+            // Cleanup Agora and socket host availability
+            try { await callController.engine?.stopPreview(); } catch (_) {}
+            await callController.leaveChannel();
+            try { await callController.engine?.release(); } catch (_) {}
+            callController.engine = null;
+            await SocketService.to.removeHostFromCalls();
+
+            // Go back to the screen user started live from
+            await _exitLiveScreen();
+          } catch (_) {}
+          return false; // navigation already handled
+        }
+        return false; // cancel back
+      },
+      child: Scaffold(
+        body: Stack(
         children: [
           /// 🔹 Agora Video
           Obx(() {
@@ -386,7 +543,7 @@ class _HostStartLiveStreamingScreenState
                                   const PlusCountChip(countText: '+98'),
                                   const SizedBox(width: 8),
 
-                                  /// Close button
+                                  /// Close button (with confirmation)
                                   CloseButton(
                                     color: Colors.white,
                                     style: const ButtonStyle(
@@ -395,24 +552,56 @@ class _HostStartLiveStreamingScreenState
                                       ),
                                     ),
                                     onPressed: () async {
-                                      final response = await http.post(
-                                        Uri.parse(AppUrl.offLiveLiveCall),
-                                        headers: {
-                                          'Authorization':
-                                              "Bearer ${AppUrl.token}",
-                                        },
+                                      final bool? confirm = await Get.dialog<bool>(
+                                        AlertDialog(
+                                          backgroundColor: Colors.black87,
+                                          title: const Text(
+                                            "End Live Stream?",
+                                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                          ),
+                                          content: const Text(
+                                            "Are you sure you want to end your live stream?",
+                                            style: TextStyle(color: Colors.white70),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Get.back(result: false),
+                                              child: const Text("No", style: TextStyle(color: Colors.grey)),
+                                            ),
+                                            TextButton(
+                                              onPressed: () => Get.back(result: true),
+                                              child: const Text("Yes, End", style: TextStyle(color: Colors.red)),
+                                            ),
+                                          ],
+                                        ),
+                                        barrierDismissible: false,
                                       );
-                                      debugPrint(response.body);
-                                      final args =
-                                          Get.arguments as Map<String, dynamic>;
-                                      if (args["isHost"] == true) {
-                                        await callController.endCall(
-                                          AppUrl.token,
-                                          args["channelName"],
-                                        );
+
+                                      if (confirm == true) {
+                                        try {
+                                          await http.post(
+                                            Uri.parse(AppUrl.offLiveLiveCall),
+                                            headers: {'Authorization': "Bearer ${AppUrl.token}"},
+                                          );
+
+                                          final args = Get.arguments as Map<String, dynamic>?;
+                                          if (args != null && (args["isHost"] == true)) {
+                                            await callController.endCall(AppUrl.token, args["channelName"]);
+                                          }
+
+                                          try { await callController.engine?.stopPreview(); } catch (_) {}
+                                          await callController.leaveChannel();
+                                          try { await callController.engine?.release(); } catch (_) {}
+                                          callController.engine = null;
+                                          await SocketService.to.removeHostFromCalls();
+
+                                          // Go back to the originating screen
+                                          await _exitLiveScreen();
+                                        } catch (e) {
+                                          debugPrint("End live error: $e");
+                                          Get.back();
+                                        }
                                       }
-                                      await callController.leaveChannel();
-                                      Get.back();
                                     },
                                   ),
                                 ],
@@ -652,10 +841,339 @@ class _HostStartLiveStreamingScreenState
                                   ),
                                 ),
                               ),
+                              
+                              const SizedBox(width: 8),
+                              
+                              // ✅ Camera restart button - for fixing hanging camera
+                              InkWell(
+                                onTap: () {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    backgroundColor: Colors.transparent,
+                                    isScrollControlled: true,
+                                    builder: (context) {
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.black,
+                                          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                                        ),
+                                        padding: EdgeInsets.all(16),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            /// Top Row (Tabs + Icons)
+                                            Row(
+                                              children: [
+                                                Text("Waiting", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+                                                SizedBox(width: 12),
+                                                Text("Guest Live", style: TextStyle(color: Colors.white54, fontWeight: FontWeight.bold, fontSize: 18)),
+                                                Spacer(),
+                                                CircleAvatar(
+                                                  radius: 14,
+                                                  backgroundColor: Colors.grey.shade800,
+                                                  child: Icon(Icons.question_mark, color: Colors.white, size: 18),
+                                                ),
+                                                SizedBox(width: 10),
+                                                GestureDetector(
+                                                  onTap: () => Navigator.pop(context),
+                                                  child: CircleAvatar(
+                                                    radius: 14,
+                                                    backgroundColor: Colors.red,
+                                                    child: Icon(Icons.close, color: Colors.white, size: 18),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+
+                                            SizedBox(height: 20),
+
+                                            /// Waiting List Title
+                                            Text("Waiting List (2)", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+
+                                            SizedBox(height: 16),
+
+                                            /// Waiting List Items (Repeatable Widget)
+                                            ...List.generate(2, (index) {
+                                              return Padding(
+                                                padding: const EdgeInsets.symmetric(vertical: 6),
+                                                child: Row(
+                                                  children: [
+                                                    /// User Image
+                                                    Stack(
+                                                      clipBehavior: Clip.none,
+                                                      children: [
+                                                        CircleAvatar(
+                                                          radius: 24,
+                                                          backgroundImage: AssetImage("assets/images/profile.png"), // Replace with real user image
+                                                        ),
+                                                        Positioned(
+                                                            bottom: -5,
+                                                            right: -10,
+                                                            child: Image.asset("assets/icons/signal.png",height: 30,))
+                                                      ],
+                                                    ),
+
+                                                    SizedBox(width: 12),
+
+                                                    /// Username + Badge
+                                                    Expanded(
+                                                      child: Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          Text("Ava😎Nueva❤️😘", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                                                          SizedBox(height: 4),
+                                                          Image.asset("assets/icons/level.png", height: 18)
+                                                        ],
+                                                      ),
+                                                    ),
+
+                                                    /// Accept / Reject Buttons
+                                                    Row(
+                                                      children: [
+                                                        InkWell(
+                                                          onTap: () {},
+                                                          child: Container(
+                                                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                                            decoration: BoxDecoration(
+                                                                color: Colors.green,
+                                                                borderRadius: BorderRadius.circular(20)
+                                                            ),
+                                                            child: Text("Accept",style: TextStyle(color: Colors.white),),
+                                                          ),
+                                                        ),
+                                                        SizedBox(width: 6),
+                                                        InkWell(
+                                                          onTap: () {},
+                                                          child: Container(
+                                                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                                            decoration: BoxDecoration(
+                                                              color: Colors.red,
+                                                                borderRadius: BorderRadius.circular(20)
+                                                            ),
+                                                            child: Text("Reject",style: TextStyle(color: Colors.white),),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    )
+                                                  ],
+                                                ),
+                                              );
+                                            }),
+
+                                            SizedBox(height: 30),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  );
+                                  },
+                                child: Container(
+                                  width: size.width > 600 ? 48 : 40,
+                                  height: size.width > 600 ? 48 : 40,
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.withOpacity(0.2),
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.blue.withOpacity(0.4),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Icon(Icons.chair_outlined,color: Colors.white,),
+                                  // child: Icon(
+                                  //   Icons.refresh,
+                                  //   color: Colors.blue,
+                                  //   size: size.width > 600 ? 24 : 20,
+                                  // ),
+                                ),
+                              ),
                               const SizedBox(width: 12),
                               
-                              const RoundIcon(
-                                image: AssetImage('assets/icons/pk.png'),
+                              InkWell(
+                                onTap: (){
+                                  showModalBottomSheet(
+                                    context: context,
+                                    backgroundColor: Colors.transparent,
+                                    isScrollControlled: true,
+                                    builder: (context) {
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                          color: Color(0xFF012020), // dark teal or custom dark color
+                                          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                                        ),
+                                        padding: EdgeInsets.all(16),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            /// 🔹 Top Bar
+                                            Row(
+                                              children: [
+                                                Icon(Icons.settings, color: Colors.white),
+                                                Spacer(),
+                                                Text(
+                                                  "PK",
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 20,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                Spacer(),
+                                                GestureDetector(
+                                                  onTap: () => Navigator.pop(context),
+                                                  child: CircleAvatar(
+                                                    radius: 14,
+                                                    backgroundColor: Colors.red,
+                                                    child: Icon(Icons.close, size: 18, color: Colors.white),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+
+                                            SizedBox(height: 20),
+
+                                            /// 🔹 PK Mode Options
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                              children: [
+                                                _pkModeOption("1v1PK", "assets/icons/1v1.png"),
+                                                _pkModeOption("Team PK", "assets/icons/team.png"),
+                                                _pkModeOption("Multi PK", "assets/icons/multi_pk.png"),
+                                              ],
+                                            ),
+
+                                            SizedBox(height: 20),
+
+                                            /// 🔹 Random PK
+                                            Container(
+                                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                              decoration: BoxDecoration(
+                                                color: Color(0xFF334040),
+                                                borderRadius: BorderRadius.circular(20),
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  Image.asset("assets/icons/random_pk.png", height: 24), // Replace with your icon
+                                                  SizedBox(width: 10),
+                                                  Expanded(
+                                                    child: Text(
+                                                      "Random PK",
+                                                      style: TextStyle(color: Colors.white, fontSize: 16),
+                                                    ),
+                                                  ),
+                                                  ElevatedButton(
+                                                    onPressed: () {},
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor: Colors.amber.shade700,
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(16),
+                                                      ),
+                                                    ),
+                                                    child: Text("Start"),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+
+                                            SizedBox(height: 20),
+
+                                            /// 🔹 Friends Section
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                "Friends",
+                                                style: TextStyle(color: Colors.white70, fontSize: 14),
+                                              ),
+                                            ),
+                                            SizedBox(height: 6),
+                                            Text(
+                                              "No friends available for invitation, we recommend the following opponents for you",
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(color: Colors.white38, fontSize: 12),
+                                            ),
+
+                                            SizedBox(height: 20),
+
+                                            /// 🔹 System Suggestions
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                "System Suggestions",
+                                                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                                              ),
+                                            ),
+
+                                            SizedBox(height: 10),
+
+                                            /// 🔹 Suggested Users List
+                                            ...List.generate(2, (index) {
+                                              return Padding(
+                                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                                child: Row(
+                                                  children: [
+                                                    /// Profile image
+                                                    CircleAvatar(
+                                                      radius: 25,
+                                                      backgroundImage: AssetImage("assets/images/user.png"), // Replace with real image
+                                                    ),
+                                                    SizedBox(width: 12),
+
+                                                    /// Name and badge
+                                                    Expanded(
+                                                      child: Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          Text("Ava😎Nueva❤️😘", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                                                          Row(
+                                                            children: [
+                                                              Image.asset("assets/icons/mic_on.png", height: 16), // Mic icon
+                                                              SizedBox(width: 4),
+                                                              Image.asset("assets/icons/fire_badge.png", height: 16), // Fire badge icon
+                                                              SizedBox(width: 6),
+                                                              Container(
+                                                                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                                decoration: BoxDecoration(
+                                                                  color: Colors.red,
+                                                                  borderRadius: BorderRadius.circular(10),
+                                                                ),
+                                                                child: Text(
+                                                                  "Lv60",
+                                                                  style: TextStyle(color: Colors.white, fontSize: 12),
+                                                                ),
+                                                              )
+                                                            ],
+                                                          )
+                                                        ],
+                                                      ),
+                                                    ),
+
+                                                    /// Invite button
+                                                    ElevatedButton(
+                                                      onPressed: () {},
+                                                      style: ElevatedButton.styleFrom(
+                                                        backgroundColor: Colors.grey.shade700,
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius: BorderRadius.circular(14),
+                                                        ),
+                                                      ),
+                                                      child: Text("Invite"),
+                                                    )
+                                                  ],
+                                                ),
+                                              );
+                                            }),
+
+                                            SizedBox(height: 30),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  );
+
+                                },
+                                child: const RoundIcon(
+                                  image: AssetImage('assets/icons/pk.png'),
+                                ),
                               ),
                               const SizedBox(width: 14),
                               InkWell(
@@ -674,6 +1192,24 @@ class _HostStartLiveStreamingScreenState
           ),
         ],
       ),
+      ),
     );
   }
+  Widget _pkModeOption(String label, String iconPath) {
+    return Column(
+      children: [
+        Container(
+          padding: EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white10,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Image.asset(iconPath, height: 28),
+        ),
+        SizedBox(height: 8),
+        Text(label, style: TextStyle(color: Colors.white, fontSize: 14)),
+      ],
+    );
+  }
+
 }

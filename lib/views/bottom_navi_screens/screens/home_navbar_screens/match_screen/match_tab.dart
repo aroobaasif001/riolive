@@ -7,6 +7,7 @@ import 'package:riolive/views/bottom_navi_screens/screens/home_navbar_screens/ma
 import '../../../../../controller/random_call_controller.dart';
 import '../../../../../services/socket_service.dart';
 import '../../../../../utile/app_url.dart';
+import '../call_screen/video_call_screen/video_call_screen.dart';
 
 class MatchTab extends StatefulWidget {
   final String token;
@@ -113,67 +114,67 @@ class _MatchTabState extends State<MatchTab> {
             child: InkWell(
               customBorder: const CircleBorder(),
               onTap: () async {
-                Get.to(() => UserVideoCallScreen());
-                // try {
-                //   if (!SocketService.to.isConnected.value) {
-                //     Get.snackbar(
-                //       "Connection Error",
-                //       "Please wait for socket connection",
-                //       backgroundColor: Colors.red,
-                //       colorText: Colors.white,
-                //     );
-                //     return;
-                //   }
-                //
-                //   Get.dialog(
-                //     const Center(child: CircularProgressIndicator()),
-                //     barrierDismissible: false,
-                //   );
-                //
-                //   final response = await callController.startCall(widget.token);
-                //   if (response != null && Get.isDialogOpen == true) {
-                //     Get.back();
-                //   }
-                //
-                //   if (response == null) {
-                //     Get.snackbar("Error", "Failed to start call");
-                //     return;
-                //   }
-                //
-                //   final callId = response['call']?['id']?.toString() ?? '';
-                //   final channelName =
-                //       response['agora']?['channelName']?.toString() ?? '';
-                //   final agoraToken =
-                //       response['agora']?['token']?.toString() ?? '';
-                //
-                //   if (callId.isEmpty ||
-                //       channelName.isEmpty ||
-                //       agoraToken.isEmpty) {
-                //     Get.snackbar("Error", "Invalid call data received");
-                //     return;
-                //   }
-                //
-                //   // Use the improved socket service
-                //   SocketService.to.notifyCallStarted({
-                //     "callId": callId,
-                //     "channelName": channelName,
-                //     "token": agoraToken,
-                //   });
-                //
-                //   Get.to(
-                //     () => VideoCallScreen(
-                //       token: widget.token,
-                //       callId: callId,
-                //       channelName: channelName,
-                //       agoraToken: agoraToken,
-                //       isHost: false,
-                //     ),
-                //   );
-                // } catch (e) {
-                //   if (Get.isDialogOpen == true) Get.back();
-                //   Get.snackbar("Error", "Failed to start call: $e");
-                //   debugPrint("Error starting call: $e");
-                // }
+                // Get.to(() => UserVideoCallScreen());
+                try {
+                  if (!SocketService.to.isConnected.value) {
+                    Get.snackbar(
+                      "Connection Error",
+                      "Please wait for socket connection",
+                      backgroundColor: Colors.red,
+                      colorText: Colors.white,
+                    );
+                    return;
+                  }
+
+                  Get.dialog(
+                    const Center(child: CircularProgressIndicator()),
+                    barrierDismissible: false,
+                  );
+
+                  final response = await callController.startCall(widget.token);
+                  if (response != null && Get.isDialogOpen == true) {
+                    Get.back();
+                  }
+
+                  if (response == null) {
+                    Get.snackbar("Error", "Failed to start call");
+                    return;
+                  }
+
+                  final callId = response['call']?['id']?.toString() ?? '';
+                  final channelName =
+                      response['agora']?['channelName']?.toString() ?? '';
+                  final agoraToken =
+                      response['agora']?['token']?.toString() ?? '';
+
+                  if (callId.isEmpty ||
+                      channelName.isEmpty ||
+                      agoraToken.isEmpty) {
+                    Get.snackbar("Error", "Invalid call data received");
+                    return;
+                  }
+
+                  // Use the improved socket service
+                  SocketService.to.notifyCallStarted({
+                    "callId": callId,
+                    "channelName": channelName,
+                    "token": agoraToken,
+                  });
+
+                  Get.to(
+                    () => VideoCallScreen(
+                      token: widget.token,
+                      callId: callId,
+                      channelName: channelName,
+                      agoraToken: agoraToken,
+                      isHost: false,
+                    ),
+                  );
+                } catch (e) {
+                  if (Get.isDialogOpen == true) Get.back();
+                  Get.snackbar("Error", "Failed to start call: $e");
+                  debugPrint("Error starting call: $e");
+                }
               },
               child: Container(
                 height: 80,
