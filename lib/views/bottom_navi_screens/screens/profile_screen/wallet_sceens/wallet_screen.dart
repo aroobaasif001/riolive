@@ -66,7 +66,7 @@ class _WalletScreenState extends State<WalletScreen> {
                   iconPath: _tab == 0
                       ? 'assets/images/daimondlastframe.png'   // DIAMOND icon
                       : 'assets/icons/dolloricon.png',         // COINS icon
-                  iconSize: _tab == 0 ? 30 : null,             // 🔹 Diamond = 15x15
+                  iconSize: _tab == 0 ? 30 : null,             // diamond as raw image when provided
                 ),
               ),
 
@@ -158,12 +158,12 @@ class _WalletScreenState extends State<WalletScreen> {
     );
   }
 
-  // ===== Reusable balance card (minimal change) =====
+  // ===== Reusable balance card =====
   Widget _buildBalanceCard({
     required String label,
     required bool showActions,
     required String iconPath,
-    double? iconSize, // 🔹 NEW (if provided, use as plain image)
+    double? iconSize,
   }) {
     return CustomContainer(
       height: 126,
@@ -187,7 +187,7 @@ class _WalletScreenState extends State<WalletScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CustomText(
-                  label, // coins/diamond
+                  label,
                   fontSize: 16,
                   fontWeight: FontWeight.w400,
                   color: Colors.black,
@@ -195,7 +195,7 @@ class _WalletScreenState extends State<WalletScreen> {
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    // 🔹 if size provided (diamond), render as raw image 15x15
+                    // diamond (raw image) vs coin (avatar)
                     if (iconSize != null)
                       Image.asset(iconPath, width: iconSize, height: iconSize)
                     else
@@ -227,10 +227,30 @@ class _WalletScreenState extends State<WalletScreen> {
               children: [
                 Transform.translate(
                   offset: const Offset(0, -6),
-                  child: const _OutlinePill(text: 'Withdraw'),
+                  child: _OutlinePill(
+                    text: 'Withdraw',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const WithdrawScreen()),
+                      );
+                      // GetX:
+                      // Get.to(() => const WithdrawScreen());
+                    },
+                  ),
                 ),
                 const SizedBox(height: 2),
-                const _OutlinePill(text: 'Exchange'),
+                _OutlinePill(
+                  text: 'Exchange',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ExhangeScreen()),
+                    );
+                    // GetX:
+                    // Get.to(() => const ExhangeScreen());
+                  },
+                ),
               ],
             ),
         ],
@@ -279,51 +299,47 @@ class _TopTab extends StatelessWidget {
 
 class _OutlinePill extends StatelessWidget {
   final String text;
-  const _OutlinePill({required this.text});
+  final VoidCallback? onTap;
+
+  const _OutlinePill({
+    required this.text,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return CustomContainer(
-      onTap: () {
-        // Add navigation based on the text (to differentiate between buttons)
-        if (text == "Withdraw") {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const WithdrawScreen(), // Navigate to WithdrawScreen
-            ),
-          );
-        } else if (text == "Exchange") {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const ExhangeScreen(), // Navigate to ExhangeScreen
-            ),
-          );
-        }
-      },
-      width: 123,
-      height: 44,
+    // Wrap with Material+InkWell to guarantee tap works (even if CustomContainer ignores onTap)
+    return Material(
+      color: Colors.transparent,
       borderRadius: BorderRadius.circular(22),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      conColor: Colors.transparent,
-      border: Border.all(
-        color: Colors.black,
-        width: 1,
-      ),
-      child: Center(
-        child: CustomText(
-          text,
-          fontSize: 16,
-          fontWeight: FontWeight.w400,
-          color: Colors.black54,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(22),
+        onTap: onTap,
+        child: CustomContainer(
+          width: 123,
+          height: 44,
+          borderRadius: BorderRadius.circular(22),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          conColor: Colors.transparent,
+          border: Border.all(
+            color: Colors.black,
+            width: 1,
+          ),
+          child: Center(
+            child: CustomText(
+              text,
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+              color: Colors.black54,
+            ),
+          ),
         ),
       ),
     );
   }
 }
 
-/// Mint/grey rounded filter chips (responsive, no overflow)
+/// Mint/grey rounded filter chips
 class _FilterPill extends StatelessWidget {
   final String label;
   final bool active;
