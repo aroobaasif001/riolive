@@ -7,8 +7,14 @@ class BottomIcon extends StatelessWidget {
   final String asset;
   final String label;
   final VoidCallback? onTap;
+  final IconData? icon; // 👈 NEW optional icon
 
-  const BottomIcon({required this.asset, required this.label, this.onTap});
+  const BottomIcon({
+    required this.asset,
+    required this.label,
+    this.onTap,
+    this.icon,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,19 +23,21 @@ class BottomIcon extends StatelessWidget {
       child: Column(
         children: [
           CustomContainer(
-            width: 60, // 28 * 2 (outer radius * 2)
+            width: 60,
             height: 60,
-            conColor: Colors.white, // outer background
+            conColor: Colors.white.withOpacity(0.2),
             shape: BoxShape.circle,
-            child: Padding(
-              padding: const EdgeInsets.all(3), // 👈 control inner size
-              child: Center(
-                child: CircleAvatar(
-                  radius: 25, // inner radius
-                  backgroundImage: AssetImage(asset),
-                  backgroundColor: Colors.transparent,
-                ),
-              ),
+            child: Center(
+              child: icon != null
+                  ? Icon(icon, size: 28, color: Colors.white)
+                  : ClipOval(
+                      child: Image.asset(
+                        asset,
+                        fit: BoxFit.cover, // 👈 image circle ke andar adjust
+                        width: 45,
+                        height: 45,
+                      ),
+                    ),
             ),
           ),
 

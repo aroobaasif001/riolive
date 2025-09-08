@@ -94,6 +94,7 @@ void userVideoCallShowRoomToolsSheet(BuildContext context) {
                       ),
                       BottomIcon(
                         asset: 'assets/icons/admin.png',
+                        icon: Icons.person,
                         label: 'Admin',
                       ),
                     ],
