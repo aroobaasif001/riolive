@@ -312,7 +312,7 @@ class ProfileDashboardScreen extends StatelessWidget {
                 Get.to(() => const AboutRioScreen());
               } else if (e.label == "Settings") {
                 Get.to(() => const SettingsScreen());
-              } else if (e.label == "Settings") {
+              } else if (e.label == "SettingsScreen") {
                 Get.to(() => const SettingsScreen());
               } else if (e.label == "Agency Management") {
                 Get.to(() => AgencyScreen());
