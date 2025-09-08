@@ -21,6 +21,7 @@ import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/wallet_
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/wallet_sceens/my_order_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/wallet_sceens/wallet_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/wallet_sceens/withdraw_screen.dart';
+
 import 'package:riolive/views/splashscreen/splash_screen.dart';
 
 import 'controller/signin_controller.dart';
@@ -58,6 +59,7 @@ class MyApp extends StatelessWidget {
       // 2) Ya seedha MyOrderScreen preview/test:
 
       home: AppStartup(),
+
 
     );
   }

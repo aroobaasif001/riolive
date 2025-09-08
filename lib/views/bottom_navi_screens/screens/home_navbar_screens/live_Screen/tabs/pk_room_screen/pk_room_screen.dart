@@ -8,6 +8,7 @@ import '../../../../../../../customwidgets/chat_list.dart';
 import '../../../../../../../customwidgets/coins_chip.dart';
 import '../../../../../../../customwidgets/custom_container.dart';
 import '../../../../../../../customwidgets/customtext.dart';
+import '../../../../../../../customwidgets/hostCircle.dart';
 import '../../../../../../../customwidgets/join_button.dart';
 import '../../../../../../../customwidgets/message_field.dart';
 import '../../../../../../../customwidgets/plus_count_chip.dart';
@@ -16,6 +17,7 @@ import '../../../../../../../customwidgets/round_icon.dart';
 import '../../../../../../../customwidgets/showGamesSheet.dart';
 import '../../../../../../../customwidgets/showGiftPopUp.dart';
 import '../../../../../../../customwidgets/showProfilePopup.dart';
+import '../../../../../../../customwidgets/show_pk_details_popup.dart';
 import '../../../../../../../customwidgets/tiny_round.dart';
 import '../../../../../../../customwidgets/userVideoCallShowRoomToolSheet.dart';
 import '../../../../../../../models/live_card_data.dart';
@@ -140,10 +142,15 @@ class PkRoomScreen extends GetView<UserVideoCallController> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                CoinsChip(
-                                  "100.10",
-                                  Colors.white.withOpacity(0.2),
-                                  true,
+                                InkWell(
+                                  onTap: () {
+                                    showPkDetailPopUp(context);
+                                  },
+                                  child: CoinsChip(
+                                    "100.10",
+                                    Colors.white.withOpacity(0.2),
+                                    true,
+                                  ),
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.only(right: 12),
@@ -191,7 +198,7 @@ class PkRoomScreen extends GetView<UserVideoCallController> {
                             ),
                             // PK label and Timer at the top-center
                             Positioned(
-                              left: 135,
+                              left: 115,
                               child: Column(
                                 children: [
                                   CustomContainer(
@@ -217,20 +224,31 @@ class PkRoomScreen extends GetView<UserVideoCallController> {
                                       ),
                                     ),
                                   ),
+                                  SizedBox(height: 30),
+                                  Image.asset(
+                                    "assets/icons/pk_2.png",
+                                    height: 150,
+                                    width: 150,
+                                  ),
                                 ],
                               ),
                             ),
                             // Progress bar below PK Timer
                             Positioned(
                               bottom: 270,
-                              child: SizedBox(
-                                height: 20,
-                                width: size.width,
-                                child: LinearProgressIndicator(
-                                  value: 0.8,
-                                  backgroundColor: Colors.blue,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.red,
+                              child: GestureDetector(
+                                onTap: () {
+                                  showPkDetailsPopup(context);
+                                },
+                                child: SizedBox(
+                                  height: 20,
+                                  width: size.width,
+                                  child: LinearProgressIndicator(
+                                    value: 0.8,
+                                    backgroundColor: Colors.blue,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.red,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -366,4 +384,246 @@ class PkRoomScreen extends GetView<UserVideoCallController> {
       ),
     );
   }
+}
+
+void showPkDetailPopUp(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    barrierColor: Colors.black.withOpacity(0.3),
+    builder: (context) {
+      return SafeArea(
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => Get.back(),
+          child: DraggableScrollableSheet(
+            initialChildSize: 0.75,
+            minChildSize: 0.5,
+            maxChildSize: 0.95,
+            builder: (_, controller) {
+              // Dummy data
+              final contributors = [
+                {
+                  "name": "ارحام💖🌸🎀☁️",
+                  "image": "assets/images/story_1.jpg",
+                  "frame": "assets/images/frame_2.png",
+                  "score": "50",
+                  "badges": [
+                    "assets/icons/vip_1.png",
+                    "assets/icons/top_1.png",
+                    "assets/icons/max.png",
+                  ],
+                },
+                {
+                  "name": "Hayda✨🎀",
+                  "image": "assets/images/story_2.png",
+                  "frame": "assets/images/frame_2.png",
+                  "score": "541",
+                  "badges": [
+                    "assets/icons/vip_2.png",
+                    "assets/icons/top_1.png",
+                    "assets/icons/max.png",
+                  ],
+                },
+                {
+                  "name": "ارحام💖🌸🎀☁️",
+                  "image": "assets/images/story_3.jpg",
+                  "frame": "assets/images/frame_2.png",
+                  "score": "5550",
+                  "badges": [
+                    "assets/icons/vip_3.png",
+                    "assets/icons/top2.png",
+                    "assets/icons/max.png",
+                  ],
+                },
+                {
+                  "name": "ارحام💖🌸🎀☁️",
+                  "image": "assets/images/story_1.jpg",
+                  "frame": "assets/images/frame_2.png",
+                  "score": "825",
+                  "badges": [
+                    "assets/icons/vip_5.png",
+                    "assets/icons/top3.png",
+                    "assets/icons/max.png",
+                  ],
+                },
+                {
+                  "name": "ارحام💖🌸🎀☁️",
+                  "image": "assets/images/story_2.png",
+                  "frame": "assets/images/frame_2.png",
+                  "score": "550",
+                  "badges": [
+                    "assets/icons/vip_1.png",
+                    "assets/icons/top3.png",
+                    "assets/icons/max.png",
+                  ],
+                },
+                {
+                  "name": "ارحام💖🌸🎀☁️",
+                  "image": "assets/images/story_3.jpg",
+                  "frame": "assets/images/frame_2.png",
+                  "score": "50",
+                  "badges": ["assets/icons/vip_2.png", "assets/icons/max.png"],
+                  "isLast": true,
+                },
+              ];
+
+              final rankColors = [
+                const Color(0xFFFFD700), // Gold
+                const Color(0xFFC0C0C0), // Silver
+                const Color(0xFFCD7F32), // Bronze
+                const Color(0xFF3E2723), // Dark Brown
+              ];
+
+              return CustomContainer(
+                gradient: const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Color(0xFF000000), Color(0xFF10172C)],
+                ),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(20),
+                ),
+                child: Column(
+                  children: [
+                    // ===== Top Header =====
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16, bottom: 8),
+                      child: CustomText(
+                        "PK Details",
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    // ===== Winner Section =====
+                    Column(
+                      children: [
+                        Stack(
+                          alignment: Alignment.topCenter,
+                          children: [
+                            HostCircle(
+                              name: "👑 ZO 🦋",
+                              image: "assets/images/story_2.png",
+                              height: 120.0,
+                              width: 120.0,
+                              frame: "assets/icons/win_frame.png",
+                              isHost: true,
+                              isSquare: true,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // ===== Contribution List =====
+                    Expanded(
+                      child: ListView.builder(
+                        controller: controller,
+                        itemCount: contributors.length,
+                        itemBuilder: (context, index) {
+                          final user = contributors[index];
+                          final bgColor = index < 3
+                              ? rankColors[index]
+                              : rankColors.last;
+                          final isLast = user["isLast"] == true;
+                          final badges = user["badges"] as List<String>;
+
+                          return CustomContainer(
+                            conColor: bgColor.withOpacity(0.12),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 10,
+                            ),
+                            child: Row(
+                              children: [
+                                // Rank number
+                                CustomText(
+                                  isLast ? "20+" : "${index + 1}",
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                const SizedBox(width: 12),
+
+                                // Avatar with frame
+                                HostCircle(
+                                  frame: user['frame'].toString(),
+                                  height: 40.0,
+                                  width: 40.0,
+                                  name: "",
+                                  image: user["image"].toString(),
+                                  isHost: true,
+                                ),
+                                const SizedBox(width: 10),
+
+                                // Name + badges
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      CustomText(
+                                        user["name"].toString(),
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: badges
+                                            .map(
+                                              (b) => Padding(
+                                                padding: const EdgeInsets.only(
+                                                  right: 4,
+                                                ),
+                                                child: Image.asset(
+                                                  b,
+                                                  height: 18,
+                                                  width: 18,
+                                                ),
+                                              ),
+                                            )
+                                            .toList(),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                // Coins score
+                                Row(
+                                  children: [
+                                    Image.asset(
+                                      "assets/icons/coin.png", // 👈 change asset if diamond needed
+                                      height: 20,
+                                      width: 20,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    CustomText(
+                                      user["score"].toString(),
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    },
+  );
 }

@@ -8,12 +8,21 @@ class HostCircle extends StatelessWidget {
   final String image;
   final bool highlight;
   final bool isHost;
+  final double width;
+  final double height;
+  final String frame;
+  final bool isSquare; // 👈 NEW FLAG
+
   const HostCircle({
     super.key,
     required this.name,
     required this.image,
     this.highlight = false,
     this.isHost = false,
+    this.width = 90.0,
+    this.height = 90.0,
+    this.frame = "assets/images/frame_2.png",
+    this.isSquare = false, // 👈 default round
   });
 
   @override
@@ -21,32 +30,44 @@ class HostCircle extends StatelessWidget {
     return Column(
       children: [
         CustomContainer(
-          width: 90,
-          height: 90,
+          width: width,
+          height: height,
           shape: BoxShape.circle,
           child: Stack(
             alignment: Alignment.center,
             children: [
-              // Background frame image
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    image: AssetImage(
-                      isHost == true ? "assets/images/frame_2.png" : "",
-                    ),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              // Avatar in the center
+              // Avatar (piche)
               Padding(
                 padding: const EdgeInsets.all(4),
-                child: CircleAvatar(
-                  backgroundImage: AssetImage(image),
-                  radius: 30,
-                ),
+                child: isSquare
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: Image.asset(
+                          image,
+                          width: width / 1.8,
+                          height: width / 1.8,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : CircleAvatar(
+                        backgroundImage: AssetImage(image),
+                        radius: width / 3,
+                      ),
               ),
+
+              // Frame (upar)
+              if (isHost)
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: DecorationImage(
+                      image: AssetImage(frame),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  width: width,
+                  height: height,
+                ),
             ],
           ),
         ),
