@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:riolive/utile/app_url.dart';
+import 'package:riolive/utile/route_observer.dart';
 
 import '../../../../controller/host_video_call_controller.dart';
 import '../../../../controller/random_call_controller.dart';
@@ -19,8 +20,11 @@ class HostVideoCallScreen extends StatefulWidget {
   State<HostVideoCallScreen> createState() => _HostVideoCallScreenState();
 }
 
-class _HostVideoCallScreenState extends State<HostVideoCallScreen> {
+class _HostVideoCallScreenState extends State<HostVideoCallScreen>
+    with WidgetsBindingObserver, RouteAware {
   final callController = Get.put(CallController());
+  bool _initializedOnce = false;
+  bool _isAutoRefreshing = false;
 
   final controller = Get.put(HostVideoCallController());
   final size = Get.size;
@@ -29,11 +33,63 @@ class _HostVideoCallScreenState extends State<HostVideoCallScreen> {
     print("init");
     // TODO: implement initState
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _initAgoraPreview();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final ModalRoute<dynamic>? route = ModalRoute.of(context);
+    if (route is PageRoute) {
+      appRouteObserver.subscribe(this, route);
+    }
+    // Also handle becoming current again via Flutter route lifecycle
+    final route2 = ModalRoute.of(context);
+    if (route2?.isCurrent == true && _initializedOnce && !_isAutoRefreshing) {
+      Future.microtask(() async {
+        _isAutoRefreshing = true;
+        await _forceReinitializePreview();
+        _isAutoRefreshing = false;
+      });
+    }
+  }
+
+  // (single dispose already defined earlier)
+
+  // Called when a higher route is popped and we become visible again
+  @override
+  void didPopNext() {
+    // Small delay to let the transition finish
+    Future.delayed(const Duration(milliseconds: 150), _forceReinitializePreview);
+  }
+
+  
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      // Recreate preview when coming back to the foreground
+      _initAgoraPreview();
+    }
+  }
+
   Future<void> _initAgoraPreview() async {
+    // Ensure any previous session is fully cleaned up
+    try {
+      await callController.engine?.stopPreview();
+    } catch (_) {}
+
     await callController.leaveChannel();
+
+    try {
+      await callController.engine?.release();
+    } catch (_) {}
+    callController.engine = null;
+
+    // Small delay to allow native resources to be released properly
+    await Future.delayed(const Duration(milliseconds: 300));
 
     final cam = await Permission.camera.request();
     final mic = await Permission.microphone.request();
@@ -48,19 +104,75 @@ class _HostVideoCallScreenState extends State<HostVideoCallScreen> {
         const RtcEngineContext(appId: CallController.fallbackAppId),
       );
 
+      // Set proper profile and role for preview reliability on some devices
+      await callController.engine!.setChannelProfile(ChannelProfileType.channelProfileLiveBroadcasting);
+      await callController.engine!.setClientRole(role: ClientRoleType.clientRoleBroadcaster);
+
+      // Small delay to avoid race after initialize
+      await Future.delayed(const Duration(milliseconds: 120));
+
       await callController.engine!.enableVideo();
       await callController.engine!.enableLocalVideo(true);
 
-      await callController.engine!.startPreview(); // ✅
-      setState(() {});
+      // Try starting preview with retries (handles device driver delays)
+      await _startPreviewWithRetry(callController.engine!, retries: 3);
+      setState(() {
+        _initializedOnce = true;
+      });
     } catch (e) {
       debugPrint("Agora preview init error: $e");
+    }
+  }
+
+  Future<void> _forceReinitializePreview() async {
+    try {
+      try { await callController.engine?.stopPreview(); } catch (_) {}
+      await callController.leaveChannel();
+      try { await callController.engine?.release(); } catch (_) {}
+      callController.engine = null;
+      await Future.delayed(const Duration(milliseconds: 300));
+      await _initAgoraPreview();
+      Get.snackbar(
+        "Camera",
+        "Preview refreshed",
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
+      );
+    } catch (e) {
+      debugPrint("Force reinit error: $e");
+      Get.snackbar(
+        "Camera",
+        "Failed to refresh preview",
+        backgroundColor: Colors.red.withOpacity(0.8),
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Future<void> _startPreviewWithRetry(RtcEngine engine, {int retries = 2}) async {
+    int attempts = 0;
+    while (true) {
+      try {
+        await engine.startPreview();
+        return;
+      } catch (e) {
+        attempts++;
+        if (attempts > retries) {
+          rethrow;
+        }
+        await Future.delayed(const Duration(milliseconds: 250));
+      }
     }
   }
 
   @override
   void dispose() {
     print("dispose");
+    WidgetsBinding.instance.removeObserver(this);
+    appRouteObserver.unsubscribe(this);
+    try {
+      callController.engine?.stopPreview();
+    } catch (_) {}
     callController.leaveChannel();
     super.dispose();
   }
@@ -193,12 +305,15 @@ class _HostVideoCallScreenState extends State<HostVideoCallScreen> {
         children: [
           // 🔹 Agora Local Preview
           if (callController.engine != null)
-            AgoraVideoView(
-              controller: VideoViewController(
-                rtcEngine: callController.engine!,
-                canvas: const VideoCanvas(
-                  uid: 0,
-                  sourceType: VideoSourceType.videoSourceCamera, // 👈 important
+            KeyedSubtree(
+              key: ValueKey(callController.engine),
+              child: AgoraVideoView(
+                controller: VideoViewController(
+                  rtcEngine: callController.engine!,
+                  canvas: const VideoCanvas(
+                    uid: 0,
+                    sourceType: VideoSourceType.videoSourceCamera, // 👈 important
+                  ),
                 ),
               ),
             )
@@ -416,7 +531,7 @@ class _HostVideoCallScreenState extends State<HostVideoCallScreen> {
                     ),
                     const SizedBox(width: 20),
 
-                    // Right circle (refresh icon)
+                    // Middle circle (flip camera)
                     InkWell(
                       onTap: () {
                         callController
@@ -432,11 +547,34 @@ class _HostVideoCallScreenState extends State<HostVideoCallScreen> {
                         child: Padding(
                           padding: const EdgeInsets.all(10.0),
                           child: Image.asset(
-                            "assets/icons/refresh.png", // 👈 apna image path yahan replace karo
+                            "assets/icons/refresh.png", // icon used for flip
                             color: Colors.black,
                             height: 52,
                             width: 52,
                             fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: 20),
+
+                    // Right circle (refresh preview)
+                    InkWell(
+                      onTap: _forceReinitializePreview,
+                      child: CustomContainer(
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.3),
+                          width: 1,
+                        ),
+                        conColor: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(40),
+                        child: const Padding(
+                          padding: EdgeInsets.all(10.0),
+                          child: Icon(
+                            Icons.refresh,
+                            color: Colors.white,
+                            size: 36,
                           ),
                         ),
                       ),
@@ -460,8 +598,8 @@ class _HostVideoCallScreenState extends State<HostVideoCallScreen> {
                     if (data != null && data["status"] == "success") {
                       final agora = data["agora"];
                       print(agora);
-                      Get.to(
-                        () => HostStartLiveStreamingScreen(),
+                      final result = await Get.to(
+                        () => const HostStartLiveStreamingScreen(),
                         arguments: {
                           "channelName": agora["channelName"],
                           "token": agora["token"],
@@ -470,6 +608,13 @@ class _HostVideoCallScreenState extends State<HostVideoCallScreen> {
                           "isHost": true,
                         },
                       );
+
+                      // When user ends live, reinitialize local preview here
+                      if (result == 'ended' || result == true) {
+                        // Slight delay to ensure previous screen is fully popped
+                        await Future.delayed(const Duration(milliseconds: 200));
+                        await _initAgoraPreview();
+                      }
                     } else {
                       Get.snackbar(
                         "Error",
@@ -483,7 +628,38 @@ class _HostVideoCallScreenState extends State<HostVideoCallScreen> {
               ],
             ),
           ),
+
+          // 🔄 In-screen refresh button (visible even if FAB is hidden by layout)
+          Positioned(
+            right: 16,
+            bottom: 16,
+            child: GestureDetector(
+              onTap: _forceReinitializePreview,
+              child: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: Colors.blueGrey.withOpacity(0.9),
+                  shape: BoxShape.circle,
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black45,
+                      blurRadius: 6,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: const Icon(Icons.refresh, color: Colors.white, size: 22),
+              ),
+            ),
+          ),
         ],
+      ),
+      // FAB also added; if not visible due to layout, use the in-screen button above
+      floatingActionButton: FloatingActionButton.small(
+        onPressed: _forceReinitializePreview,
+        backgroundColor: Colors.blueGrey,
+        child: const Icon(Icons.refresh, color: Colors.white),
       ),
     );
   }
