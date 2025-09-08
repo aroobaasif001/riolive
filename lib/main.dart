@@ -45,6 +45,7 @@ class MyApp extends StatelessWidget {
       title: 'Rio Live App',
       debugShowCheckedModeBanner: false,
 
+
       // 🔑 DevicePreview integration
       useInheritedMediaQuery: true,
       locale: DevicePreview.locale(context),
@@ -55,7 +56,9 @@ class MyApp extends StatelessWidget {
       // home: const AppStartup(),
       //
       // 2) Ya seedha MyOrderScreen preview/test:
-      home: BottomNaviScreen(),
+
+      home: AppStartup(),
+
     );
   }
 }
