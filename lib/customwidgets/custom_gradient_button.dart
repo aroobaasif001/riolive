@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:riolive/customwidgets/customtext.dart';
-import 'package:riolive/customwidgets/custom_container.dart';
 
 class CustomGradientButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
+
+  // ✅ Customization options
   final double? width;
   final double? height;
   final EdgeInsetsGeometry? padding;
@@ -12,10 +12,7 @@ class CustomGradientButton extends StatelessWidget {
   final double fontSize;
   final FontWeight fontWeight;
   final List<Color> gradientColors;
-  final textColor;
-  final onTap;
-  final AlignmentGeometry? begin;
-  final AlignmentGeometry? end;
+  final Color textColor; // Added this to customize the text color
 
   const CustomGradientButton({
     Key? key,
@@ -28,10 +25,7 @@ class CustomGradientButton extends StatelessWidget {
     this.fontSize = 14,
     this.fontWeight = FontWeight.bold,
     this.gradientColors = const [Color(0xFF8EC2FB), Color(0xFFE496FF)],
-    this.textColor,
-    this.onTap,
-    this.begin,
-    this.end,
+    this.textColor = Colors.white, // Default text color is white
   }) : super(key: key);
 
   @override
@@ -47,23 +41,26 @@ class CustomGradientButton extends StatelessWidget {
       ),
       onPressed: onPressed,
       child: Ink(
-        child: CustomContainer(
-          width: width,
-          height: height,
-          borderRadius: BorderRadius.circular(borderRadius),
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: gradientColors,
-            begin: begin??Alignment.topCenter,
-            end: end??Alignment.bottomCenter,
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
           ),
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
+        child: Container(
+          width: width,
+          height: height,
           padding: padding ?? const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
           alignment: Alignment.center,
-          child: CustomText(
+          child: Text(
             text,
-            color: Colors.white,
-            fontWeight: fontWeight,
-            fontSize: fontSize,
-            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: textColor, // Use the textColor parameter here
+              fontWeight: fontWeight,
+              fontSize: fontSize,
+            ),
           ),
         ),
       ),

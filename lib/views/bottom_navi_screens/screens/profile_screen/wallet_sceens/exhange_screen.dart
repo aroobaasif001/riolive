@@ -91,8 +91,8 @@ class ExhangeScreen extends StatelessWidget {
                         Text(
                           leftLabel,
                           style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w400,
                             color: Colors.black,
                           ),
                         ),
@@ -281,7 +281,7 @@ class ExhangeScreen extends StatelessWidget {
                           'Exchange Rate',
                           style: TextStyle(
                             fontSize: 20,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w500,
                             color: _labelDark,
                           ),
                         ),
@@ -290,8 +290,8 @@ class ExhangeScreen extends StatelessWidget {
                         // === Table (direct code) ===
                         Builder(
                           builder: (_) {
-                            const double br = 22;
-                            const double headerH = 48;
+                            const double br = 30;
+                            const double headerH =67;
 
                             return CustomContainer(
                               width: double.infinity,
@@ -324,8 +324,8 @@ class ExhangeScreen extends StatelessWidget {
                                           begin: Alignment.centerLeft,
                                           end: Alignment.centerRight,
                                           colors: [
-                                            Color(0xFF7EC9FF),
-                                            Color(0xFFF3A1FF)
+                                            Color(0xFF8EC2FB),
+                                            Color(0xFFE496FF)
                                           ],
                                         ),
                                       ),

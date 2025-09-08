@@ -1030,6 +1030,242 @@ class _DayChip extends StatelessWidget {
   }
 }
 
+// withdraw sheet
+
+// withdraw_sheets.dart
+
+/// FIRST SHEET — Choose Withdraw type
+Future<void> openWithdrawTypeSheet(BuildContext context) async {
+  final s = MediaQuery.of(context).size.width / 390.0;
+
+  const coin    = 'assets/images/banklocal.png';
+  const epay    = 'assets/images/pay.png';
+  const binance = 'assets/images/binance.png';
+
+  await showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (_) => SafeArea(
+      top: false,
+      child: CustomContainer(
+        width: double.infinity,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(26 * s)),
+        conColor: Colors.white,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            20 * s, 18 * s, 20 * s,
+            20 * s + MediaQuery.of(context).padding.bottom,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(bottom: 14 * s),
+                  child: CustomText(
+                    'Choose Withdraw type',
+                    fontSize: 16 * s, fontWeight: FontWeight.w700, color: Colors.black87,
+                  ),
+                ),
+                SizedBox(height: 30,),
+                _typeRow(
+                  context,
+                  s: s,
+                  iconPath: coin,
+                  title: 'Bank/Local Agent',
+                  feeText: 'Fee:1.5%+50p',
+                  arrivalText: 'Arrival With in: 24 h',
+                ),
+                SizedBox(height: 16 * s),
+                _typeRow(
+                  context,
+                  s: s,
+                  iconPath: epay,
+                  title: 'Epay',
+                  feeText: 'Fee: 1\$',
+                  arrivalText: 'Arrival With in: 48 h',
+                ),
+                SizedBox(height: 16 * s),
+                _typeRow(
+                  context,
+                  s: s,
+                  iconPath: binance,
+                  title: 'BINANCE (BEP20)',
+                  feeText: 'Fee:1.5%+50p',
+                  arrivalText: 'Arrival With in: 48 h',
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+/// SECOND SHEET — Choose Withdraw Method
+Future<void> openWithdrawMethodSheet(BuildContext context) async {
+  final s = MediaQuery.of(context).size.width / 390.0;
+
+  const bank      = 'assets/icons/bt.png';
+  const easypaisa = 'assets/icons/easyp.png';
+  const jazzcash  = 'assets/icons/jazz.png';
+
+  await showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (_) => SafeArea(
+      top: false,
+      child: CustomContainer(
+        width: double.infinity,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(26 * s)),
+        conColor: Colors.white,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            20 * s, 18 * s, 20 * s,
+            20 * s + MediaQuery.of(context).padding.bottom,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(bottom: 14 * s),
+                  child: CustomText(
+                    'Choose Withdraw Method',
+                    fontSize: 16 * s, fontWeight: FontWeight.w700, color: Colors.black87,
+                    fontType: AppFont.poppins,
+                  ),
+                ),
+                SizedBox(height: 30,),
+                _methodRow(s: s, iconPath: bank,      title: 'Bank Transfer', arrivalText: 'Arrival With in: 4 h'),
+                SizedBox(height: 16 * s),
+                _methodRow(s: s, iconPath: easypaisa, title: 'Easy Paisa',    arrivalText: 'Arrival With in: 4 h'),
+                SizedBox(height: 16 * s),
+                _methodRow(s: s, iconPath: jazzcash,  title: 'Jazz cash',     arrivalText: 'Arrival With in: 4 h'),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+/* ----------------------- helpers (no classes) ----------------------- */
+
+Widget _typeRow(
+    BuildContext context, {
+      required double s,
+      required String iconPath,
+      required String title,
+      required String feeText,
+      required String arrivalText,
+    }) {
+  return CustomContainer(
+    height: 86,
+    conColor: const Color(0xFFDCDCDC),
+    borderRadius: BorderRadius.circular(16 * s),
+    padding: EdgeInsets.symmetric(horizontal: 5 * s, vertical: 20 * s),
+    child: Row(
+      children: [
+        CustomContainer(
+          width: 48 * s, height: 48 * s,
+          borderRadius: BorderRadius.circular(24 * s),
+          conColor: const Color(0xFFF5EAF2),
+          child: Center(child: Image.asset(iconPath,)),
+        ),
+        SizedBox(width: 12 * s),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CustomText(title, fontSize: 16 * s, fontWeight: FontWeight.w500, color: Colors.black87),
+              SizedBox(height: 5 * s),
+              Row(children: [_chip(feeText, s), SizedBox(width: 3 * s), _chip(arrivalText, s)]),
+            ],
+          ),
+        ),
+        SizedBox(width: 12 * s),
+
+        // pink "Select" pill -> closes and opens 2nd sheet
+        GestureDetector(
+          onTap: () {
+            Navigator.of(context).pop();
+            openWithdrawMethodSheet(context);
+          },
+          child: CustomContainer(
+            height: 32,
+            width: 92,
+            padding: EdgeInsets.symmetric(horizontal: 22 * s, vertical: 5 * s),
+            borderRadius: BorderRadius.circular(24 * s),
+            conColor: const Color(0xFFF2D2D6),
+            child: CustomText('Select', fontSize: 16 * s, fontWeight: FontWeight.w700, color: Colors.black87),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _methodRow({
+  required double s,
+  required String iconPath,
+  required String title,
+  required String arrivalText,
+}) {
+  return CustomContainer(
+    height: 86,
+    conColor: const Color(0xFFDCDCDC),
+    borderRadius: BorderRadius.circular(16 * s),
+    padding: EdgeInsets.symmetric(horizontal: 16 * s, vertical: 20 * s),
+    child: Row(
+      children: [
+        CustomContainer(
+          width: 48 * s, height: 48 * s,
+          borderRadius: BorderRadius.circular(24 * s),
+          conColor: const Color(0xFFF5EAF2),
+          child: Center(child: Image.asset(iconPath,)),
+        ),
+        SizedBox(width: 12 * s),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CustomText(title, fontSize: 18 * s, fontWeight: FontWeight.w700, color: Colors.black87),
+              SizedBox(height: 5 * s),
+              Row(children: [_chip(arrivalText, s)]),
+            ],
+          ),
+        ),
+        SizedBox(width: 12 * s),
+        CustomContainer(
+          height: 32,
+          width: 92,
+          padding: EdgeInsets.symmetric(horizontal: 22 * s, vertical: 5 * s),
+          borderRadius: BorderRadius.circular(24 * s),
+          conColor: const Color(0xFFEDCFCF),
+          child: CustomText('Select', fontSize: 16 * s, fontWeight: FontWeight.w500, color: Colors.black87),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _chip(String text, double s) {
+  return CustomContainer(
+    padding: EdgeInsets.symmetric(horizontal: 8 * s, vertical: 4 * s),
+    borderRadius: BorderRadius.circular(8 * s),
+    conColor: const Color(0xFFEDEBFF),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        CustomText(text, fontSize: 8 * s, fontWeight: FontWeight.w500, color: const Color(0xFF3B3B3B)),
+      ],
+    ),
+  );
+}
+
 
 
 

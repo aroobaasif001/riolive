@@ -12,7 +12,7 @@ class JoinButton extends StatelessWidget {
       height: 30,
       padding: EdgeInsets.zero,
       gradient: const LinearGradient(
-        colors: [Color(0xff7F3DFF), Color(0xffEB5AE5)],
+        colors: [Color(0xff3b1f68), Color(0xff1e113e)],
         begin: Alignment.centerLeft,
         end: Alignment.centerRight,
       ),
@@ -31,7 +31,11 @@ class JoinButton extends StatelessWidget {
             child: VerticalDivider(color: Colors.white, thickness: 1, width: 1),
           ),
           SizedBox(width: 10),
-          CustomText('join', color: Colors.white, fontWeight: FontWeight.w600),
+          CustomText(
+            'join               ',
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
           SizedBox(width: 14),
         ],
       ),

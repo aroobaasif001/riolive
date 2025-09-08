@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:riolive/utile/app_url.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/home_navbar_screens/party_screen/party_room_screen/party_room_end_screen/party_room_end_screen.dart';
 
 import '../../../../../../controller/user_video_call_controller.dart';
 import '../../../../../../customwidgets/chat_list.dart';
 import '../../../../../../customwidgets/coins_chip.dart';
 import '../../../../../../customwidgets/custom_container.dart';
-import '../../../../../../customwidgets/customtext.dart';
-import '../../../../../../customwidgets/entered_room_pill.dart';
 import '../../../../../../customwidgets/hostCircle.dart';
 import '../../../../../../customwidgets/join_button.dart';
 import '../../../../../../customwidgets/message_field.dart';
+import '../../../../../../customwidgets/partyRoomUserToolSheet.dart';
 import '../../../../../../customwidgets/plus_count_chip.dart';
 import '../../../../../../customwidgets/profile_chip.dart';
 import '../../../../../../customwidgets/round_icon.dart';
@@ -18,8 +18,10 @@ import '../../../../../../customwidgets/seatCircle.dart';
 import '../../../../../../customwidgets/showGamesSheet.dart';
 import '../../../../../../customwidgets/showGiftPopUp.dart';
 import '../../../../../../customwidgets/showProfilePopup.dart';
+import '../../../../../../customwidgets/showWaitingListSheet.dart';
 import '../../../../../../customwidgets/tiny_round.dart';
 import '../../../../../../customwidgets/userVideoCallShowRoomToolSheet.dart';
+import '../../../../../../models/live_card_data.dart';
 
 class PartyRoomScreen extends GetView<UserVideoCallController> {
   const PartyRoomScreen({super.key});
@@ -42,7 +44,6 @@ class PartyRoomScreen extends GetView<UserVideoCallController> {
           child: SafeArea(
             child: Column(
               children: [
-                /* -------------------- TOP BAR -------------------- */
                 Padding(
                   padding: const EdgeInsets.all(12),
                   child: Row(
@@ -66,44 +67,77 @@ class PartyRoomScreen extends GetView<UserVideoCallController> {
                               ),
                               const SizedBox(width: 2),
                               Row(
-                                children: const [
-                                  TinyRound(
+                                children: [
+                                  const TinyRound(
                                     size: 30,
                                     image: AssetImage(
                                       'assets/images/story_1.jpg',
                                     ),
                                   ),
-                                  SizedBox(width: 4),
-                                  TinyRound(
+                                  const SizedBox(width: 4),
+                                  const TinyRound(
                                     size: 30,
                                     image: AssetImage(
                                       'assets/images/story_2.png',
                                     ),
                                   ),
-                                  SizedBox(width: 4),
-                                  TinyRound(
+                                  const SizedBox(width: 4),
+                                  const TinyRound(
                                     size: 30,
                                     image: AssetImage(
                                       'assets/images/story_3.jpg',
                                     ),
                                   ),
-                                  SizedBox(width: 4),
-                                  PlusCountChip(countText: '+98'),
-                                  SizedBox(width: 4),
+                                  const SizedBox(width: 4),
+                                  const PlusCountChip(countText: '+98'),
+                                  const SizedBox(width: 4),
                                   CloseButton(
                                     color: Colors.white,
-                                    style: ButtonStyle(
+                                    style: const ButtonStyle(
                                       backgroundColor: WidgetStatePropertyAll(
                                         Colors.red,
                                       ),
                                     ),
+                                    onPressed: () {
+                                      Get.to(
+                                        () => LiveEndScreen(
+                                          bgImage:
+                                              'assets/images/userTabImage.jpg',
+                                          userName: 'Wamiqa J..',
+                                          avatarPath:
+                                              'assets/images/story_1.jpg',
+                                          crownPath: 'assets/icons/crown_2.png',
+                                          cards: const [
+                                            LiveCardData(
+                                              image:
+                                                  'assets/images/story_1.jpg',
+                                              name: 'Himanshi Khurana 🥰',
+                                            ),
+                                            LiveCardData(
+                                              image:
+                                                  'assets/images/story_1.jpg',
+                                              name: 'Kaanch 🥰',
+                                            ),
+                                            LiveCardData(
+                                              image:
+                                                  'assets/images/story_1.jpg',
+                                              name: 'Himanshi Khurana 🥰',
+                                              isGray: true,
+                                            ),
+                                            LiveCardData(
+                                              image:
+                                                  'assets/images/story_1.jpg',
+                                              name: 'Kaanch 🥰',
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ],
                               ),
                             ],
                           ),
-
-                          // const SizedBox(height: 5),
                           CustomContainer(
                             width: 360,
                             child: Row(
@@ -131,30 +165,24 @@ class PartyRoomScreen extends GetView<UserVideoCallController> {
                     ],
                   ),
                 ),
-
-                // const SizedBox(height: 20),
-
-                /* ----------------- MID CONTENT ----------------- */
                 Expanded(
                   child: Column(
                     children: [
-                      // Hosts row
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const HostCircle(
                               name: 'Wamiqa Jain',
                               image: 'assets/images/story_1.jpg',
                               highlight: true,
+                              isHost: true,
                             ),
                             Image.asset(
-                              'assets/images/match.png', // 👈 yahan apna path dal do
-                              width: 162,
+                              'assets/images/match.png',
+                              width: 72,
                               height: 52,
-                              // color: Colors
-                              //     .pinkAccent, // optional agar color overlay chahiye
                             ),
                             const HostCircle(
                               name: 'Wamiqa Jain',
@@ -163,91 +191,88 @@ class PartyRoomScreen extends GetView<UserVideoCallController> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 30),
-
-                      // Seats row 1 (3,4)
+                      const SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: const [
+                        children: [
+                          SeatCircle(
+                            onTap: () {
+                              showPartyRoomUserToolSheet(context);
+                            },
+                            label: 'Meet Bros',
+                            state: SeatState.occupied,
+                            image: 'assets/images/story_1.jpg',
+                            frameImage: "assets/images/frame_3.png",
+                          ),
+                          const SeatCircle(
+                            label: 'Anushka',
+                            state: SeatState.occupied,
+                            image: 'assets/images/story_2.png',
+                            frameImage: "assets/images/frame_3.png",
+                          ),
                           SeatCircle(
                             label: 'Seat No:-3',
                             state: SeatState.empty,
+                            frameImage: "",
+                            onTap: () {
+                              showWaitingListSheet(context);
+                            },
                           ),
-                          SeatCircle(
+                          const SeatCircle(
                             label: 'Seat No:-4',
                             state: SeatState.empty,
+                            frameImage: "",
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
-
-                      // Seats row 2 (5..8)
+                      const SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: const [
                           SeatCircle(
                             label: 'Seat No:-5',
                             state: SeatState.empty,
+                            frameImage: "",
                           ),
                           SeatCircle(
                             label: 'Seat No:-6',
                             state: SeatState.locked,
+                            frameImage: "",
                           ),
                           SeatCircle(
                             label: 'Seat No:-7',
                             state: SeatState.locked,
+                            frameImage: "",
                           ),
                           SeatCircle(
                             label: 'Seat No:-8',
                             state: SeatState.locked,
+                            frameImage: "",
                           ),
                         ],
                       ),
-
-                      const Spacer(),
-
-                      // Right side overlay (entered/join)
+                      const SizedBox(height: 12),
                       Align(
                         alignment: Alignment.bottomRight,
                         child: Padding(
-                          padding: const EdgeInsets.only(right: 8, bottom: 12),
+                          padding: const EdgeInsets.only(right: 8, bottom: 8),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             mainAxisSize: MainAxisSize.min,
-                            children: const [
-                              EnteredRoomPill(username: 'Alexander'),
-                              SizedBox(height: 10),
-                              JoinButton(),
-                            ],
+                            children: const [JoinButton()],
                           ),
                         ),
                       ),
 
-                      const SizedBox(height: 12),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        child: CustomText(
-                          maxLines: 6,
-                          'Welcome to the party room. We\nmonitor every LIVE Party to keep the\ncommunity safe and healthy.\nBehaviors of bullies, harasses, or\nintimidates will be reported or\nbanned from use.',
-                          color: Colors.white,
-                          fontSize: 12.5,
-                          lineHeight: 1.35,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
                           child: ChatList(),
                         ),
                       ),
                     ],
                   ),
                 ),
-
-                /* ----------------- BOTTOM ACTIONS ---------------- */
                 Padding(
                   padding: const EdgeInsets.fromLTRB(14, 4, 14, 14),
                   child: Row(

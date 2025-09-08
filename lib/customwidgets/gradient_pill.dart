@@ -23,7 +23,10 @@ class GradientPill extends StatelessWidget {
       width: width,
       height: height,
       padding: padding,
-      borderRadius: BorderRadius.circular(42),
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(42),
+        bottomLeft: Radius.circular(42),
+      ),
       gradient: gradient,
       boxShadow: [
         BoxShadow(
