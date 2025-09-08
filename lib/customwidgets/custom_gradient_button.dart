@@ -12,6 +12,7 @@ class CustomGradientButton extends StatelessWidget {
   final double fontSize;
   final FontWeight fontWeight;
   final List<Color> gradientColors;
+  final Color textColor; // Added this to customize the text color
 
   const CustomGradientButton({
     Key? key,
@@ -24,6 +25,7 @@ class CustomGradientButton extends StatelessWidget {
     this.fontSize = 14,
     this.fontWeight = FontWeight.bold,
     this.gradientColors = const [Color(0xFF8EC2FB), Color(0xFFE496FF)],
+    this.textColor = Colors.white, // Default text color is white
   }) : super(key: key);
 
   @override
@@ -55,7 +57,7 @@ class CustomGradientButton extends StatelessWidget {
           child: Text(
             text,
             style: TextStyle(
-              color: Colors.white,
+              color: textColor, // Use the textColor parameter here
               fontWeight: fontWeight,
               fontSize: fontSize,
             ),

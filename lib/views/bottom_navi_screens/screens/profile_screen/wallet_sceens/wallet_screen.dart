@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:riolive/customwidgets/custom_container.dart';
 import 'package:riolive/customwidgets/customappbar_agencyscreen.dart';
 import 'package:riolive/customwidgets/customtext.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/wallet_sceens/withdraw_screen.dart';
+
+import 'exhange_screen.dart';
 
 class WalletScreen extends StatefulWidget {
   const WalletScreen({super.key});
@@ -281,6 +284,24 @@ class _OutlinePill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomContainer(
+      onTap: () {
+        // Add navigation based on the text (to differentiate between buttons)
+        if (text == "Withdraw") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const WithdrawScreen(), // Navigate to WithdrawScreen
+            ),
+          );
+        } else if (text == "Exchange") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const ExhangeScreen(), // Navigate to ExhangeScreen
+            ),
+          );
+        }
+      },
       width: 123,
       height: 44,
       borderRadius: BorderRadius.circular(22),
