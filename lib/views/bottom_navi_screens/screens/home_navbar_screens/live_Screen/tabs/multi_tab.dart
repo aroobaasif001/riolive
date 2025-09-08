@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:riolive/customwidgets/custom_container.dart';
 import 'package:riolive/customwidgets/customcirclebutton.dart';
 import 'package:riolive/customwidgets/customtext.dart';
-import 'package:riolive/customwidgets/custom_container.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/home_navbar_screens/live_Screen/tabs/multi_room_screen/multi_room_screen.dart';
 
 import '../../../../../../utile/dialog_helper.dart';
 
@@ -29,26 +31,30 @@ class MultiTab extends StatelessWidget {
           SliverPadding(
             padding: EdgeInsets.symmetric(horizontal: padH),
             sliver: SliverGrid(
-              delegate: SliverChildBuilderDelegate(
-                    (context, i) {
-                  final isRightCard = (i % columns) == (columns - 1);
+              delegate: SliverChildBuilderDelegate((context, i) {
+                final isRightCard = (i % columns) == (columns - 1);
 
-                  // LEFT (and middle on tablet) => Himanshi; RIGHT => HAPPY NEW YEAR
-                  final forcedTitle =
-                  isRightCard ? 'HAPPY NEW YEAR 🥰' : 'Himanshi Khurana 🥰';
-                  const forcedLocation = 'Habiganj District, bangladesh';
+                // LEFT (and middle on tablet) => Himanshi; RIGHT => HAPPY NEW YEAR
+                final forcedTitle = isRightCard
+                    ? 'HAPPY NEW YEAR 🥰'
+                    : 'Himanshi Khurana 🥰';
+                const forcedLocation = 'Habiganj District, bangladesh';
 
-                  return _ProfileCard(
+                return InkWell(
+                  onTap: () {
+                    Get.to(() => MultiRoomScreen());
+                  },
+                  child: _ProfileCard(
                     profile: _profiles[i],
                     scale: scale,
                     showBadge: isRightCard, // right-only
                     showCoins: isRightCard, // right-only
                     forceTitle: forcedTitle, // <- set titles as requested
-                    forceLocation: forcedLocation, // <- set location same for both
-                  );
-                },
-                childCount: _profiles.length,
-              ),
+                    forceLocation:
+                        forcedLocation, // <- set location same for both
+                  ),
+                );
+              }, childCount: _profiles.length),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: columns,
                 crossAxisSpacing: 15,
@@ -91,7 +97,7 @@ class _HeaderBar extends StatelessWidget {
             showCountryDialogTop(context);
           },
           size: 25,
-        )
+        ),
       ],
     );
   }
@@ -117,20 +123,30 @@ class _CountryChip extends StatelessWidget {
       child: CustomContainer(
         height: 27,
         width: 105,
-        padding: EdgeInsets.symmetric(horizontal: 5 * scale, vertical: 2 * scale),
+        padding: EdgeInsets.symmetric(
+          horizontal: 5 * scale,
+          vertical: 2 * scale,
+        ),
         conColor: Colors.white38,
         borderRadius: BorderRadius.circular(28 * scale),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          _FlagBadge(diameter: 20 * scale, emoji: emoji, flagAsset: flagAsset),
-          SizedBox(width: 10 * scale),
-          CustomText(
-            label,
-            color: const Color(0xFF1D1D1F),
-            fontWeight: FontWeight.w600,
-            fontSize: 11 * scale,
-            letterSpacing: 0.1,
-          ),
-        ]),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _FlagBadge(
+              diameter: 20 * scale,
+              emoji: emoji,
+              flagAsset: flagAsset,
+            ),
+            SizedBox(width: 10 * scale),
+            CustomText(
+              label,
+              color: const Color(0xFF1D1D1F),
+              fontWeight: FontWeight.w600,
+              fontSize: 11 * scale,
+              letterSpacing: 0.1,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -150,17 +166,12 @@ class _FlagBadge extends StatelessWidget {
       child: ClipOval(
         child: flagAsset != null
             ? Image.asset(
-          flagAsset!,
-          width: diameter,
-          height: diameter,
-          fit: BoxFit.cover,
-        )
-            : Center(
-          child: CustomText(
-            emoji ?? '',
-            fontSize: diameter * 0.72,
-          ),
-        ),
+                flagAsset!,
+                width: diameter,
+                height: diameter,
+                fit: BoxFit.cover,
+              )
+            : Center(child: CustomText(emoji ?? '', fontSize: diameter * 0.72)),
       ),
     );
   }
@@ -226,16 +237,19 @@ class _ProfileCard extends StatelessWidget {
                       width: 66,
                       conColor: const Color(0xFF151515).withOpacity(0.75),
                       borderRadius: BorderRadius.circular(10 * scale),
-                      child: Row(mainAxisSize: MainAxisSize.min, children: [
-                        CustomText('🥰', fontSize: 8 * scale),
-                        SizedBox(width: 3 * scale),
-                        CustomText(
-                          'Sentimental',
-                          color: const Color(0xFF40FF00),
-                          fontWeight: FontWeight.w500,
-                          fontSize: 8 * scale,
-                        ),
-                      ]),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CustomText('🥰', fontSize: 8 * scale),
+                          SizedBox(width: 3 * scale),
+                          CustomText(
+                            'Sentimental',
+                            color: const Color(0xFF40FF00),
+                            fontWeight: FontWeight.w500,
+                            fontSize: 8 * scale,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
 
@@ -250,9 +264,10 @@ class _ProfileCard extends StatelessWidget {
                       fontSize: 13 * scale,
                       shadows: const [
                         Shadow(
-                            color: Colors.black45,
-                            blurRadius: 2,
-                            offset: Offset(0, 1))
+                          color: Colors.black45,
+                          blurRadius: 2,
+                          offset: Offset(0, 1),
+                        ),
                       ],
                     ),
                   ),
@@ -339,7 +354,10 @@ class _AvatarStack extends StatelessWidget {
                     width: size,
                     height: size,
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: avatarBorderWidth),
+                    border: Border.all(
+                      color: Colors.white,
+                      width: avatarBorderWidth,
+                    ),
                     image: DecorationImage(
                       image: AssetImage(urls[i]),
                       fit: BoxFit.cover,

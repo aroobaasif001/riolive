@@ -6,18 +6,8 @@ import 'package:http/http.dart' as http;
 import 'package:riolive/services/socket_service.dart';
 import 'package:riolive/utile/app_url.dart';
 import 'package:riolive/views/bottom_navi_screens/bottom_navi_screen.dart';
-import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/invite_screens/invitefriends_screen.dart';
-import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/invite_screens/invitehost_screen.dart';
-import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/live_data_screens/live_broadcast_data_screen.dart';
-import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/reward_screens/reward_screen.dart';
-import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/shop_screens/frame_screen.dart';
-import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/shop_screens/shop_screen.dart';
-import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/wallet_sceens/exhange_screen.dart';
-import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/wallet_sceens/grab_orders1_screen.dart';
-import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/wallet_sceens/my_order_screen.dart';
-import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/wallet_sceens/wallet_screen.dart';
-import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/wallet_sceens/withdraw_screen.dart';
 import 'package:riolive/views/splashscreen/splash_screen.dart';
+
 import 'controller/signin_controller.dart';
 
 Future<void> main() async {
@@ -35,7 +25,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Rio Live App',
       debugShowCheckedModeBanner: false,
-      home: MyOrderScreen(),
+      home: BottomNaviScreen(),
     );
   }
 }
@@ -81,8 +71,9 @@ class _AppStartupState extends State<AppStartup> {
         AppUrl.token = token;
         AppUrl.email = response['user']['email'];
         AppUrl.user_name = response['user']['username'];
-        AppUrl.user_role = response['user']['role'] ?? 'user'; // Default to 'user'
-        
+        AppUrl.user_role =
+            response['user']['role'] ?? 'user'; // Default to 'user'
+
         debugPrint("🔄 Stay login successful - Role: ${AppUrl.user_role}");
 
         // 🔌 Initialize socket **now** (AFTER we know token & userId)
