@@ -102,7 +102,7 @@ void showInviteHostSheet(BuildContext context) {
                                 borderRadius: BorderRadius.circular(28),
                                 padding: const EdgeInsets.all(10),
                                 child: Image.asset(
-                                  "assets/icons/image_share.png",
+                                  "assets/images/whatsapp.png",
                                   width: 22,
                                   height: 22,
                                 ),

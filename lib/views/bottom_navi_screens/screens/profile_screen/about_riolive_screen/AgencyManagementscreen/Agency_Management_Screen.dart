@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/agency_screen1/showContactAdminDialog.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/agency_screen1/showInviteHostSheet.dart';
-import '../../../../../../customwidgets/custom_container.dart';
-import '../../../../../../customwidgets/customtext.dart';
-import '../../../../../customwidgets/custom_gradient_button.dart';
+import '../../../../../../../customwidgets/custom_container.dart';
+import '../../../../../../../customwidgets/customtext.dart';
+import '../../../../../../customwidgets/custom_gradient_button.dart';
+import 'AgencyManagementV2.dart';
 class AgencyManagementScreen extends StatelessWidget {
   const AgencyManagementScreen({super.key});
   @override
@@ -235,14 +238,42 @@ class AgencyManagementScreen extends StatelessWidget {
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  CustomText("SUMMARY",
+                children: [
+                  const CustomText("SUMMARY",
                       fontWeight: FontWeight.bold, color: Colors.black),
-                  CustomText("Host", color: Colors.grey),
-                  CustomText("Sub AGENCY", color: Colors.grey),
-                  CustomText("MINE", color: Colors.grey),
+
+                  InkWell(
+                    onTap: () {
+                      Get.to(() => const AgencyManagementV2());
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                      child: CustomText("Host", color: Colors.grey),
+                    ),
+                  ),
+
+                  InkWell(
+                    onTap: () {
+                      // TODO: Sub AGENCY pressed action
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                      child: CustomText("Sub AGENCY", color: Colors.grey),
+                    ),
+                  ),
+
+                  InkWell(
+                    onTap: () {
+                      // TODO: MINE pressed action
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                      child: CustomText("MINE", color: Colors.grey),
+                    ),
+                  ),
                 ],
               ),
+
               const SizedBox(height: 16),
               CustomContainer(
                 conColor: Colors.white,
