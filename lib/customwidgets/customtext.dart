@@ -38,6 +38,7 @@ class CustomText extends StatelessWidget {
   final TextHeightBehavior? textHeightBehavior;
   final String? semanticsLabel;
 
+
   const CustomText(
       this.text, {
         super.key,

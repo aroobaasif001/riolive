@@ -7,7 +7,8 @@ import '../../../../../../../customwidgets/custom_container.dart';
 import '../../../../../../../customwidgets/customtext.dart';
 import '../../../../../../customwidgets/custom_gradient_button.dart';
 import 'AgencyManagementV2.dart';
-
+import 'MIne_screen.dart';
+import 'Sub_agency/Sub_agency.dart';
 class AgencyManagementScreen extends StatelessWidget {
   const AgencyManagementScreen({super.key});
   @override
@@ -188,7 +189,7 @@ class AgencyManagementScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const CustomText(
-                      "Invite Creator& Agency",
+                      "Invite Creator & Agency",
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -277,7 +278,8 @@ class AgencyManagementScreen extends StatelessWidget {
 
                   InkWell(
                     onTap: () {
-                      // TODO: Sub AGENCY pressed action
+                      Get.to(() => const SubAgency());
+
                     },
                     child: const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
@@ -287,6 +289,7 @@ class AgencyManagementScreen extends StatelessWidget {
 
                   InkWell(
                     onTap: () {
+                      Get.to(() => const MineScreen());
                       // TODO: MINE pressed action
                     },
                     child: const Padding(

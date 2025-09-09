@@ -45,6 +45,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Rio Live App',
       debugShowCheckedModeBanner: false,
+      home: AppStartup(),
 
 
       // 🔑 DevicePreview integration
@@ -57,10 +58,6 @@ class MyApp extends StatelessWidget {
       // home: const AppStartup(),
       //
       // 2) Ya seedha MyOrderScreen preview/test:
-
-      home: AppStartup(),
-
-
     );
   }
 }
