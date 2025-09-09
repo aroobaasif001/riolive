@@ -30,45 +30,48 @@ class ShopScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context);
-    final r  = RS(context); // <- FIXED: no extension
+    final r  = RS(context);
 
     // paddings & gaps (scaled)
-    final double horizontalPad = r.w(20);
-    final double gridGap       = r.w(3); // space between cards
+    final double horizontalPad = r.w(0);
+    final double topGridGap    = r.w(10); // 👈 sirf top grid ke liye
+    final double mainGridGap   = r.w(3);  // 👈 Ride/Entrance/Frame sections ke liye
 
-    return SafeArea(
-      child: Scaffold(
-        body: Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage("assets/images/invite Hostbg.jpg"),
-              fit: BoxFit.fill,
-            ),
+    return Scaffold(
+      extendBodyBehindAppBar: true, // background image appbar ke peeche bhi dikhayega
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(r.h(56)),
+        child: const RioliveAppBar(title: 'Shop'),
+      ),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/images/invite Hostbg.jpg"),
+            fit: BoxFit.fill,
           ),
-          child: MediaQuery(
-            data: mq.copyWith(textScaler: const TextScaler.linear(1.0)),
+        ),
+        child: MediaQuery(
+          data: mq.copyWith(textScaler: const TextScaler.linear(1.0)),
+          child: SafeArea(
+            top: false, // appbar ko bilkul top pe chipkayega
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const RioliveAppBar(title: 'Shop'),
-                  r.hGap(15),
+                  r.hGap(70),
 
-                  // ===== Top grid (3 items x 2 rows) =====
+                  // ===== Top grid (3 items x 2 rows) — uses topGridGap =====
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: horizontalPad),
                     child: _Grid3(
-                      gap: gridGap,
+                      gap: topGridGap, // 👈 separate gap
                       children: [
                         _TopItem(
                           asset: "assets/images/f.png",
                           label: "Frame",
-                          onTap: () {
-                            Get.to(()=>FrameScreen());
-                            // GetX: Get.to(() => const FrameScreen());
-                          },
+                          onTap: () => Get.to(() => const FrameScreen()),
                         ),
                         const _TopItem(asset: "assets/images/f1.png", label: "Party Theme"),
                         const _TopItem(asset: "assets/images/f2.png", label: "Chat Bubble"),
@@ -90,7 +93,7 @@ class ShopScreen extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: r.w(15)),
                     child: _Grid3(
-                      gap: gridGap,
+                      gap: mainGridGap, // 👈 main sections gap
                       children: const [
                         _ShopCard(asset: "assets/images/f6.png",  label: "Pink Rose Carriage",  price: "360,000"),
                         _ShopCard(asset: "assets/images/f7.png",  label: "Ultimate Sports Car",  price: "360,000"),
@@ -106,7 +109,7 @@ class ShopScreen extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: r.w(15)),
                     child: _Grid3(
-                      gap: gridGap,
+                      gap: mainGridGap,
                       children: const [
                         _ShopCard(asset: "assets/images/f9.png",  label: "Luxury Sports Ride", price: "360,000"),
                         _ShopCard(asset: "assets/images/f10.png", label: "Aurora Sports Car",  price: "360,000"),
@@ -122,7 +125,7 @@ class ShopScreen extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: r.w(15)),
                     child: _Grid3(
-                      gap: gridGap,
+                      gap: mainGridGap,
                       children: const [
                         _ShopCard(asset: "assets/images/f12.png", label: "Floral Bike", price: "360,000"),
                         _ShopCard(asset: "assets/images/f13.png", label: "Floral Bike", price: "360,000"),
@@ -150,7 +153,7 @@ class _Grid3 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final r = RS(context); // <- FIXED: no extension
+    final r = RS(context);
     return LayoutBuilder(
       builder: (context, c) {
         final totalWidth = c.maxWidth;
@@ -182,7 +185,7 @@ class _TopItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final r = RS(context); // <- FIXED: no extension
+    final r = RS(context);
     final radius = BorderRadius.circular(r.px(12));
 
     return Material(
@@ -227,7 +230,7 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final r = RS(context); // <- FIXED: no extension
+    final r = RS(context);
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: r.w(20), vertical: r.h(8)),
       child: Row(
@@ -258,7 +261,7 @@ class _ShopCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final r = RS(context); // <- FIXED: no extension
+    final r = RS(context);
     return Container(
       height: r.h(152),
       width:  double.infinity, // width given by _Grid3
