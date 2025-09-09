@@ -349,13 +349,15 @@ class _AgencyManagementV2State extends State<AgencyManagementV2> {
                         const SizedBox(height: 12),
 
                         // ===== Image under tabs =====
-                        Center(
+                        Align(
+                          alignment: Alignment.centerLeft,
                           child: Image.asset(
-                            'assets/images/agency_banner.png', // <-- apna path
+                            'assets/images/agency_banner.png',
                             fit: BoxFit.contain,
                             height: 30,
                           ),
                         ),
+
 
                         const SizedBox(height: 12),
 
@@ -778,170 +780,279 @@ class _AgencyManagementV2State extends State<AgencyManagementV2> {
                         const SizedBox(height: 12),
 
                         // ===== Simple container (table) =====
-                        CustomContainer(
-                          conColor: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
+                        // ⬇️ Replace the whole CustomContainer(...) block with this:
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [Color(0xFFF6E8FF), Color(0xFFF4EFFF)], // soft pink/purple bg (image jaisa)
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                           padding: const EdgeInsets.all(12),
                           child: Column(
                             children: [
-                              // Header Row
+                              // ---------- Header ----------
                               Row(
                                 children: const [
                                   Expanded(
                                     flex: 4,
-                                    child: CustomText(
+                                    child: Text(
                                       'Host ID',
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
+                                      style: TextStyle(fontWeight: FontWeight.w700, color: Colors.black),
                                     ),
+                                  ),
+                                  // vertical line
+                                  SizedBox(
+                                    width: 1, height: 24,
+                                    child: ColoredBox(color: Color(0x1F000000)), // ~12% black
                                   ),
                                   Expanded(
                                     flex: 3,
-                                    child: CustomText(
+                                    child: Text(
                                       'Host Earning',
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
+                                      style: TextStyle(fontWeight: FontWeight.w700, color: Colors.black),
                                     ),
+                                  ),
+                                  SizedBox(
+                                    width: 1, height: 24,
+                                    child: ColoredBox(color: Color(0x1F000000)),
                                   ),
                                   Expanded(
                                     flex: 3,
-                                    child: CustomText(
+                                    child: Text(
                                       'My Commission',
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
+                                      style: TextStyle(fontWeight: FontWeight.w700, color: Colors.black),
                                     ),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 8),
-                              Container(
-                                height: 1,
-                                width: double.infinity,
-                                color: Colors.grey[300]!, // Divider line
+                              // horizontal line
+                              const SizedBox(
+                                height: 1, width: double.infinity,
+                                child: ColoredBox(color: Color(0x1F000000)),
                               ),
-                              const SizedBox(height: 8),
 
-                              // Row 1 (Raaj)
-                              Row(
-                                children: [
-                                  Expanded(
-                                    flex: 4,
-                                    child: CustomText(
-                                      'Raaj',
-                                      color: Colors.black87,
+                              // ---------- Row 1 (Raaj) ----------
+                              SizedBox(
+                                height: 56,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      flex: 4,
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: const [
+                                          Text('Raaj',
+                                              style: TextStyle(
+                                                  fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black)),
+                                          SizedBox(height: 2),
+                                          Text('ID:1236548',
+                                              style: TextStyle(fontSize: 12, color: Colors.black54)),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  Expanded(
-                                    flex: 3,
-                                    child: Row(
-                                      children: const [
-                                        CustomText(
-                                          '100k',
-                                          color: Colors.black87,
-                                        ),
-                                        SizedBox(width: 4),
-                                        Icon(Icons.attach_money, size: 16, color: Colors.black87), // Icon for currency
-                                      ],
+                                    const SizedBox(
+                                      width: 1, height: 36,
+                                      child: ColoredBox(color: Color(0x1F000000)),
                                     ),
-                                  ),
-                                  Expanded(
-                                    flex: 3,
-                                    child: Row(
-                                      children: const [
-                                        CustomText(
-                                          '10k',
-                                          color: Colors.black87,
-                                        ),
-                                        SizedBox(width: 4),
-                                        Icon(Icons.attach_money, size: 16, color: Colors.black87),
-                                      ],
+                                    Expanded(
+                                      flex: 3,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          const Text('100k',
+                                              style: TextStyle(
+                                                  fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black)),
+                                          const SizedBox(width: 6),
+                                          Image.asset(
+                                            'assets/icons/coin.png',
+                                            width: 16, height: 16,
+                                            errorBuilder: (_, __, ___) =>
+                                            const Icon(Icons.attach_money, size: 16, color: Colors.black87),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(
+                                      width: 1, height: 36,
+                                      child: ColoredBox(color: Color(0x1F000000)),
+                                    ),
+                                    Expanded(
+                                      flex: 3,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          const Text('10k',
+                                              style: TextStyle(
+                                                  fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black)),
+                                          const SizedBox(width: 6),
+                                          Image.asset(
+                                            'assets/icons/coin.png',
+                                            width: 16, height: 16,
+                                            errorBuilder: (_, __, ___) =>
+                                            const Icon(Icons.attach_money, size: 16, color: Colors.black87),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              const SizedBox(height: 8),
-
-                              // Row 2 (Manzi)
-                              Row(
-                                children: [
-                                  Expanded(
-                                    flex: 4,
-                                    child: CustomText(
-                                      'Manzi',
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 3,
-                                    child: Row(
-                                      children: const [
-                                        CustomText(
-                                          '0.00',
-                                          color: Colors.black87,
-                                        ),
-                                        SizedBox(width: 4),
-                                        Icon(Icons.attach_money, size: 16, color: Colors.black87),
-                                      ],
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 3,
-                                    child: Row(
-                                      children: const [
-                                        CustomText(
-                                          '0.00',
-                                          color: Colors.black87,
-                                        ),
-                                        SizedBox(width: 4),
-                                        Icon(Icons.attach_money, size: 16, color: Colors.black87),
-                                      ],
-                                    ),
-                                  ),
-                                ],
+                              const SizedBox(
+                                height: 1, width: double.infinity,
+                                child: ColoredBox(color: Color(0x1F000000)),
                               ),
-                              const SizedBox(height: 8),
 
-                              // Row 3 (Sukana)
-                              Row(
-                                children: [
-                                  Expanded(
-                                    flex: 4,
-                                    child: CustomText(
-                                      'Sukana',
-                                      color: Colors.black87,
+                              // ---------- Row 2 (Mansi) ----------
+                              SizedBox(
+                                height: 56,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      flex: 4,
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: const [
+                                          Text('Mansi',
+                                              style: TextStyle(
+                                                  fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black)),
+                                          SizedBox(height: 2),
+                                          Text('ID:1236548',
+                                              style: TextStyle(fontSize: 12, color: Colors.black54)),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  Expanded(
-                                    flex: 3,
-                                    child: Row(
-                                      children: const [
-                                        CustomText(
-                                          '0.00',
-                                          color: Colors.black87,
-                                        ),
-                                        SizedBox(width: 4),
-                                        Icon(Icons.attach_money, size: 16, color: Colors.black87),
-                                      ],
+                                    const SizedBox(
+                                      width: 1, height: 36,
+                                      child: ColoredBox(color: Color(0x1F000000)),
                                     ),
-                                  ),
-                                  Expanded(
-                                    flex: 3,
-                                    child: Row(
-                                      children: const [
-                                        CustomText(
-                                          '0.00',
-                                          color: Colors.black87,
-                                        ),
-                                        SizedBox(width: 4),
-                                        Icon(Icons.attach_money, size: 16, color: Colors.black87),
-                                      ],
+                                    Expanded(
+                                      flex: 3,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          const Text('0.00',
+                                              style: TextStyle(
+                                                  fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black)),
+                                          const SizedBox(width: 6),
+                                          Image.asset(
+                                            'assets/icons/coin.png',
+                                            width: 16, height: 16,
+                                            errorBuilder: (_, __, ___) =>
+                                            const Icon(Icons.attach_money, size: 16, color: Colors.black87),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(
+                                      width: 1, height: 36,
+                                      child: ColoredBox(color: Color(0x1F000000)),
+                                    ),
+                                    Expanded(
+                                      flex: 3,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          const Text('0.00',
+                                              style: TextStyle(
+                                                  fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black)),
+                                          const SizedBox(width: 6),
+                                          Image.asset(
+                                            'assets/icons/coin.png',
+                                            width: 16, height: 16,
+                                            errorBuilder: (_, __, ___) =>
+                                            const Icon(Icons.attach_money, size: 16, color: Colors.black87),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 1, width: double.infinity,
+                                child: ColoredBox(color: Color(0x1F000000)),
+                              ),
+
+                              // ---------- Row 3 (Sukana) ----------
+                              SizedBox(
+                                height: 56,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      flex: 4,
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: const [
+                                          Text('Sukana',
+                                              style: TextStyle(
+                                                  fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black)),
+                                          SizedBox(height: 2),
+                                          Text('ID:1236548',
+                                              style: TextStyle(fontSize: 12, color: Colors.black54)),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      width: 1, height: 36,
+                                      child: ColoredBox(color: Color(0x1F000000)),
+                                    ),
+                                    Expanded(
+                                      flex: 3,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          const Text('0.00',
+                                              style: TextStyle(
+                                                  fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black)),
+                                          const SizedBox(width: 6),
+                                          Image.asset(
+                                            'assets/icons/coin.png',
+                                            width: 16, height: 16,
+                                            errorBuilder: (_, __, ___) =>
+                                            const Icon(Icons.attach_money, size: 16, color: Colors.black87),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      width: 1, height: 36,
+                                      child: ColoredBox(color: Color(0x1F000000)),
+                                    ),
+                                    Expanded(
+                                      flex: 3,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          const Text('0.00',
+                                              style: TextStyle(
+                                                  fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black)),
+                                          const SizedBox(width: 6),
+                                          Image.asset(
+                                            'assets/icons/coin.png',
+                                            width: 16, height: 16,
+                                            errorBuilder: (_, __, ___) =>
+                                            const Icon(Icons.attach_money, size: 16, color: Colors.black87),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
                         ),
+
                         const SizedBox(height: 20),
                       ],
                     ),
