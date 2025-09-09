@@ -7,6 +7,7 @@ import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/reward_
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/settings_screen/settings_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/shop_screens/shop_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/verification_screen/verification_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/wallet_sceens/grab_orders1_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/wallet_sceens/wallet_screen.dart';
 import '../../../../utile/app_url.dart';
 import '../DiamondTrading/diamond_trading_main_screen.dart';
@@ -328,6 +329,8 @@ class ProfileDashboardScreen extends StatelessWidget {
                 Get.to(() => LiveBroadcastDataScreen());
               }else if (e.label == "Invite User") {
                 Get.to(() => InviteFriendsScreen());
+              }else if (e.label == "Recharge") {
+                Get.to(() => GrabOrders1Screen());
               }
 
             },

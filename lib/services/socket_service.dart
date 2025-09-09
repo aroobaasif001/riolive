@@ -136,7 +136,7 @@ class SocketService extends GetxService {
     
     return false;
   }
-  
+
   @override
   void onClose() {
     leaveHostRoom();
@@ -252,7 +252,7 @@ class SocketService extends GetxService {
         // Wait longer for network issues
         Future.delayed(Duration(seconds: 10), () {
           if (_reconnectAttempts < _maxReconnectAttempts && !isConnected.value) {
-            _reconnectAttempts++;
+        _reconnectAttempts++;
             debugPrint("🔄 Network retry attempt $_reconnectAttempts/$_maxReconnectAttempts");
             socket?.connect();
           }
@@ -865,18 +865,12 @@ class SocketService extends GetxService {
                 ),
               ),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   Get.back(); // Close dialog
                   debugPrint("🔴 Host chose to continue live streaming");
                   
-                  // Try to navigate back to live streaming or show ready message
-                  Get.snackbar(
-                    "Live Streaming Active",
-                    "You're ready to receive new calls!",
-                    backgroundColor: Colors.green.withOpacity(0.8),
-                    colorText: Colors.white,
-                    icon: const Icon(Icons.live_tv, color: Colors.white),
-                  );
+                  // ✅ Restart camera and live streaming
+                  await _restartHostLiveStreaming();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
@@ -900,25 +894,159 @@ class SocketService extends GetxService {
       } else {
         debugPrint("✅ Host is already on live streaming screen");
         
-        // Try to reinitialize the live streaming screen if possible
-        try {
-          // We can't directly access the screen state, so just show confirmation
-          Future.delayed(const Duration(seconds: 1), () {
-            Get.snackbar(
-              "Ready for Calls",
-              "Live streaming continues - ready for new calls!",
-              backgroundColor: Colors.blue.withOpacity(0.8),
-              colorText: Colors.white,
-              icon: const Icon(Icons.phone_in_talk, color: Colors.white),
-              duration: const Duration(seconds: 2),
-            );
-          });
-        } catch (e) {
-          debugPrint("⚠ Could not reinitialize live screen: $e");
+        // ✅ Even if on live screen, offer to restart camera to fix any hanging issues
+        final bool? shouldRestart = await Get.dialog<bool>(
+          AlertDialog(
+            backgroundColor: Colors.black.withOpacity(0.95),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.refresh, color: Colors.blue, size: 24),
+                ),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text(
+                    "Restart Camera?",
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+            content: const Text(
+              "Your call has ended. Would you like to restart your camera to ensure smooth streaming?",
+              style: TextStyle(color: Colors.white70, fontSize: 16),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Get.back(result: false),
+                child: const Text('Continue As Is', style: TextStyle(color: Colors.grey)),
+              ),
+              TextButton(
+                onPressed: () => Get.back(result: true),
+                style: TextButton.styleFrom(
+                  backgroundColor: Colors.blue.withOpacity(0.2),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                child: const Text('🔄 Restart Camera', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
+          barrierDismissible: false,
+        );
+
+        if (shouldRestart == true) {
+          await _restartHostLiveStreaming();
+        } else {
+          Get.snackbar(
+            "Ready for Calls",
+            "Live streaming continues - ready for new calls!",
+            backgroundColor: Colors.blue.withOpacity(0.8),
+            colorText: Colors.white,
+            icon: const Icon(Icons.phone_in_talk, color: Colors.white),
+            duration: const Duration(seconds: 2),
+          );
         }
       }
     } catch (e) {
       debugPrint("❌ Error ensuring host return to live screen: $e");
+    }
+  }
+
+  /// Restart host live streaming with fresh camera
+  Future<void> _restartHostLiveStreaming() async {
+    try {
+      debugPrint("🔄 Restarting host live streaming with fresh camera...");
+      
+      // Show loading
+      Get.dialog(
+        AlertDialog(
+          backgroundColor: Colors.black87,
+          content: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(color: Colors.green),
+              SizedBox(width: 16),
+              Text('🔄 Restarting camera...', style: TextStyle(color: Colors.white)),
+            ],
+          ),
+        ),
+        barrierDismissible: false,
+      );
+
+      // ✅ Force camera restart by triggering CallController reinit
+      try {
+        final callController = Get.find<CallController>();
+        
+        // First completely leave current channel
+        await callController.leaveChannel();
+        debugPrint("📱 Left previous channel");
+        
+        // Wait a moment for cleanup
+        await Future.delayed(const Duration(milliseconds: 500));
+        
+        // Get current arguments from live streaming screen
+        final args = Get.arguments as Map<String, dynamic>?;
+        if (args != null) {
+          debugPrint("🔄 Reinitializing with args: $args");
+          
+          // Reinitialize Agora with fresh settings
+          await callController.initAgora(
+            channelName: args["channelName"],
+            agoraToken: args["token"],
+            appId: args["appId"],
+            isHost: args["isHost"] ?? true,
+            isAudience: false,
+            callId: args["channelName"],
+          );
+          
+          debugPrint("✅ Camera successfully reinitialized");
+        } else {
+          debugPrint("⚠️ No arguments available for reinitialization");
+          throw Exception("No streaming arguments available");
+        }
+        
+      } catch (e) {
+        debugPrint("❌ Error during camera restart: $e");
+        throw e;
+      }
+
+      // Small delay then close loading
+      await Future.delayed(const Duration(milliseconds: 1500));
+      
+      if (Get.isDialogOpen == true) {
+        Get.back(); // Close loading dialog
+      }
+
+      Get.snackbar(
+        "🔄 Camera Restarted",
+        "Live streaming resumed with fresh camera!",
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 3),
+        backgroundColor: Colors.green.withOpacity(0.8),
+        colorText: Colors.white,
+        icon: const Icon(Icons.videocam, color: Colors.white),
+      );
+      
+    } catch (e) {
+      debugPrint("❌ Error restarting live streaming: $e");
+      
+      if (Get.isDialogOpen == true) {
+        Get.back(); // Close loading dialog
+      }
+      
+      Get.snackbar(
+        "❌ Restart Failed", 
+        "Could not restart camera. Please restart manually.",
+        backgroundColor: Colors.red.withOpacity(0.8),
+        colorText: Colors.white,
+        duration: const Duration(seconds: 4),
+      );
     }
   }
 

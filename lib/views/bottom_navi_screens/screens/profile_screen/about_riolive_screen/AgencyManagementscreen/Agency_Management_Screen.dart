@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/agency_screen1/showContactAdminDialog.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/agency_screen1/showInviteHostSheet.dart';
+
 import '../../../../../../../customwidgets/custom_container.dart';
 import '../../../../../../../customwidgets/customtext.dart';
 import '../../../../../../customwidgets/custom_gradient_button.dart';
@@ -45,7 +45,10 @@ class AgencyManagementScreen extends StatelessWidget {
               CustomContainer(
                 conColor: const Color(0xffCDF2CB),
                 borderRadius: BorderRadius.circular(12),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), // 🔥 reduced padding
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ), // 🔥 reduced padding
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -53,7 +56,9 @@ class AgencyManagementScreen extends StatelessWidget {
                       children: [
                         const CircleAvatar(
                           radius: 26,
-                          backgroundImage: AssetImage("assets/images/profile.png"),
+                          backgroundImage: AssetImage(
+                            "assets/images/profile.png",
+                          ),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
@@ -68,12 +73,17 @@ class AgencyManagementScreen extends StatelessWidget {
                                     fontWeight: FontWeight.bold,
                                   ),
                                   const SizedBox(width: 4),
-                                  const Icon(Icons.copy,
-                                      color: Colors.black54, size: 14), // thoda chhota
+                                  const Icon(
+                                    Icons.copy,
+                                    color: Colors.black54,
+                                    size: 14,
+                                  ), // thoda chhota
                                   const SizedBox(width: 4),
                                   CustomContainer(
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 6, vertical: 2),
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: Colors.blue,
                                       borderRadius: BorderRadius.circular(12),
@@ -118,21 +128,20 @@ class AgencyManagementScreen extends StatelessWidget {
                         GestureDetector(
                           onTap: () => showContactAdminDialog(context),
                           child: CustomContainer(
-                          padding: const EdgeInsets.all(6),
-                          decoration: const BoxDecoration(
-                            color: Color(0xffE0F7E9),
-                            shape: BoxShape.circle,
-                          ),
+                            padding: const EdgeInsets.all(6),
+                            decoration: const BoxDecoration(
+                              color: Color(0xffE0F7E9),
+                              shape: BoxShape.circle,
+                            ),
 
-
-                          child: Image.asset(
-                            "assets/icons/chat25.png",
-                            width: 18,
-                            height: 18,
+                            child: Image.asset(
+                              "assets/icons/chat25.png",
+                              width: 18,
+                              height: 18,
+                            ),
                           ),
                         ),
-                        ),
-                         SizedBox(width: 6),
+                        SizedBox(width: 6),
                         const Icon(
                           Icons.arrow_forward_ios,
                           size: 12,
@@ -172,9 +181,7 @@ class AgencyManagementScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-
-              CustomContainer
-                (
+              CustomContainer(
                 conColor: const Color(0xffE9F5FF), // light blue panel bg
                 borderRadius: BorderRadius.circular(16),
                 padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
@@ -191,7 +198,11 @@ class AgencyManagementScreen extends StatelessWidget {
                       children: [
                         const CustomText("Number of Host", fontSize: 11),
                         const SizedBox(width: 8),
-                        const Icon(Icons.chevron_right, size: 18, color: Colors.black54),
+                        const Icon(
+                          Icons.chevron_right,
+                          size: 18,
+                          color: Colors.black54,
+                        ),
                         const Spacer(),
                         // Orange gradient pill
                         CustomGradientButton(
@@ -199,15 +210,17 @@ class AgencyManagementScreen extends StatelessWidget {
                           width: 100,
                           height: 30,
                           borderRadius: 24,
-                          gradientColors: const [Color(0xffFE7E07), Color(0xffFFDE67)],
+                          gradientColors: const [
+                            Color(0xffFE7E07),
+                            Color(0xffFFDE67),
+                          ],
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
                           textColor: Colors.black,
                           fontSize: 9.5,
                           fontWeight: FontWeight.w600,
                           onPressed: () => showInviteHostSheet(context),
-                        )
-
+                        ),
                       ],
                     ),
                     const SizedBox(height: 0.1),
@@ -215,7 +228,11 @@ class AgencyManagementScreen extends StatelessWidget {
                       children: [
                         const CustomText("Number of Sub agent", fontSize: 11),
                         const SizedBox(width: 3),
-                        const Icon(Icons.chevron_right, size: 18, color: Colors.black54),
+                        const Icon(
+                          Icons.chevron_right,
+                          size: 18,
+                          color: Colors.black54,
+                        ),
                         const Spacer(),
                         // Green gradient pill
                         CustomGradientButton(
@@ -225,13 +242,14 @@ class AgencyManagementScreen extends StatelessWidget {
                           borderRadius: 24,
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
-                          gradientColors: [Color(0xff11876B), Color(0xffB0FF4B)],
+                          gradientColors: [
+                            Color(0xff11876B),
+                            Color(0xffB0FF4B),
+                          ],
                           textColor: Colors.black,
                           fontSize: 9.5,
                           fontWeight: FontWeight.w600,
-                          onPressed: () {
-
-                          },
+                          onPressed: () {},
                         ),
                       ],
                     ),
@@ -242,8 +260,11 @@ class AgencyManagementScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const CustomText("SUMMARY",
-                      fontWeight: FontWeight.bold, color: Colors.black),
+                  const CustomText(
+                    "SUMMARY",
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
 
                   InkWell(
                     onTap: () {
@@ -292,28 +313,52 @@ class AgencyManagementScreen extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            const CustomText("Total Bonus:", fontSize: 14, fontWeight: FontWeight.bold),
+                            const CustomText(
+                              "Total Bonus:",
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
                             const SizedBox(width: 6),
-                            const Icon(Icons.monetization_on, color: Colors.orange, size: 18),
+                            const Icon(
+                              Icons.monetization_on,
+                              color: Colors.orange,
+                              size: 18,
+                            ),
                             const SizedBox(width: 2),
-                            const CustomText("0", fontSize: 14, fontWeight: FontWeight.bold),
+                            const CustomText(
+                              "0",
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
                             const SizedBox(width: 6),
                             // small help badge
                             CustomContainer(
                               conColor: const Color(0xFFEFEFEF),
                               borderRadius: BorderRadius.circular(12),
                               padding: const EdgeInsets.all(2),
-                              child: const Icon(Icons.help_outline, size: 14, color: Colors.black54),
+                              child: const Icon(
+                                Icons.help_outline,
+                                size: 14,
+                                color: Colors.black54,
+                              ),
                             ),
                           ],
                         ),
                         Row(
                           children: const [
-                            CustomText("Details", fontSize: 12, color: Colors.black54),
+                            CustomText(
+                              "Details",
+                              fontSize: 12,
+                              color: Colors.black54,
+                            ),
                             SizedBox(width: 4),
-                            Icon(Icons.chevron_right, size: 16, color: Colors.black54),
+                            Icon(
+                              Icons.chevron_right,
+                              size: 16,
+                              color: Colors.black54,
+                            ),
                           ],
-                        )
+                        ),
                       ],
                     ),
                     const SizedBox(height: 14),
@@ -326,35 +371,63 @@ class AgencyManagementScreen extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              const CustomText("Reward 1",
-                                  fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFFE26A00)),
+                              const CustomText(
+                                "Reward 1",
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFFE26A00),
+                              ),
                               const SizedBox(width: 8),
-                              const CustomText("Host Commission",
-                                  fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black87),
+                              const CustomText(
+                                "Host Commission",
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
                               const Spacer(),
                               CustomContainer(
                                 conColor: Colors.white.withOpacity(0.6),
                                 borderRadius: BorderRadius.circular(12),
                                 padding: const EdgeInsets.all(2),
-                                child: const Icon(Icons.arrow_circle_right_outlined, size: 14, color: Colors.black54),
+                                child: const Icon(
+                                  Icons.arrow_circle_right_outlined,
+                                  size: 14,
+                                  color: Colors.black54,
+                                ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 10),
                           Row(
                             children: [
-                              const CustomText("Commission", fontSize: 12, color: Colors.black87),
+                              const CustomText(
+                                "Commission",
+                                fontSize: 12,
+                                color: Colors.black87,
+                              ),
                               const Spacer(),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: const [
-                                  CustomText("6%", fontSize: 14, fontWeight: FontWeight.bold),
+                                  CustomText(
+                                    "6%",
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                   SizedBox(height: 6),
                                   Row(
                                     children: [
-                                      Icon(Icons.monetization_on, color: Colors.orange, size: 18),
+                                      Icon(
+                                        Icons.monetization_on,
+                                        color: Colors.orange,
+                                        size: 18,
+                                      ),
                                       SizedBox(width: 4),
-                                      CustomText("0", fontSize: 12, color: Colors.black54),
+                                      CustomText(
+                                        "0",
+                                        fontSize: 12,
+                                        color: Colors.black54,
+                                      ),
                                     ],
                                   ),
                                 ],
@@ -374,35 +447,63 @@ class AgencyManagementScreen extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              const CustomText("Reward 2",
-                                  fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF2D79C7)),
+                              const CustomText(
+                                "Reward 2",
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF2D79C7),
+                              ),
                               const SizedBox(width: 8),
-                              const CustomText("Agent Commission",
-                                  fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black87),
+                              const CustomText(
+                                "Agent Commission",
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
                               const Spacer(),
                               CustomContainer(
                                 conColor: Colors.white.withOpacity(0.6),
                                 borderRadius: BorderRadius.circular(12),
                                 padding: const EdgeInsets.all(2),
-                                child: const Icon(Icons.arrow_circle_right_outlined, size: 14, color: Colors.black54),
+                                child: const Icon(
+                                  Icons.arrow_circle_right_outlined,
+                                  size: 14,
+                                  color: Colors.black54,
+                                ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 10),
                           Row(
                             children: [
-                              const CustomText("Commission", fontSize: 12, color: Colors.black87),
+                              const CustomText(
+                                "Commission",
+                                fontSize: 12,
+                                color: Colors.black87,
+                              ),
                               const Spacer(),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: const [
-                                  CustomText("6%", fontSize: 14, fontWeight: FontWeight.bold),
+                                  CustomText(
+                                    "6%",
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                   SizedBox(height: 6),
                                   Row(
                                     children: [
-                                      Icon(Icons.monetization_on, color: Colors.orange, size: 18),
+                                      Icon(
+                                        Icons.monetization_on,
+                                        color: Colors.orange,
+                                        size: 18,
+                                      ),
                                       SizedBox(width: 4),
-                                      CustomText("0", fontSize: 12, color: Colors.black54),
+                                      CustomText(
+                                        "0",
+                                        fontSize: 12,
+                                        color: Colors.black54,
+                                      ),
                                     ],
                                   ),
                                 ],
@@ -421,26 +522,51 @@ class AgencyManagementScreen extends StatelessWidget {
                         children: [
                           Row(
                             children: const [
-                              CustomText("Reward",
-                                  fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFFBF4C4C)),
+                              CustomText(
+                                "Reward",
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFFBF4C4C),
+                              ),
                               Spacer(),
-                              CustomText("Total Commission",
-                                  fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1A6FB8)),
+                              CustomText(
+                                "Total Commission",
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF1A6FB8),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 12),
                           CustomContainer(
-                            conColor: const Color(0xFFFFCDD4), // darker pink strip
+                            conColor: const Color(
+                              0xFFFFCDD4,
+                            ), // darker pink strip
                             borderRadius: BorderRadius.circular(10),
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 12,
+                            ),
                             child: Row(
                               children: const [
-                                Icon(Icons.monetization_on, color: Colors.orange, size: 20),
+                                Icon(
+                                  Icons.monetization_on,
+                                  color: Colors.orange,
+                                  size: 20,
+                                ),
                                 SizedBox(width: 8),
-                                CustomText("Earned", fontSize: 12, color: Colors.black87),
+                                CustomText(
+                                  "Earned",
+                                  fontSize: 12,
+                                  color: Colors.black87,
+                                ),
                                 Spacer(),
-                                CustomText("1,917.32",
-                                    fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black),
+                                CustomText(
+                                  "1,917.32",
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.black,
+                                ),
                               ],
                             ),
                           ),
@@ -451,9 +577,9 @@ class AgencyManagementScreen extends StatelessWidget {
                 ),
               ),
             ],
-                ),
-              ),
           ),
+        ),
+      ),
     );
   }
 }

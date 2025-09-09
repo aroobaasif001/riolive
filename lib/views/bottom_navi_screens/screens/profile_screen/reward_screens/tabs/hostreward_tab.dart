@@ -67,7 +67,7 @@ class HostrewardTab extends StatelessWidget {
                           offset: const Offset(0, 10),
                         ),
                       ],
-                      padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -279,7 +279,7 @@ class HostrewardTab extends StatelessWidget {
                                 children: [
                                 CustomText(
                                   'Claim',
-                                  color: Colors.black87,
+                                  color: Color(0xff6C6868),
                                   fontWeight: FontWeight.w600,
                                   fontSize: 12,
                                   shadows: [],
@@ -315,7 +315,7 @@ class HostrewardTab extends StatelessWidget {
                             '3. The increase in your count income today will change your task level for the next day, but will not change your task level and hourly salary ratio for today.\n\n'
                             '4. Your task will be refreshed after task timer count down. Timer will follow Singapore Time Zone UTC +1.\n\n'
                             '5. The accumulative time of the task of receiving your basic salary is only calculated according to the time you have started the single-player live broadcast. The party room duration is not counted.',
-                        fontSize: 16,
+                        fontSize: 11,
                         fontWeight: FontWeight.w400,
                         color: Color(0xFF6E6E7E),
                         lineHeight: 1.5,
