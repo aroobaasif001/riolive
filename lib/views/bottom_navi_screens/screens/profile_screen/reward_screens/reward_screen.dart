@@ -67,7 +67,7 @@ class _RewardsTabsState extends State<RewardsTabs> {
               children: [
                 SizedBox(height: sh(10)),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: sw(20)),
+                  padding: EdgeInsets.symmetric(horizontal: sw(15)),
                   child: SizedBox(
                     height: sh(36),
                     child: Stack(
@@ -83,7 +83,7 @@ class _RewardsTabsState extends State<RewardsTabs> {
                               padding: EdgeInsets.all(sw(8)),
                               child: Icon(
                                 Icons.arrow_back,
-                                size: sw(22),
+                                size: sw(30),
                                 color: Colors.black,
                               ),
                             ),

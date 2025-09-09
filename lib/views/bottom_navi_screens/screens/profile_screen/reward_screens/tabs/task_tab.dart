@@ -158,7 +158,7 @@ class TaskTab extends StatelessWidget {
             child: CustomContainer(
               conColor: Colors.transparent,
               child: Container(
-                height: r.h(44), width: r.w(180), alignment: Alignment.center,
+                height: r.h(44), width: r.w(130), alignment: Alignment(-0.5, 0),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(
                     topLeft: const Radius.circular(0), bottomLeft: const Radius.circular(0),
@@ -174,7 +174,7 @@ class TaskTab extends StatelessWidget {
 
           /// Header card
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: r.w(13)),
+            padding: EdgeInsets.symmetric(horizontal: r.w(15)),
             child: CustomContainer(
               width: double.infinity,
               image: const DecorationImage(image: AssetImage('assets/images/rewardsceondbg.png'), fit: BoxFit.fill),

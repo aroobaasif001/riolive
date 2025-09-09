@@ -36,33 +36,39 @@ class GrabOrders1Screen extends StatelessWidget {
     final mq = MediaQuery.of(context);
     final r  = context.rs;
 
-    return SafeArea(
-      child: Scaffold(
-        body: MediaQuery(
-          data: mq.copyWith(textScaler: const TextScaler.linear(1.0)),
-          child: CustomContainer(
-            width: double.infinity,
-            height: double.infinity,
-            image: const DecorationImage(
-              image: AssetImage("assets/images/Livebroadcastdatabg.jpg"),
-              fit: BoxFit.cover,
-              alignment: Alignment.topCenter,
-            ),
+    return Scaffold(
+      // background image appbar ke peeche bhi dikhana ho to ye zaroori hai
+      extendBodyBehindAppBar: true,
+
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(r.h(56)),
+        child: const RioliveAppBar(title: 'Grab Orders'),
+      ),
+
+      body: MediaQuery(
+        data: mq.copyWith(textScaler: const TextScaler.linear(1.0)),
+        child: CustomContainer(
+          width: double.infinity,
+          height: double.infinity,
+          image: const DecorationImage(
+            image: AssetImage("assets/images/Livebroadcastdatabg.jpg"),
+            fit: BoxFit.cover,
+            alignment: Alignment.topCenter,
+          ),
+          child: SafeArea(
+            top: false, // taake appbar bilkul top pe chipka rahe
             child: SingleChildScrollView(
-              padding: EdgeInsets.only(bottom: r.h(24)),
               physics: const BouncingScrollPhysics(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const RioliveAppBar(title: 'Grab Orders'),
-                  r.hGap(20),
+                  r.hGap(80),
 
-                  // Main card
+                  // ---- Main card ----
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: r.w(20), vertical: r.h(12)),
                     child: CustomContainer(
                       width: double.infinity,
-                      // height removed -> lets content size naturally (prevents overflow)
                       padding: EdgeInsets.all(r.w(16)),
                       borderRadius: BorderRadius.circular(r.px(12)),
                       conColor: Colors.white,
@@ -136,7 +142,7 @@ class GrabOrders1Screen extends StatelessWidget {
                           ),
                           r.hGap(25),
 
-                          // Amount of Payment Row (use Spacer instead of fixed 70px)
+                          // Amount of Payment Row
                           Row(
                             children: [
                               CustomText('Amount of payment:',
@@ -172,9 +178,7 @@ class GrabOrders1Screen extends StatelessWidget {
                           // Grab Button
                           Center(
                             child: CustomGradientButton(
-                              onPressed: () {
-                                Get.to(()=>MyOrderScreen());
-                              },
+                              onPressed: () => Get.to(() => const MyOrderScreen()),
                               text: 'Grab',
                               textColor: const Color(0xffA62B2B),
                               height: r.h(52),
