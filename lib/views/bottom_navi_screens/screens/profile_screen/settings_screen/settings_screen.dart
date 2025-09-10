@@ -7,6 +7,7 @@ import 'package:riolive/customwidgets/customtext.dart';
 import 'package:riolive/customwidgets/custom_container.dart';
 import 'package:riolive/customwidgets/customappbar_agencyscreen.dart';
 
+import '../../../../../controller/signin_controller.dart';
 import 'account_security_screen/account_security_screen.dart'; // e.g. RioliveAppBar
 
 class SettingsScreen extends StatefulWidget {
@@ -24,6 +25,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final line = Colors.black.withOpacity(0.08);
+    final signInController = Get.put(SignInController());
+
 
     return SafeArea(
       child: Scaffold(
@@ -300,9 +303,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
                     child: Center( // <- center the button
                       child: GestureDetector(
-                        onTap: () {
-                          // TODO: logout action
-                        },
+                        onTap: signInController.logoutUser,
                         child: CustomContainer(
                           // narrow & responsive width
                           width: MediaQuery.of(context).size.width * 0.6, // ~60% of screen

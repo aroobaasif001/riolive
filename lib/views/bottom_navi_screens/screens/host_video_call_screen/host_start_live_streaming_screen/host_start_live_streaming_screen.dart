@@ -980,11 +980,6 @@ class _HostStartLiveStreamingScreenState
                                     ),
                                   ),
                                   child: Icon(Icons.chair_outlined,color: Colors.white,),
-                                  // child: Icon(
-                                  //   Icons.refresh,
-                                  //   color: Colors.blue,
-                                  //   size: size.width > 600 ? 24 : 20,
-                                  // ),
                                 ),
                               ),
                               const SizedBox(width: 12),
@@ -1008,7 +1003,13 @@ class _HostStartLiveStreamingScreenState
                                             /// 🔹 Top Bar
                                             Row(
                                               children: [
-                                                Icon(Icons.settings, color: Colors.white),
+                                                Icon(Icons.history, color: Colors.white60),
+                                                SizedBox(width: 10,),
+                                                InkWell(
+                                                    onTap: (){
+                                                      showPkSettingBottomSheet(context);
+                                                    },
+                                                    child: Icon(Icons.settings_outlined, color: Colors.white60)),
                                                 Spacer(),
                                                 Text(
                                                   "PK",
@@ -1048,12 +1049,18 @@ class _HostStartLiveStreamingScreenState
                                             Container(
                                               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                                               decoration: BoxDecoration(
-                                                color: Color(0xFF334040),
+                                                color: Color(0xFFFFC30D).withOpacity(0.15),
                                                 borderRadius: BorderRadius.circular(20),
                                               ),
                                               child: Row(
                                                 children: [
-                                                  Image.asset("assets/icons/random_pk.png", height: 24), // Replace with your icon
+                                                  Container(
+                                                    padding: EdgeInsets.all(10),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white12,
+                                                        shape: BoxShape.circle,
+                                                      ),
+                                                      child: Image.asset("assets/icons/random_pk.png", height: 24)), // Replace with your icon
                                                   SizedBox(width: 10),
                                                   Expanded(
                                                     child: Text(
@@ -1061,15 +1068,21 @@ class _HostStartLiveStreamingScreenState
                                                       style: TextStyle(color: Colors.white, fontSize: 16),
                                                     ),
                                                   ),
-                                                  ElevatedButton(
-                                                    onPressed: () {},
-                                                    style: ElevatedButton.styleFrom(
-                                                      backgroundColor: Colors.amber.shade700,
-                                                      shape: RoundedRectangleBorder(
-                                                        borderRadius: BorderRadius.circular(16),
-                                                      ),
+                                                  Container(
+                                                    padding: EdgeInsets.symmetric(horizontal: 20,vertical: 12),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white54,
+                                                      borderRadius: BorderRadius.circular(10),
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: Colors.black.withOpacity(0.1),
+                                                          spreadRadius: 1,
+                                                          blurRadius: 1,
+                                                          offset: Offset(0, 1),
+                                                        ),
+                                                      ]
                                                     ),
-                                                    child: Text("Start"),
+                                                    child: Center(child: CustomText("Start",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)),
                                                   ),
                                                 ],
                                               ),
@@ -1112,9 +1125,18 @@ class _HostStartLiveStreamingScreenState
                                                 child: Row(
                                                   children: [
                                                     /// Profile image
-                                                    CircleAvatar(
-                                                      radius: 25,
-                                                      backgroundImage: AssetImage("assets/images/user.png"), // Replace with real image
+                                                    Stack(
+                                                      clipBehavior: Clip.none,
+                                                      children: [
+                                                        CircleAvatar(
+                                                          radius: 24,
+                                                          backgroundImage: AssetImage("assets/images/profile.png"), // Replace with real user image
+                                                        ),
+                                                        Positioned(
+                                                            bottom: -5,
+                                                            right: -10,
+                                                            child: Image.asset("assets/icons/signal.png",height: 30,))
+                                                      ],
                                                     ),
                                                     SizedBox(width: 12),
 
@@ -1126,19 +1148,19 @@ class _HostStartLiveStreamingScreenState
                                                           Text("Ava😎Nueva❤️😘", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
                                                           Row(
                                                             children: [
-                                                              Image.asset("assets/icons/mic_on.png", height: 16), // Mic icon
+                                                              Image.asset("assets/icons/L1_badge.png", height: 16), // Mic icon
                                                               SizedBox(width: 4),
-                                                              Image.asset("assets/icons/fire_badge.png", height: 16), // Fire badge icon
+                                                              Image.asset("assets/icons/gender.png", height: 16), // Fire badge icon
                                                               SizedBox(width: 6),
                                                               Container(
                                                                 padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                                                 decoration: BoxDecoration(
-                                                                  color: Colors.red,
+                                                                  color: Colors.white,
                                                                   borderRadius: BorderRadius.circular(10),
                                                                 ),
                                                                 child: Text(
                                                                   "Lv60",
-                                                                  style: TextStyle(color: Colors.white, fontSize: 12),
+                                                                  style: TextStyle(color: Color(0xff604132), fontSize: 12),
                                                                 ),
                                                               )
                                                             ],
@@ -1148,16 +1170,26 @@ class _HostStartLiveStreamingScreenState
                                                     ),
 
                                                     /// Invite button
-                                                    ElevatedButton(
-                                                      onPressed: () {},
-                                                      style: ElevatedButton.styleFrom(
-                                                        backgroundColor: Colors.grey.shade700,
-                                                        shape: RoundedRectangleBorder(
-                                                          borderRadius: BorderRadius.circular(14),
-                                                        ),
+
+                                                    Container(
+                                                      padding: EdgeInsets.symmetric(horizontal: 20,vertical: 12),
+                                                      decoration: BoxDecoration(
+                                                          color: Colors.white30,
+                                                          borderRadius: BorderRadius.circular(20),
+                                                          boxShadow: [
+                                                            BoxShadow(
+                                                              color: Colors.black.withOpacity(0.1),
+                                                              spreadRadius: 1,
+                                                              blurRadius: 1,
+                                                              offset: Offset(0, 1),
+                                                            ),
+                                                          ]
                                                       ),
-                                                      child: Text("Invite"),
-                                                    )
+                                                      child: Center(child: CustomText("Invite",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)),
+                                                    ),
+
+
+
                                                   ],
                                                 ),
                                               );
@@ -1196,20 +1228,312 @@ class _HostStartLiveStreamingScreenState
     );
   }
   Widget _pkModeOption(String label, String iconPath) {
-    return Column(
-      children: [
-        Container(
-          padding: EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.white10,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Image.asset(iconPath, height: 28),
-        ),
-        SizedBox(height: 8),
-        Text(label, style: TextStyle(color: Colors.white, fontSize: 14)),
-      ],
+    return Container(
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white10,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Image.asset(iconPath, height: 28),
+          SizedBox(height: 8),
+          Text(label, style: TextStyle(color: Colors.white, fontSize: 14)),
+        ],
+      ),
     );
   }
 
+}
+
+
+void showPkSettingBottomSheet(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    builder: (context) {
+      return Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF012020), // background
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            /// 🔹 Header
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                ),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Center(
+                    child: Text(
+                      "PK Setting",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 30), // for balance
+              ],
+            ),
+
+            const SizedBox(height: 20),
+
+            /// 🔹 PK Type (1v1, Multi, Team)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _segmentButton("1v1 PK", true),
+                _segmentButton("Multi PK", false),
+                _segmentButton("Team PK", false),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+
+            /// 🔹 PK Mode (Single Round, Best of 3)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                CustomText("PK Mode",style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color: Colors.white),),
+                Spacer(),
+                _modeButton("Single Round PK", true),
+                SizedBox(width: 10,),
+                _modeButton("Best of three PK", false),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+
+            /// 🔹 Time Selector
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const CustomText("Time", style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 16)),
+              trailing: SizedBox(
+                width: 80,
+                child: Center(
+                  child: Row(
+                    children: [
+                      const CustomText("5min", style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 16)),
+                      SizedBox(width: 10,),
+                      const Icon(Icons.arrow_forward_ios, color: Colors.grey),
+                    ],
+                  ),
+                ),
+              ),
+              onTap: (){
+                showPkTimeBottomSheet(context);
+                },
+            ),
+
+            // const Divider(color: Colors.white24),
+
+            /// 🔹 Toggle
+            SwitchListTile(
+              value: false,
+              onChanged: (val) {
+                // TODO: handle toggle
+              },
+              activeColor: Colors.green,
+              title: const Text(
+                "Will PK be opened directly after the Connection",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            /// 🔹 Random PK region preference
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+              decoration: BoxDecoration(
+                color: Colors.white70,
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: const [
+                  CustomText(
+                    "Random PK region preference",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  CustomText(
+                    "Global",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            /// 🔹 Info Text
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "1. An effective PK: charm value > 3000\n"
+                    "2. if the PK setting of matched hosts is different, one\n"
+                    "3. host’s settings will be selected randomly",
+                style: TextStyle(color: Colors.white70, fontSize: 12, height: 1.4),
+              ),
+            ),
+
+            const SizedBox(height: 30),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+/// Helper widget for segment button (PK type)
+Widget _segmentButton(String text, bool selected) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
+    decoration: BoxDecoration(
+      color: selected ? const Color(0xFF3D46BE).withOpacity(0.5) : Colors.grey[700],
+      borderRadius: BorderRadius.circular(20),
+      border: selected ? Border.all(color: Color(0xff28FF4F),width: 0.5) : null,
+    ),
+    child: Text(
+      text,
+      style: TextStyle(
+        color: selected ? Colors.white : Colors.white70,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+  );
+}
+
+/// Helper widget for PK mode button
+Widget _modeButton(String text, bool selected) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    decoration: BoxDecoration(
+      color: Colors.grey[700],
+      borderRadius: BorderRadius.circular(20),
+      border: selected ? Border.all(color: Colors.yellow[700]!,width: 1.5) : null,
+    ),
+    child: CustomText(
+      text,
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+      ),
+    ),
+  );
+}
+
+
+
+
+void showPkTimeBottomSheet(BuildContext context) {
+  int selectedIndex = 0; // 0 = 5mins, 1 = 10mins (disabled for now)
+
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.transparent,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFF012020),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  "Pk Battle Time",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 40),
+
+                // Options
+                Column(
+                  children: [
+                    InkWell(
+                      onTap: () => setState(() => selectedIndex = 0),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: selectedIndex == 0
+                              ? Colors.white.withOpacity(0.2)
+                              : Colors.transparent,
+                        ),
+                        child: const Center(
+                          child: Text(
+                            "5mins",
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: const Center(
+                        child: Text(
+                          "10mins",
+                          style: TextStyle(
+                            color: Colors.white38,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 40),
+
+                // Buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text("Cancel",
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xff00FF55).withOpacity(0.2),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context, selectedIndex == 0 ? "5min" : "10min");
+                      },
+                      child: const CustomText("Confirm",style: TextStyle(color: Color(0xffFFD964)),),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  );
 }

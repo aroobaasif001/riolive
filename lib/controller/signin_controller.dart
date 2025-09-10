@@ -7,6 +7,7 @@ import 'package:riolive/views/auth/signup_screen/signup_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utile/app_url.dart';
+import '../views/auth/signup_screen/sign_in_screen.dart';
 import '../views/bottom_navi_screens/bottom_navi_screen.dart';
 
 class SignInController extends GetxController {
@@ -57,6 +58,41 @@ class SignInController extends GetxController {
       isLoading.value = false; // Set loading to false when request ends
     }
   }
+
+  Future<void> logoutUser() async {
+    try {
+      isLoading.value = true;
+
+      final response = await http.post(
+        Uri.parse(AppUrl.logout),  // your logout endpoint
+        headers: {
+          'Content-Type': 'application/json',
+          if (AppUrl.token.isNotEmpty) 'Authorization': 'Bearer ${AppUrl.token}',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Clear in-memory user/session data
+        AppUrl.token = '';
+        AppUrl.riolive_id = '';
+        AppUrl.user_name = '';
+        AppUrl.email = '';
+        AppUrl.user_role = 'user';
+
+        Get.snackbar('Logged Out', 'You have been logged out successfully.');
+        Get.offAll(() => SignInScreen());
+      } else {
+        debugPrint('Logout failed: ${response.statusCode} ${response.body}');
+        Get.snackbar('Error', 'Failed to logout. Please try again.');
+      }
+    } catch (e) {
+      debugPrint('Logout error: $e');
+      Get.snackbar('Error', 'Something went wrong. Please try again.');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
 
   // Save token to SharedPreferences
   Future<void> _saveToken(String token) async {
