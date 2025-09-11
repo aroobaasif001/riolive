@@ -43,29 +43,35 @@ class _FrameScreenState extends State<FrameScreen> {
     final mq = MediaQuery.of(context);
     final r  = context.rs;
 
-    return SafeArea(
-      child: Scaffold(
-        body: Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage("assets/images/invite Hostbg.jpg"),
-              fit: BoxFit.fill,
-            ),
+    return Scaffold(
+      extendBodyBehindAppBar: true, // 👈 background goes behind app bar
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(r.h(56)),
+        child: const RioliveAppBar(title: 'Frame'), // 👈 app bar at the top now
+      ),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/images/invite Hostbg.jpg"),
+            fit: BoxFit.fill,
           ),
-          child: MediaQuery(
-            data: mq.copyWith(textScaler: const TextScaler.linear(1.0)),
+        ),
+        child: MediaQuery(
+          data: mq.copyWith(textScaler: const TextScaler.linear(1.0)),
+          child: SafeArea(
+            top: false, // 👈 let content start under the app bar edge
+            bottom: true,
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const RioliveAppBar(title: 'Frame'),
-                  r.hGap(20),
+                  r.hGap(85), // 👈 spacer so content appears below the app bar
 
                   // === Preview / Selected big item ===
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: r.w(12)), // side air
+                    padding: EdgeInsets.symmetric(horizontal: r.w(12)),
                     child: Container(
                       height: r.h(194),
                       width: double.infinity,
@@ -99,7 +105,7 @@ class _FrameScreenState extends State<FrameScreen> {
 
                   // === Row 1 ===
                   SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(horizontal: r.w(7)), // <-- side padding added
+                    padding: EdgeInsets.symmetric(horizontal: r.w(7)),
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
@@ -116,7 +122,7 @@ class _FrameScreenState extends State<FrameScreen> {
 
                   // === Row 2 ===
                   SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(horizontal: r.w(7)), // <-- side padding added
+                    padding: EdgeInsets.symmetric(horizontal: r.w(7)),
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
@@ -133,7 +139,7 @@ class _FrameScreenState extends State<FrameScreen> {
 
                   // === Row 3 ===
                   SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(horizontal: r.w(7)), // <-- side padding added
+                    padding: EdgeInsets.symmetric(horizontal: r.w(7)),
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
@@ -167,20 +173,18 @@ class _FrameScreenState extends State<FrameScreen> {
                           r.wGap(6),
                           CustomText('360,000', fontWeight: FontWeight.w400, fontSize: r.sp(14)),
                           const Spacer(),
-
-                          // Make sure button + text always visible:
-                          // - Wider min width
-                          // - Slightly taller
-                          // - FittedBox to avoid clipping on very small screens
                           ConstrainedBox(
-                            constraints: BoxConstraints(minWidth: r.w(128)), // was 114
+                            constraints: BoxConstraints(minWidth: r.w(128)),
                             child: FittedBox(
                               fit: BoxFit.scaleDown,
                               child: CustomGradientButton(
                                 text: 'Purchase',
                                 onPressed: () => showAngelGiftBottomSheet(context),
-                                width:  r.w(140),           // give comfortable width
-                                height: r.h(40),           // a bit taller for text
+                                width:  r.w(114),
+                                height: r.h(36),
+                                textColor: Color(0xff373434),
+                                fontWeight: FontWeight.w500,
+                                fontSize: 15,
                               ),
                             ),
                           ),
@@ -207,8 +211,8 @@ class _FrameScreenState extends State<FrameScreen> {
       child: Container(
         height: r.h(151),
         width:  r.w(125),
-        padding: EdgeInsets.symmetric(horizontal: r.w(8), vertical: r.h(10)), // inner padding thoda sa
-        margin: EdgeInsets.only(right: r.w(0)), // spacing Row se aa raha; start/end padding strip pe hai
+        padding: EdgeInsets.symmetric(horizontal: r.w(8), vertical: r.h(10)),
+        margin: EdgeInsets.only(right: r.w(0)),
         decoration: BoxDecoration(
           color: isSelected ? Colors.white : Colors.transparent,
           borderRadius: BorderRadius.circular(r.px(12)),

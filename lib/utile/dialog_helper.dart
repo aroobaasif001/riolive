@@ -1365,13 +1365,701 @@ Future<void> showUploadReceiptSheet(
 }
 
 
+//
 
 
 
 
+// NOTE: Using your own CustomText & CustomContainer implementations.
+
+Future<void> showRoomSettingsBottomSheet(
+    BuildContext context, {
+      int initialMode = 0,              // 0 = Open, 1 = Invitation
+      int initialSeats = 1,             // 1..3
+      ValueChanged<int>? onModeChanged,
+      ValueChanged<int>? onSeatChanged,
+
+      // Badge position (applies to both mode cards and seat pills)
+      double badgeRight = 0,            // increase to move more inside
+      double badgeTop = 0,              // negative = a bit above the top edge
+      double sheetHeight = 530,         // fixed bottom sheet height
+    }) {
+  return showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    backgroundColor: Colors.transparent,
+    builder: (ctx) {
+      int mode = initialMode.clamp(0, 1);
+      int seats = initialSeats.clamp(1, 3);
+
+      // Colors
+      const sheetBg         = Color(0xFF0C2D31);
+      const sectionText     = Color(0xFFD9D9D9);
+      const cardGrey        = Color(0xFF969796);
+      const cardGreyDark    = Color(0xFF6A7478);
+      const cardGreyDarker  = Color(0xFF535C60);
+      const lime            = Color(0xFFD9F06D);
+
+      // ---------- Inline helpers (no extra classes) ----------
+      Widget modeCard({
+        required bool selected,
+        required String title,
+        required String subtitle,
+        required Widget leading,
+        required Color bg,
+        required VoidCallback onTap,
+      }) {
+        return InkWell(
+          borderRadius: BorderRadius.circular(22),
+          onTap: onTap,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              CustomContainer(
+                height: 70,
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 13),
+                borderRadius: BorderRadius.circular(22),
+                border: selected ? Border.all(color: lime, width: 2) : null,
+                conColor: bg,
+                child: Row(
+                  children: [
+                    SizedBox(height: 48, width: 48, child: Center(child: leading)),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          SizedBox(height: 2),
+                          CustomText(
+                            ' ', // spacer line (kept to match your layout),
+                            maxLines: 1,
+                            overflow: TextOverflow.clip,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // overlay content (title + subtitle) — place on top so layout stays same
+              Positioned.fill(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 13),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 48 + 14), // leading + gap
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomText(
+                              title,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              fontType: AppFont.poppins,
+                            ),
+                            CustomText(
+                              subtitle,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.white.withOpacity(0.92),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Selected badge image (top-right)
+              if (selected)
+                Positioned(
+                  right: badgeRight,
+                  top: badgeTop,
+                  child: const SizedBox(
+                    width: 63,
+                    height: 36,
+                    child: Image(
+                      image: AssetImage('assets/icons/cutetekicon.png'),
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      }
+
+      Widget seatPill({
+        required double width,
+        required String label,
+        required bool selected,
+        required bool enabled,
+        required VoidCallback? onTap,
+      }) {
+        final bg = enabled ? cardGreyDark : cardGreyDarker;
+        return Opacity(
+          opacity: enabled ? 1 : 0.65,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: enabled ? onTap : null,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                CustomContainer(
+                  width: width,
+                  height: 70,
+                  borderRadius: BorderRadius.circular(20),
+                  border: selected ? Border.all(color: lime, width: 2) : null,
+                  conColor: bg,
+                  child: Center(
+                    child: CustomText(
+                      label,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: enabled ? Colors.white : Colors.white.withOpacity(0.6),
+                      maxLines: 1,
+                    ),
+                  ),
+                ),
+
+                // Same top-right badge for selected seats
+                if (selected)
+                  Positioned(
+                    right: badgeRight,
+                    top: badgeTop,
+                    child: const SizedBox(
+                      width: 63,
+                      height: 36,
+                      child: Image(
+                        image: AssetImage('assets/icons/cutetekicon.png'),
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      // --------------------------------------------------------
+      return LayoutBuilder(
+        builder: (c, cons) {
+          final w  = cons.maxWidth;
+          const hp = 16.0;  // horizontal padding inside the sheet
+          const gap = 14.0; // gap between seat pills
+          final half = (w - hp * 2 - gap) / 2;
+
+          return CustomContainer(
+            width: w,
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: SizedBox(
+                width: w,
+                height: sheetHeight, // fixed height (as requested)
+                child: CustomContainer(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(26),
+                    topRight: Radius.circular(26),
+                  ),
+                  conColor: sheetBg,
+                  child: StatefulBuilder(
+                    builder: (ctx2, setState) {
+                      return SingleChildScrollView(
+                        padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(ctx2).viewInsets.bottom > 0 ? 12 : 0,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(hp, 14, hp, 8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Header
+                              SizedBox(
+                                height: 32,
+                                child: Stack(
+                                  children: [
+                                    const Align(
+                                      alignment: Alignment.center,
+                                      child: Image(
+                                        image: AssetImage('assets/icons/Settingstext.png'),
+                                        height: 21,
+                                        width: 61,
+                                      ),
+                                    ),
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: CustomContainer(
+                                        height: 28,
+                                        width: 28,
+                                        borderRadius: BorderRadius.circular(14),
+                                        child: const Center(
+                                          child: Image(image: AssetImage('assets/icons/qu.png'),height:24 ,width:24 ,),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+
+                              // Room mode
+                              const CustomText(
+                                'Room mode',
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white54,
+                                maxLines: 1,
+                              ),
+                              const SizedBox(height: 12),
+
+                              modeCard(
+                                selected: mode == 0,
+                                title: 'Open mode',
+                                subtitle: 'Viewers can be guests freely',
+                                bg: cardGrey,
+                                leading: Image(image: AssetImage('assets/icons/mojiicon.png'),height:35 ,width: 32,),
+                                onTap: () {
+                                  setState(() => mode = 0);
+                                  onModeChanged?.call(mode);
+                                },
+                              ),
+                              const SizedBox(height: 12),
+
+                              modeCard(
+                                selected: mode == 1,
+                                title: 'Invitation mode',
+                                subtitle:
+                                'Viewers can become guests by application or invitation',
+                                bg: cardGreyDark,
+                                leading: CustomContainer(
+                                  width: 32,
+                                  height: 32,
+                                  conColor: const Color(0xFFFFE27A),
+                                  borderRadius: BorderRadius.circular(5),
+                                  child: Image(image: AssetImage('assets/icons/e..mail.png'),height:32 ,width: 32,)
+                                ),
+                                onTap: () {
+                                  setState(() => mode = 1);
+                                  onModeChanged?.call(mode);
+                                },
+                              ),
+
+                              const SizedBox(height: 22),
+
+                              // Room Seat
+                              const CustomText(
+                                'Room Seat',
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white54,
+                                maxLines: 1,
+                              ),
+                              const SizedBox(height: 12),
+
+                              Row(
+                                children: [
+                                  seatPill(
+                                    width: half,
+                                    label: '1',
+                                    selected: seats == 1,
+                                    enabled: true,
+                                    onTap: () {
+                                      setState(() => seats = 1);
+                                      onSeatChanged?.call(seats);
+                                    },
+                                  ),
+                                  const SizedBox(width: gap),
+                                  seatPill(
+                                    width: half,
+                                    label: '2',
+                                    selected: seats == 2,
+                                    enabled: true,
+                                    onTap: () {
+                                      setState(() => seats = 2);
+                                      onSeatChanged?.call(seats);
+                                    },
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 14),
+
+                              // Seat 3 (same style; half width; selectable)
+                              Row(
+                                children: [
+                                  seatPill(
+                                    width: half,
+                                    label: '3',
+                                    selected: seats == 3,
+                                    enabled: true,
+                                    onTap: () {
+                                      setState(() => seats = 3);
+                                      onSeatChanged?.call(seats);
+                                    },
+                                  ),
+                                  const SizedBox(width: gap),
+                                  SizedBox(width: half), // keep 2-column grid
+                                ],
+                              ),
+
+                              const SizedBox(height: 8),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
+}
 
 
 
+//
+
+
+
+Future<void> showLiveEndDialog(
+    BuildContext context, {
+      int viewers = 5482,
+      int newFans = 5482,
+      int coins = 100000,
+      Duration callDuration = const Duration(minutes: 9),
+      Duration liveTime = const Duration(minutes: 59),
+      int fansAmount = 5,
+      String bgImage = 'assets/images/your_live_bg.jpg',   // ignored (bg removed)
+      String badgeImage = 'assets/images/your_badge.png',
+    }) {
+  // ----------------- helpers -----------------
+  String fmtDur(Duration d) {
+    final h = d.inHours.toString().padLeft(2, '0');
+    final m = (d.inMinutes % 60).toString().padLeft(2, '0');
+    final s = (d.inSeconds % 60).toString().padLeft(2, '0');
+    return '$h:$m:$s';
+  }
+
+  String fmtCoins(int n) =>
+      n.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => ',');
+
+  Widget gradientTitle(String text, double size) {
+    return ShaderMask(
+      shaderCallback: (bounds) => const LinearGradient(
+        colors: [Color(0xFF7C65FF), Color(0xFFFFA963)],
+      ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
+      child: CustomText(
+        text,
+        fontSize: 50,
+        fontWeight: FontWeight.w600,
+        color: Colors.white,
+        fontType: AppFont.poppins,
+      ),
+    );
+  }
+
+  Widget shareCircleImage(String path, {VoidCallback? onTap}) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(24),
+      onTap: onTap,
+      child: Image.asset(path, height: 32, width: 32, fit: BoxFit.contain),
+    );
+  }
+  // ---- header (black strip) ----
+  Widget coinsHeader(int coins) {
+    return CustomContainer(
+      height: 72,
+      width: double.infinity,
+      conColor: const Color(0xFF1C1416),
+      child: Stack(
+        children: [
+          const Positioned(
+            top: 40,
+            left: 140,
+            child: CustomText(
+              'Total Coins earning this time',
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: Colors.white,
+            ),
+          ),
+          Positioned(
+            left: 185,
+            top: 10,
+            child: Row(
+              children: [
+                const Icon(Icons.monetization_on,
+                    color: Color(0xFFFFD76B), size: 18),
+                const SizedBox(width: 6),
+                CustomText(
+                  fmtCoins(coins),
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                ),
+              ],
+            ),
+          ),
+          const Positioned(
+            right: 7,
+            top: 20,
+            child: Icon(Icons.chevron_right, color: Colors.white70, size: 40),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget labelRow(String left, String right) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        CustomText(
+          left,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: Colors.black,
+        ),
+        CustomText(
+          right,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: Colors.black,
+        ),
+      ],
+    );
+  }
+
+  Widget pinkProgress(double value) {
+    return LayoutBuilder(
+      builder: (ctx, c) {
+        final w = c.maxWidth;
+        return Stack(
+          children: [
+            // grey track
+            CustomContainer(
+              height: 20,
+              width: double.infinity,
+              borderRadius: BorderRadius.circular(999),
+              conColor: const Color(0xFF7B6F73),
+            ),
+            // gradient fill
+            CustomContainer(
+              height: 20,
+              width: (w * value.clamp(0, 1)),
+              borderRadius: BorderRadius.circular(999),
+              gradient: const LinearGradient(
+                colors: [Color(0xFF9055FA), Color(0xFFED7FF0), Color(0xFFFF75F1)],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget statsCard() {
+    return CustomContainer(
+      borderRadius: BorderRadius.circular(22),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.25),
+          blurRadius: 12,
+          offset: const Offset(0, 6),
+        ),
+      ],
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(22),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            coinsHeader(coins),
+            CustomContainer(height: 1, conColor: Colors.black.withOpacity(0.12)),
+            CustomContainer(
+              width: double.infinity,
+              conColor: const Color(0xC746A0AB).withOpacity(0.85),
+              padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  labelRow('Call Duration:', fmtDur(callDuration)),
+                  const SizedBox(height: 12),
+                  pinkProgress(callDuration.inSeconds / (60 * 60)),
+                  const SizedBox(height: 22),
+
+                  labelRow('Live Time:', fmtDur(liveTime)),
+                  const SizedBox(height: 12),
+                  pinkProgress(liveTime.inSeconds / (60 * 60)),
+                  const SizedBox(height: 22),
+
+                  labelRow('Fans Amount:', '+${fansAmount.toString().padLeft(2, '0')}'),
+                  const SizedBox(height: 12),
+                  pinkProgress(fansAmount / 20.0),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ----------------- dialog -----------------
+  return showGeneralDialog(
+    context: context,
+    barrierLabel: 'LiveEnd',
+    barrierDismissible: false,
+    barrierColor: Colors.black.withOpacity(0.55),
+    transitionDuration: const Duration(milliseconds: 250),
+    pageBuilder: (_, __, ___) {
+      return Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            // BG removed — blur what’s behind
+            BackdropFilter(
+              filter: ui.ImageFilter.blur(sigmaX: 6, sigmaY: 6), // thora blur
+              child: Container(color: Colors.black.withOpacity(0.10)),
+            ),
+
+            SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 8),
+                    gradientTitle('Live End', 34),
+                    const SizedBox(height: 6),
+                    Image.asset(badgeImage, height: 64, width: 64),
+                    const SizedBox(height: 10),
+
+                    // counts row
+                    Padding(
+                      padding:
+                      const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            children: [
+                              CustomText(
+                                '$viewers',
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                              ),
+                              const SizedBox(height: 2),
+                              const CustomText(
+                                'Viewers',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              CustomText(
+                                '$newFans',
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                              ),
+                              const SizedBox(height: 2),
+                              const CustomText(
+                                'New Fans',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // rebuilt block
+                    statsCard(),
+
+                    const SizedBox(height: 22),
+
+                    const CustomText(
+                      'Share Achievement to',
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white70,
+                    ),
+                    const SizedBox(height: 12),
+
+                    // 3 image buttons (32x32)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        shareCircleImage('assets/images/link (1).png', onTap: () {}),
+                        const SizedBox(width: 14),
+                        shareCircleImage('assets/images/faceb.png', onTap: () {}),
+                        const SizedBox(width: 14),
+                        shareCircleImage('assets/images/inst.png', onTap: () {}),
+                      ],
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // END button (unchanged, but using CustomContainer)
+                    GestureDetector(
+                      onTap: () => Navigator.of(context).pop(),
+                      child: CustomContainer(
+                        height: 57,
+                        width: 240,
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(width: 1, color: const Color(0xff29F29C)),
+                        child: CustomContainer(
+                          height: 54,
+                          width: double.infinity,
+                          alignment: Alignment.center,
+                          borderRadius: BorderRadius.circular(28),
+                          conColor: Colors.white24,
+                          child: const CustomText(
+                            'End',
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
 
 
 
