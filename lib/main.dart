@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Rio Live App',
       debugShowCheckedModeBanner: false,
-      home: AppStartup(),
+      home: ShopScreen(),
 
 
       // 🔑 DevicePreview integration

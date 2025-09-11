@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:riolive/customwidgets/customappbar_agencyscreen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/shop_screens/frame_screen.dart';
 
+import '../../../../../utile/dialog_helper.dart';
+
 /// ===== Responsive helper (baseline 390x844) =====
 class RS {
   final BuildContext context;
@@ -73,8 +75,44 @@ class ShopScreen extends StatelessWidget {
                           label: "Frame",
                           onTap: () => Get.to(() => const FrameScreen()),
                         ),
-                        const _TopItem(asset: "assets/images/f1.png", label: "Party Theme"),
-                        const _TopItem(asset: "assets/images/f2.png", label: "Chat Bubble"),
+                        _TopItem(
+                          asset: "assets/images/f1.png",
+                          label: "Party Theme",
+                          onTap: () {
+                            showRoomSettingsBottomSheet(
+                              context,
+                              initialMode: 1,   // 0 = Open, 1 = Invitation
+                              initialSeats: 1,  // default selected seat
+                              onModeChanged: (mode) {
+                                // handle mode change
+                                print("Mode selected: $mode");
+                              },
+                              onSeatChanged: (seat) {
+                                // handle seat change
+                                print("Seat selected: $seat");
+                              },
+                            );
+                          },
+                        ),
+
+                        _TopItem(
+                          asset: "assets/images/f2.png",
+                          label: "Chat Bubble",
+                          onTap: () {
+                            showLiveEndDialog(
+                              context,
+                              viewers: 5482,
+                              newFans: 5482,
+                              coins: 100000,
+                              callDuration: const Duration(minutes: 9),
+                              liveTime: const Duration(minutes: 59),
+                              fansAmount: 5,
+                              bgImage: 'assets/images/invite Hostbg.jpg',   // background
+                              badgeImage: 'assets/images/imagetop1.png',    // center badge
+                            );
+                          },
+                        ),
+
                         const _TopItem(asset: "assets/images/f3.png", label: "Special ID"),
                         const _TopItem(asset: "assets/images/f4.png", label: "Entrance"),
                         const _TopItem(asset: "assets/images/f5.png", label: "Ride"),
