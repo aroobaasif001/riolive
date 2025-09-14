@@ -27,7 +27,7 @@ class CustomGradientButton extends StatelessWidget {
     this.borderRadius = 15,
     this.fontSize = 10,
     this.fontWeight = FontWeight.bold,
-    this.gradientColors = const [Color(0xFF8EC2FB), Color(0xFFE496FF)],
+    this.gradientColors = const [Color(0xFFFD6FFF), Color(0xFF8EC2FB)],
     this.textColor = Colors.white, this.begin,  this.end,
     this.onTap, // Default text color is white
   }) : super(key: key);
