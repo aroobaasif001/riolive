@@ -281,6 +281,7 @@ class ProfileDashboardScreen extends StatelessWidget {
     int crossAxisCount = width < 400 ? 3 : 4;
     double iconBoxSize = width < 400 ? 60 : 60; // responsive container size
     double iconSize = width < 400 ? 44 : 44; // responsive icon size
+    double labelBoxHeight = width < 400 ? 28 : 32; // fixed label height so layout doesn't shift
 
     return Container(
       margin: const EdgeInsets.only(top: 16),
@@ -296,6 +297,7 @@ class ProfileDashboardScreen extends StatelessWidget {
         crossAxisCount: crossAxisCount,
         mainAxisSpacing: 16,
         crossAxisSpacing: 16,
+        childAspectRatio: 10/15,
         children: items.map((e) {
           return GestureDetector(
             onTap: () {
@@ -379,17 +381,20 @@ class ProfileDashboardScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  Flexible(
-                    child: Text(
-                      e.label,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w500,
+                  SizedBox(
+                    height: labelBoxHeight,
+                    child: Center(
+                      child: Text(
+                        e.label,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
                       ),
-                      textAlign: TextAlign.center,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 2,
                     ),
                   ),
                 ],

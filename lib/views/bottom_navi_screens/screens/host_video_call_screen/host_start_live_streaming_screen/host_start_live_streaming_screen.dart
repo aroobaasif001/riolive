@@ -71,19 +71,84 @@ class _HostStartLiveStreamingScreenState
   /// Setup host for receiving calls when live streaming starts
   Future<void> _setupHostForCalls() async {
     try {
-      debugPrint("🔴 Host live streaming - setting up for calls...");
+      debugPrint("🔴 ===========================================");
+      debugPrint("🔴 SETTING UP HOST FOR CALLS");
+      debugPrint("🔴 Host going LIVE: ${AppUrl.user_name} (ID: ${AppUrl.riolive_id})");
+      debugPrint("🔴 Socket connected: ${SocketService.to.isConnected.value}");
+      debugPrint("🔴 Current route: ${Get.currentRoute}");
+      debugPrint("🔴 ===========================================");
+      
       await SocketService.to.setupHostForCalls();
+      
+      debugPrint("✅ ===========================================");
+      debugPrint("✅ HOST SETUP COMPLETED SUCCESSFULLY!");
+      debugPrint("✅ Host is now live and ready for:");
+      debugPrint("✅ - Random calls (from any users)");
+      debugPrint("✅ - Private calls (targeted from specific users)");
+      debugPrint("✅ - Socket events are properly attached");
+      debugPrint("✅ ===========================================");
+      
+      // Optional: Run a simple test after a short delay
+      Future.delayed(Duration(seconds: 3), () {
+        debugPrint("🧪 Running host setup test...");
+        SocketService.to.testHostSetup();
+      });
+      
+      // Show success message to host
+      Get.snackbar(
+        "🎙️ Live Stream Active",
+        "You're now live and ready to receive calls!",
+        backgroundColor: Colors.green.withOpacity(0.8),
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+        icon: const Icon(Icons.live_tv, color: Colors.white),
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      
     } catch (e) {
-      debugPrint("❌ Error setting up host for calls: $e");
+      debugPrint("💥 ===========================================");
+      debugPrint("💥 ERROR SETTING UP HOST FOR CALLS!");
+      debugPrint("💥 Error: $e");
+      debugPrint("💥 Error type: ${e.runtimeType}");
+      debugPrint("💥 Stack trace: ${StackTrace.current}");
+      debugPrint("💥 ===========================================");
+      
+      Get.snackbar(
+        "❌ Setup Error",
+        "Failed to setup host for calls. Some features may not work.",
+        backgroundColor: Colors.red.withOpacity(0.8),
+        colorText: Colors.white,
+        duration: const Duration(seconds: 4),
+      );
     }
   }
 
   void _attachIncomingCallListeners() {
+    debugPrint("🔌 ===========================================");
+    debugPrint("🔌 ATTACHING HOST LIVE STREAMING LISTENERS");
+    debugPrint("🔌 Socket connected: ${SocketService.to.isConnected.value}");
+    debugPrint("🔌 Socket ID: ${SocketService.to.socket?.id}");
+    debugPrint("🔌 Host: ${AppUrl.user_name} (ID: ${AppUrl.riolive_id})");
+    debugPrint("🔌 ===========================================");
+    
+    // Remove existing listeners first
     SocketService.to.socket?.off('incoming_call', _onIncomingCall);
     SocketService.to.socket?.off('call_started', _onIncomingCall);
+    SocketService.to.socket?.off('private_call_request', _onPrivateCallRequest);
+    debugPrint("🔌 Removed existing listeners");
 
+    // Attach new listeners
     SocketService.to.socket?.on('incoming_call', _onIncomingCall);
     SocketService.to.socket?.on('call_started', _onIncomingCall);
+    SocketService.to.socket?.on('private_call_request', _onPrivateCallRequest);
+    
+    debugPrint("🔌 ===========================================");
+    debugPrint("🔌 LISTENERS ATTACHED SUCCESSFULLY:");
+    debugPrint("🔌 - incoming_call (random calls)");
+    debugPrint("🔌 - call_started (random calls)");
+    debugPrint("🔌 - private_call_request (private calls)");
+    debugPrint("🔌 Host is now ready to receive both random and private calls!");
+    debugPrint("🔌 ===========================================");
   }
 
   void _onIncomingCall(dynamic raw) async {
@@ -182,6 +247,302 @@ class _HostStartLiveStreamingScreenState
       );
     } catch (e) {
       debugPrint("host live incoming_call parse error: $e");
+    }
+  }
+
+  /// Handle private call requests during live streaming
+  void _onPrivateCallRequest(dynamic raw) async {
+    try {
+      debugPrint("🎙️ ===========================================");
+      debugPrint("🎙️ HOST LIVE STREAM - PRIVATE CALL REQUEST!");
+      debugPrint("🎙️ Raw event data: $raw");
+      debugPrint("🎙️ Data type: ${raw.runtimeType}");
+      debugPrint("🎙️ Current route: ${Get.currentRoute}");
+      debugPrint("🎙️ Host: ${AppUrl.user_name} (ID: ${AppUrl.riolive_id})");
+      debugPrint("🎙️ ===========================================");
+      
+      final Map<String, dynamic> data = raw is Map
+          ? Map<String, dynamic>.from(raw)
+          : {};
+      
+      // Extract all possible field names from backend
+      final privateCallId = (data['privateCallId'] ?? data['callId'] ?? data['id'] ?? '').toString();
+      final requesterId = (data['requesterId'] ?? data['callerId'] ?? data['userId'] ?? '').toString();
+      final requesterName = (data['requesterName'] ?? data['callerName'] ?? data['userName'] ?? data['message'] ?? 'Unknown User').toString();
+      final randomCallId = (data['randomCallId'] ?? '').toString();
+      final message = (data['message'] ?? '').toString();
+      
+      debugPrint("🎙️ ===========================================");
+      debugPrint("🎙️ PARSED DATA:");
+      debugPrint("🎙️ Private Call ID: '$privateCallId'");
+      debugPrint("🎙️ Requester ID: '$requesterId'");
+      debugPrint("🎙️ Requester Name: '$requesterName'");
+      debugPrint("🎙️ Random Call ID: '$randomCallId'");
+      debugPrint("🎙️ Message: '$message'");
+      debugPrint("🎙️ All Data Keys: ${data.keys.toList()}");
+      debugPrint("🎙️ ===========================================");
+
+      // Validation
+      if (privateCallId.isEmpty) {
+        debugPrint("❌ Invalid private call request: missing privateCallId");
+        debugPrint("❌ Available keys: ${data.keys.join(', ')}");
+        return;
+      }
+
+      if (requesterId.isEmpty) {
+        debugPrint("❌ Invalid private call request: missing requesterId");
+        debugPrint("❌ Available keys: ${data.keys.join(', ')}");
+        return;
+      }
+      
+      // Clean requester name from message if needed
+      String cleanRequesterName = requesterName;
+      if (requesterName.contains('sent a private call request')) {
+        cleanRequesterName = requesterName.split(' sent a private call request').first.trim();
+      }
+      if (requesterName.contains('sent you a private call request')) {
+        cleanRequesterName = requesterName.split(' sent you a private call request').first.trim();
+      }
+      
+      // Additional cleaning for various message formats
+      if (cleanRequesterName.contains('sent') && cleanRequesterName.contains('private')) {
+        // Try to extract just the username from various formats
+        final parts = cleanRequesterName.split(' ');
+        if (parts.isNotEmpty) {
+          cleanRequesterName = parts.first; // Take first word as username
+        }
+      }
+      
+      debugPrint("🎙️ Cleaned requester name: '$cleanRequesterName' (from: '$requesterName')");
+
+      // Don't show popup if already showing one
+      if (Get.isDialogOpen == true) {
+        debugPrint("⚠️ Dialog already open, will show private call request after current dialog closes");
+        // Queue the request for later
+        Future.delayed(Duration(milliseconds: 1000), () {
+          if (!Get.isDialogOpen!) {
+            _showPrivateCallRequestDialog(privateCallId, requesterId, cleanRequesterName);
+          }
+        });
+        return;
+      }
+
+      debugPrint("✅ ===========================================");
+      debugPrint("✅ SHOWING PRIVATE CALL REQUEST DIALOG");
+      debugPrint("✅ Call ID: $privateCallId");
+      debugPrint("✅ From: $cleanRequesterName (ID: $requesterId)");
+      debugPrint("✅ ===========================================");
+
+      _showPrivateCallRequestDialog(privateCallId, requesterId, cleanRequesterName);
+      
+    } catch (e) {
+      debugPrint("💥 ===========================================");
+      debugPrint("💥 ERROR IN HOST PRIVATE CALL HANDLER!");
+      debugPrint("💥 Error: $e");
+      debugPrint("💥 Error type: ${e.runtimeType}");
+      debugPrint("💥 Raw data: $raw");
+      debugPrint("💥 Stack trace: ${StackTrace.current}");
+      debugPrint("💥 ===========================================");
+    }
+  }
+
+  /// Show private call request dialog to host
+  void _showPrivateCallRequestDialog(String privateCallId, String requesterId, String requesterName) {
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: Colors.black.withOpacity(0.9),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            CircleAvatar(
+              radius: 25,
+              backgroundColor: Colors.purple.withOpacity(0.2),
+              child: Icon(Icons.person, color: Colors.purple, size: 25),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '💎 Private Call Request',
+                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    requesterName,
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          '$requesterName wants to have a private call with you during your live stream.',
+          style: const TextStyle(color: Colors.white, fontSize: 16),
+        ),
+        actions: [
+          // Reject Button
+          TextButton(
+            onPressed: () async {
+              Get.back();
+              await _rejectPrivateCall(privateCallId, requesterId, requesterName);
+            },
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.red.withOpacity(0.2),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('❌ Decline', style: TextStyle(color: Colors.red)),
+          ),
+          // Accept Button  
+          TextButton(
+            onPressed: () async {
+              Get.back();
+              await _acceptPrivateCall(privateCallId, requesterId, requesterName);
+            },
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.green.withOpacity(0.2),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('✅ Accept', style: TextStyle(color: Colors.green)),
+          ),
+        ],
+      ),
+      barrierDismissible: false,
+    );
+  }
+
+  /// Accept private call request
+  Future<void> _acceptPrivateCall(String privateCallId, String requesterId, String requesterName) async {
+    try {
+      debugPrint("✅ Accepting private call request: $privateCallId");
+      
+      // Show loading
+      Get.dialog(
+        AlertDialog(
+          backgroundColor: Colors.black87,
+          content: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(color: Colors.green),
+              SizedBox(width: 16),
+              Text('Accepting call...', style: TextStyle(color: Colors.white)),
+            ],
+          ),
+        ),
+        barrierDismissible: false,
+      );
+
+      // Accept via API
+      final result = await callController.acceptPrivateCall(callId: privateCallId);
+      
+      // Close loading dialog
+      if (Get.isDialogOpen == true) Get.back();
+
+      if (result != null) {
+        debugPrint("✅ Private call accepted successfully");
+        
+        // Extract call data
+        final agora = result['agora'] ?? {};
+        final roomId = agora['roomId']?.toString() ?? '';
+        final hostToken = agora['host']?['token']?.toString() ?? '';
+        final hostUid = agora['host']?['uid']; // ✅ FIX: Extract host UID
+        
+        if (roomId.isNotEmpty && hostToken.isNotEmpty) {
+          debugPrint("📞 ==========================================");
+          debugPrint("📞 HOST NAVIGATION TO PRIVATE CALL");
+          debugPrint("📞 Room ID: $roomId");
+          debugPrint("📞 Host Token: ${hostToken.substring(0, 20)}...");
+          debugPrint("📞 Host UID: $hostUid"); // ✅ FIX: Log host UID
+          debugPrint("📞 Requester: $requesterName (ID: $requesterId)");
+          debugPrint("📞 Private Call ID: $privateCallId");
+          debugPrint("📞 Full Agora Data: $agora");
+          debugPrint("📞 ==========================================");
+          
+          Get.snackbar(
+            "✅ Private Call Starting",
+            "Starting private call with $requesterName...",
+            backgroundColor: Colors.green.withOpacity(0.8),
+            colorText: Colors.white,
+            duration: const Duration(seconds: 2),
+            icon: const Icon(Icons.videocam, color: Colors.white),
+          );
+          
+          // Navigate to private video call screen
+          Future.delayed(Duration(milliseconds: 500), () {
+            Get.to(
+              () => VideoCallScreen(
+                token: AppUrl.token,
+                callId: privateCallId,
+                channelName: roomId,
+                agoraToken: hostToken,
+                isHost: true, // Host is always host in private call
+                providedUid: hostUid, // ✅ FIX: Use backend-provided host UID that matches token
+              ),
+            );
+          });
+          
+        } else {
+          debugPrint("❌ Missing private call data:");
+          debugPrint("❌ Room ID: '$roomId'");
+          debugPrint("❌ Host Token: '${hostToken.isNotEmpty ? 'Present' : 'Missing'}'");
+          debugPrint("❌ Full result: $result");
+          
+          Get.snackbar(
+            "❌ Call Setup Error",
+            "Missing call connection data. Please try again.",
+            backgroundColor: Colors.red.withOpacity(0.8),
+            colorText: Colors.white,
+            duration: const Duration(seconds: 4),
+          );
+        }
+      } else {
+        Get.snackbar(
+          "❌ Call Failed",
+          "Failed to accept private call request",
+          backgroundColor: Colors.red.withOpacity(0.8),
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      // Close loading dialog if still open
+      if (Get.isDialogOpen == true) Get.back();
+      
+      debugPrint("❌ Error accepting private call: $e");
+      Get.snackbar(
+        "❌ Accept Failed",
+        "Error: ${e.toString()}",
+        backgroundColor: Colors.red.withOpacity(0.8),
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  /// Reject private call request
+  Future<void> _rejectPrivateCall(String privateCallId, String requesterId, String requesterName) async {
+    try {
+      debugPrint("❌ Rejecting private call request: $privateCallId");
+      
+      final result = await callController.rejectPrivateCall(
+        callId: privateCallId,
+        reason: "Host declined",
+      );
+
+      if (result) {
+        Get.snackbar(
+          "📞 Call Declined",
+          "Private call request from $requesterName declined",
+          backgroundColor: Colors.orange.withOpacity(0.8),
+          colorText: Colors.white,
+          duration: const Duration(seconds: 2),
+        );
+        debugPrint("✅ Private call rejected successfully");
+      } else {
+        debugPrint("❌ Failed to reject private call");
+      }
+    } catch (e) {
+      debugPrint("❌ Error rejecting private call: $e");
     }
   }
 
@@ -333,6 +694,7 @@ class _HostStartLiveStreamingScreenState
       );
     }
   }
+
   
 
   @override
@@ -340,6 +702,7 @@ class _HostStartLiveStreamingScreenState
     // cleanup listeners
     SocketService.to.socket?.off('incoming_call', _onIncomingCall);
     SocketService.to.socket?.off('call_started', _onIncomingCall);
+    SocketService.to.socket?.off('private_call_request', _onPrivateCallRequest);
 
     // ✅ Remove host from calls when live streaming ends
     _removeHostFromCalls();
@@ -351,6 +714,7 @@ class _HostStartLiveStreamingScreenState
     super.dispose();
   }
   
+
   /// Remove host from calls when live streaming ends
   Future<void> _removeHostFromCalls() async {
     try {

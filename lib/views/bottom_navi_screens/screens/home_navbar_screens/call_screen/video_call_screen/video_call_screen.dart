@@ -14,6 +14,7 @@ class VideoCallScreen extends StatefulWidget {
   final String channelName;
   final String agoraToken;
   final bool isHost;
+  final int? providedUid; // ✅ Add optional UID for private calls
 
   const VideoCallScreen({
     super.key,
@@ -22,6 +23,7 @@ class VideoCallScreen extends StatefulWidget {
     required this.channelName,
     required this.agoraToken,
     this.isHost = false,
+    this.providedUid, // ✅ Optional UID parameter
   });
 
   @override
@@ -188,9 +190,14 @@ class _VideoCallScreenState extends State<VideoCallScreen>
 
   Future<void> _initializeCall() async {
     try {
-      debugPrint(
-        "🚀 Initializing call with token: ${widget.agoraToken.substring(0, 20)}...",
-      );
+      debugPrint("🚀 ==========================================");
+      debugPrint("🚀 INITIALIZING VIDEO CALL");
+      debugPrint("🚀 Channel: ${widget.channelName}");
+      debugPrint("🚀 Call ID: ${widget.callId}");
+      debugPrint("🚀 Is Host: ${widget.isHost}");
+      debugPrint("🚀 Provided UID: ${widget.providedUid} ${widget.providedUid != null ? '(PRIVATE CALL)' : '(RANDOM CALL)'}");
+      debugPrint("🚀 Token: ${widget.agoraToken.substring(0, 20)}...");
+      debugPrint("🚀 ==========================================");
 
       await controller.initAgora(
         channelName: widget.channelName,
@@ -198,6 +205,7 @@ class _VideoCallScreenState extends State<VideoCallScreen>
         isHost: widget.isHost,
         isAudience: false, // Both participants are broadcasters in 1-to-1
         callId: widget.callId,
+        providedUid: widget.providedUid, // ✅ Use provided UID for private calls
       );
 
       // ✅ Create video controllers once after Agora initialization
@@ -224,25 +232,52 @@ class _VideoCallScreenState extends State<VideoCallScreen>
   /// Create video controllers once to prevent glitches
   Future<void> _createVideoControllers() async {
     try {
-      if (controller.engine == null) return;
+      if (controller.engine == null) {
+        debugPrint("❌ Cannot create video controllers - RtcEngine is null");
+        return;
+      }
+      
+      // ✅ Wait for engine to be fully ready
+      await Future.delayed(const Duration(milliseconds: 200));
+      
+      // Check if engine is still available after delay
+      if (controller.engine == null || !controller.isJoined.value) {
+        debugPrint("❌ RtcEngine not ready yet - skipping video controller creation");
+        return;
+      }
       
       // Dispose existing controller if any
       _localVideoController?.dispose();
       
-      // Create local video controller with enhanced settings
-      _localVideoController = VideoViewController(
-        rtcEngine: controller.engine!,
-        canvas: const VideoCanvas(
+      // ✅ FIX: Setup local video first, then create controller
+      await controller.engine!.setupLocalVideo(
+        const VideoCanvas(
           uid: 0,
-          renderMode: RenderModeType.renderModeHidden, // Better fit
-          mirrorMode: VideoMirrorModeType.videoMirrorModeAuto, // Auto mirror
+          renderMode: RenderModeType.renderModeHidden,
+          mirrorMode: VideoMirrorModeType.videoMirrorModeAuto,
         ),
       );
       
-      // Give the controller time to initialize
+      // ✅ Wait for setup to complete before creating controller
       await Future.delayed(const Duration(milliseconds: 100));
       
-      debugPrint("✅ Enhanced video controllers created successfully");
+      // ✅ Double-check engine is still available
+      if (controller.engine != null) {
+        // Create local video controller with enhanced settings
+        _localVideoController = VideoViewController(
+          rtcEngine: controller.engine!,
+          canvas: const VideoCanvas(
+            uid: 0,
+            renderMode: RenderModeType.renderModeHidden, // Better fit
+            mirrorMode: VideoMirrorModeType.videoMirrorModeAuto, // Auto mirror
+          ),
+        );
+        
+        debugPrint("✅ Local video setup and controller created successfully");
+      } else {
+        debugPrint("❌ RtcEngine became null during video controller creation");
+      }
+      
     } catch (e) {
       debugPrint("❌ Error creating video controllers: $e");
     }
@@ -251,25 +286,47 @@ class _VideoCallScreenState extends State<VideoCallScreen>
   /// Create remote video controller when remote user joins
   void _createRemoteVideoController(int uid) {
     try {
-      if (controller.engine == null) return;
+      if (controller.engine == null) {
+        debugPrint("❌ Cannot create remote video controller - RtcEngine is null");
+        return;
+      }
       
-      _remoteVideoController?.dispose(); // Dispose previous if exists
+      debugPrint("🔄 Creating remote video controller for UID: $uid");
       
-      _remoteVideoController = VideoViewController.remote(
-        rtcEngine: controller.engine!,
-        canvas: VideoCanvas(
-          uid: uid,
-          renderMode: RenderModeType.renderModeHidden, // Better fit
-          mirrorMode: VideoMirrorModeType.videoMirrorModeDisabled, // No mirror for remote
-        ),
-        connection: RtcConnection(channelId: widget.channelName),
-      );
-      
-      debugPrint("✅ Enhanced remote video controller created for UID: $uid");
-      
-      // Small delay then trigger rebuild to show remote video
-      Future.delayed(const Duration(milliseconds: 50), () {
-        if (mounted) setState(() {});
+      // ✅ Wait a moment for engine to be stable
+      Future.delayed(const Duration(milliseconds: 100), () async {
+        try {
+          // ✅ Double-check engine is still available
+          if (controller.engine == null || !mounted) {
+            debugPrint("❌ RtcEngine unavailable during remote controller creation");
+            return;
+          }
+          
+          _remoteVideoController?.dispose(); // Dispose previous if exists
+          
+          // ✅ Create remote video controller with null safety
+          _remoteVideoController = VideoViewController.remote(
+            rtcEngine: controller.engine!,
+            canvas: VideoCanvas(
+              uid: uid,
+              renderMode: RenderModeType.renderModeHidden, // Better fit
+              mirrorMode: VideoMirrorModeType.videoMirrorModeDisabled, // No mirror for remote
+            ),
+            connection: RtcConnection(channelId: widget.channelName),
+          );
+          
+          debugPrint("✅ Remote video controller created successfully for UID: $uid");
+          
+          // ✅ Wait a moment then trigger rebuild
+          await Future.delayed(const Duration(milliseconds: 50));
+          if (mounted && _remoteVideoController != null) {
+            setState(() {});
+            debugPrint("✅ Remote video UI updated for UID: $uid");
+          }
+          
+        } catch (e) {
+          debugPrint("❌ Error in delayed remote video controller creation: $e");
+        }
       });
       
     } catch (e) {
@@ -281,60 +338,125 @@ class _VideoCallScreenState extends State<VideoCallScreen>
     if (_ending) return;
 
     setState(() => _ending = true);
-    debugPrint("☎️ Ending call...");
+    debugPrint("🔚 ==========================================");
+    debugPrint("🔚 ENDING CALL");
+    debugPrint("🔚 Call ID: ${widget.callId}");
+    debugPrint("🔚 Channel: ${widget.channelName}");
+    debugPrint("🔚 Is Host: ${widget.isHost}");
+    debugPrint("🔚 User Role: ${AppUrl.user_role}");
+    debugPrint("🔚 Is Private Call: ${widget.providedUid != null}");
+    debugPrint("🔚 Token available: ${AppUrl.token.isNotEmpty}");
+    debugPrint("🔚 ==========================================");
 
     try {
-      // Call the enhanced endCall method
-      final success = await controller.endCall(widget.token, widget.callId);
+      // For private calls, use private call end API
+      bool success = false;
+      if (widget.providedUid != null) {
+        // Private call - use private call end API
+        debugPrint("🔚 Ending private call via private call API...");
+        debugPrint("🔚 Calling controller.endPrivateCall with callId: ${widget.callId}");
+        
+        try {
+          success = await controller.endPrivateCall(callId: widget.callId);
+          debugPrint("🔚 endPrivateCall returned: $success");
+        } catch (e) {
+          debugPrint("❌ endPrivateCall threw exception: $e");
+          success = false;
+        }
+      } else {
+        // Random call - use regular end call API
+        debugPrint("🔚 Ending random call via regular API...");
+        try {
+          success = await controller.endCall(widget.token, widget.callId);
+          debugPrint("🔚 endCall returned: $success");
+        } catch (e) {
+          debugPrint("❌ endCall threw exception: $e");
+          success = false;
+        }
+      }
 
-      if (!mounted) return;
+      debugPrint("🔚 API call completed, success: $success");
+
+      if (!mounted) {
+        debugPrint("🔚 Widget not mounted, skipping UI updates");
+        return;
+      }
+
+      // ✅ CRITICAL: Always leave Agora channel regardless of API success
+      debugPrint("🔚 Leaving Agora channel...");
+      try {
+        await controller.leaveChannel();
+        debugPrint("✅ Agora channel left successfully");
+      } catch (e) {
+        debugPrint("⚠ Error leaving Agora channel: $e");
+      }
 
       // ✅ Check if host was live streaming and needs to return
       final isHostWasLive = AppUrl.user_role == "host" && widget.isHost;
+      debugPrint("🔚 Is host was live: $isHostWasLive");
+
+      // ✅ ALWAYS navigate back from video call screen
+      debugPrint("🔚 Navigating back from video call screen...");
+      Get.back(); // Exit video call screen
 
       if (success) {
-        Get.back(); // Exit video call screen
+        debugPrint("✅ Call ended successfully");
         
         if (isHostWasLive) {
-          // ✅ Host was live streaming - reinitialize after small delay
-          debugPrint("🔴 Host ending call - will reinitialize live streaming");
+          // ✅ Host was live streaming - show dialog to continue or stop
+          debugPrint("🔴 Host ending call - showing continue dialog");
           
-          Get.snackbar(
-            "Call Ended",
-            "Call ended. Returning to live streaming...",
-            backgroundColor: Colors.green,
-            colorText: Colors.white,
-            snackPosition: SnackPosition.TOP,
-            duration: const Duration(seconds: 2),
-          );
-          
-          // Small delay then reinitialize
-          Future.delayed(const Duration(milliseconds: 800), () {
-            SocketService.to.reinitializeHostLiveStreaming();
+          Future.delayed(const Duration(milliseconds: 300), () {
+            _showHostContinueDialog();
           });
         } else {
           // Regular user call end
+          debugPrint("👤 User call ended successfully");
           Get.snackbar(
-            "Call Ended",
+            "✅ Call Ended",
             "Call ended successfully",
-            backgroundColor: Colors.green,
+            backgroundColor: Colors.green.withOpacity(0.8),
             colorText: Colors.white,
+            duration: const Duration(seconds: 2),
+            snackPosition: SnackPosition.BOTTOM,
           );
         }
       } else {
-        Get.back();
+        debugPrint("❌ Call end API failed, but forcing exit");
         Get.snackbar(
-          "Error",
-          "Failed to end call properly",
-          backgroundColor: Colors.red,
+          "⚠ Call Ended",
+          "Call ended (API error but locally disconnected)",
+          backgroundColor: Colors.orange.withOpacity(0.8),
           colorText: Colors.white,
+          duration: const Duration(seconds: 3),
+          snackPosition: SnackPosition.BOTTOM,
         );
       }
     } catch (e) {
-      debugPrint("❌ Error ending call: $e");
+      debugPrint("❌ Critical error ending call: $e");
+      debugPrint("❌ Error type: ${e.runtimeType}");
+      debugPrint("❌ Stack trace: ${StackTrace.current}");
+      
+      // ✅ Force exit even on error
+      try {
+        await controller.leaveChannel();
+      } catch (_) {}
+      
       if (mounted) {
         Get.back();
-        Get.snackbar("Error", "Error ending call: $e");
+        Get.snackbar(
+          "❌ Error", 
+          "Error ending call, but disconnected locally",
+          backgroundColor: Colors.red.withOpacity(0.8),
+          colorText: Colors.white,
+          duration: const Duration(seconds: 3),
+        );
+      }
+    } finally {
+      // ✅ CRITICAL: Always reset _ending flag
+      if (mounted) {
+        setState(() => _ending = false);
+        debugPrint("🔄 _ending flag reset to false");
       }
     }
   }
@@ -414,8 +536,23 @@ class _VideoCallScreenState extends State<VideoCallScreen>
   Widget _buildLocalVideoView() {
     // ✅ Fixed: Use persistent controller to prevent glitches
     if (_localVideoController == null) {
-      return const Center(
-        child: CircularProgressIndicator(color: Colors.white),
+      return Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: Colors.black54,
+        child: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(color: Colors.white),
+              SizedBox(height: 8),
+              Text(
+                "Loading camera...",
+                style: TextStyle(color: Colors.white, fontSize: 12),
+              ),
+            ],
+          ),
+        ),
       );
     }
 
@@ -432,8 +569,35 @@ class _VideoCallScreenState extends State<VideoCallScreen>
           colorText: Colors.white,
         );
       },
-      child: AgoraVideoView(controller: _localVideoController!),
+      child: _buildSafeAgoraVideoView(_localVideoController!),
     );
+  }
+  
+  /// Build AgoraVideoView with error handling
+  Widget _buildSafeAgoraVideoView(VideoViewController controller) {
+    try {
+      return AgoraVideoView(controller: controller);
+    } catch (e) {
+      debugPrint("❌ Error rendering AgoraVideoView: $e");
+      return Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: Colors.black54,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, color: Colors.white54, size: 32),
+              SizedBox(height: 8),
+              Text(
+                "Video render error",
+                style: TextStyle(color: Colors.white70, fontSize: 12),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
   }
 
   Widget _buildRemoteVideoView(int uid) {
@@ -443,16 +607,30 @@ class _VideoCallScreenState extends State<VideoCallScreen>
       _createRemoteVideoController(uid);
     }
 
+    // ✅ Enhanced null safety check
     if (_remoteVideoController == null) {
-      return const Center(
-        child: Text(
-          "Waiting for remote video...",
-          style: TextStyle(color: Colors.white),
+      return Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: Colors.black87,
+        child: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(color: Colors.white),
+              SizedBox(height: 16),
+              Text(
+                "Setting up video connection...",
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+            ],
+          ),
         ),
       );
     }
 
-    return AgoraVideoView(controller: _remoteVideoController!);
+    // ✅ Use safe rendering method
+    return _buildSafeAgoraVideoView(_remoteVideoController!);
   }
 
   @override
@@ -706,5 +884,219 @@ class _VideoCallScreenState extends State<VideoCallScreen>
               ),
       ),
     );
+  }
+
+  /// Show dialog to host asking if they want to continue live streaming
+  Future<void> _showHostContinueDialog() async {
+    try {
+      final bool? continueStreaming = await Get.dialog<bool>(
+        AlertDialog(
+          backgroundColor: Colors.black.withOpacity(0.95),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.live_tv, color: Colors.red, size: 24),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Continue Live Stream?',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Your private call has ended. What would you like to do?',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.green.withOpacity(0.3)),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.play_circle, color: Colors.green, size: 20),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Continue: Resume live streaming to receive more calls',
+                        style: TextStyle(color: Colors.white, fontSize: 13),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.red.withOpacity(0.3)),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.stop_circle, color: Colors.red, size: 20),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Stop: End live streaming and go back',
+                        style: TextStyle(color: Colors.white, fontSize: 13),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(result: false),
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.red.withOpacity(0.2),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              child: const Text(
+                '⚫ Stop Streaming',
+                style: TextStyle(color: Colors.red, fontWeight: FontWeight.w600),
+              ),
+            ),
+            const SizedBox(width: 8),
+            ElevatedButton(
+              onPressed: () => Get.back(result: true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              ),
+              child: const Text(
+                '🔴 Continue Streaming',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+              ),
+            ),
+          ],
+        ),
+        barrierDismissible: false,
+      );
+
+      if (continueStreaming == true) {
+        debugPrint("🔴 Host chose to continue live streaming");
+        await _continueLiveStreaming();
+      } else {
+        debugPrint("⚫ Host chose to stop live streaming");
+        await _stopLiveStreamingAndExit();
+      }
+
+    } catch (e) {
+      debugPrint("❌ Error showing host continue dialog: $e");
+      // Fallback: just continue streaming
+      await _continueLiveStreaming();
+    }
+  }
+
+  /// Continue live streaming after private call ends
+  Future<void> _continueLiveStreaming() async {
+    try {
+      debugPrint("🔄 Continuing live streaming after private call...");
+      
+      // ✅ Reinitialize host live streaming
+      await SocketService.to.reinitializeHostLiveStreaming();
+      
+      Get.snackbar(
+        '🔴 Live Stream Continued',
+        'You are back live and ready for new calls!',
+        backgroundColor: Colors.green.withOpacity(0.8),
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+        icon: const Icon(Icons.live_tv, color: Colors.white),
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      
+      debugPrint("✅ Live streaming continuation completed");
+      
+    } catch (e) {
+      debugPrint("❌ Error continuing live streaming: $e");
+      
+      Get.snackbar(
+        '❌ Continue Error',
+        'Failed to continue live streaming. Please restart manually.',
+        backgroundColor: Colors.red.withOpacity(0.8),
+        colorText: Colors.white,
+        duration: const Duration(seconds: 4),
+      );
+    }
+  }
+
+  /// Stop live streaming and navigate back properly
+  Future<void> _stopLiveStreamingAndExit() async {
+    try {
+      debugPrint("⚫ Stopping live streaming and exiting...");
+      
+      // ✅ Remove host from calls
+      await SocketService.to.removeHostFromCalls();
+      
+      Get.snackbar(
+        '⚫ Live Stream Ended',
+        'Your live stream has been stopped',
+        backgroundColor: Colors.orange.withOpacity(0.8),
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      
+      // ✅ Navigate back twice as requested
+      Future.delayed(const Duration(milliseconds: 500), () {
+        debugPrint("🔙 Navigating back from live streaming screen");
+        
+        // Check if we're on live streaming screen and go back
+        if (Get.currentRoute.contains('HostStartLiveStreamingScreen')) {
+          Get.back(); // Go back from live streaming screen
+        }
+        
+        // Additional back navigation after delay
+        Future.delayed(const Duration(milliseconds: 300), () {
+          try {
+            Get.back(); // Second back navigation as requested
+          } catch (e) {
+            debugPrint("⚠ Could not navigate back twice: $e");
+          }
+        });
+      });
+      
+      debugPrint("✅ Live streaming stop and navigation completed");
+      
+    } catch (e) {
+      debugPrint("❌ Error stopping live streaming: $e");
+      
+      // Fallback navigation
+      try {
+        Get.back();
+      } catch (e) {
+        debugPrint("⚠ Could not navigate back: $e");
+      }
+    }
   }
 }

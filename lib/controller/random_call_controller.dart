@@ -49,6 +49,7 @@ class CallController extends GetxController {
     bool isHost = false,
     bool isAudience = false,
     required String callId,
+    int? providedUid,
   }) async {
     try {
       debugPrint(
@@ -68,7 +69,13 @@ class CallController extends GetxController {
 
       channel = channelName;
       _currentToken = agoraToken;
-      _uid = _deriveUid();
+      _uid = providedUid ?? _deriveUid();
+      
+      if (providedUid != null) {
+        debugPrint("🔧 Using provided UID: $providedUid (PRIVATE CALL - BACKEND MATCH)");
+      } else {
+        debugPrint("🔧 Using derived UID: $_uid (RANDOM CALL - DEFAULT)");
+      }
 
       // Use provided appId or fallback
       if (appId != null && appId.isNotEmpty) {
@@ -118,9 +125,20 @@ class CallController extends GetxController {
             _startPreview();
           }
         },
-        onUserJoined: (RtcConnection _, int uid, int __) {
+        onUserJoined: (RtcConnection connection, int uid, int elapsed) {
           debugPrint("Remote user joined: $uid");
           remoteUid.value = uid;
+          
+          // ✅ CLEAN: Let VideoCallScreen handle video setup, just ensure subscription
+          Future.delayed(Duration(milliseconds: 200), () async {
+            try {
+              // Just ensure video is not muted - let VideoViewController handle setup
+              await engine?.muteRemoteVideoStream(uid: uid, mute: false);
+              debugPrint("✅ Remote video unmuted for UID: $uid");
+            } catch (e) {
+              debugPrint("⚠ Remote video unmute warning: $e");
+            }
+          });
         },
         onUserOffline: (RtcConnection _, int uid, UserOfflineReasonType __) {
           debugPrint("Remote user offline: $uid");
@@ -158,6 +176,9 @@ class CallController extends GetxController {
           clientRoleType: clientRole,
           publishCameraTrack: !isAudience,
           publishMicrophoneTrack: !isAudience,
+          // ✅ FIX: Enable video subscription for private calls
+          autoSubscribeVideo: true,
+          autoSubscribeAudio: true,
         ),
       );
     } catch (e) {
@@ -170,13 +191,8 @@ class CallController extends GetxController {
 
   Future<void> _startPreview() async {
     try {
+      // ✅ CLEAN: Only start preview, let VideoViewController handle setupLocalVideo
       await engine!.startPreview();
-      await engine!.setupLocalVideo(
-        const VideoCanvas(
-          uid: 0,
-          sourceType: VideoSourceType.videoSourceCamera,
-        ),
-      );
       isPreviewStarted.value = true;
       debugPrint("Local preview started");
     } catch (e) {
@@ -191,7 +207,7 @@ class CallController extends GetxController {
         token: AppUrl.token,
         channelName: channel!,
         uid: _uid,
-        role: isAudience ? 'subscriber' : 'publisher',
+        role: isAudience ? 'audience' : 'host',
       );
       if (newToken?.isNotEmpty == true) {
         _currentToken = newToken;
@@ -216,7 +232,7 @@ class CallController extends GetxController {
           token: AppUrl.token,
           channelName: channel!,
           uid: _uid,
-          role: isAudience ? 'subscriber' : 'publisher',
+          role: isAudience ? 'audience' : 'host',
         );
 
         if (newToken?.isNotEmpty == true) {
@@ -398,7 +414,7 @@ class CallController extends GetxController {
     return null;
   }
 
-  Future<bool> endCall(String token, String callId) async {
+  Future<bool> endCall(String token, String callId, {bool showErrors = true}) async {
     try {
       debugPrint("🔚 Starting call end process - CallId: $callId, User: ${AppUrl.user_name}, Role: ${AppUrl.user_role}");
       
@@ -435,11 +451,15 @@ class CallController extends GetxController {
       } else {
         final body = jsonDecode(res.body);
         debugPrint("❌ End call failed - Status: ${res.statusCode}, Body: $body");
-        Get.snackbar("Error", body['message'] ?? "End call failed");
+        if (showErrors) {
+          Get.snackbar("Error", body['message'] ?? "End call failed");
+        }
       }
     } catch (e) {
       debugPrint("💥 End call exception: $e");
-      Get.snackbar("Error", "Failed to end call: ${e.toString()}");
+      if (showErrors) {
+        Get.snackbar("Error", "Failed to end call: ${e.toString()}");
+      }
     }
     return false;
   }
@@ -467,21 +487,47 @@ class CallController extends GetxController {
   Future<Map<String, dynamic>?> startLiveCall(String token) async {
     try {
       isLoading.value = true;
+      debugPrint("🔴 Calling startLiveCall API to register host as live...");
+      debugPrint("🔴 Endpoint: ${AppUrl.goLiveCall}");
+      debugPrint("🔴 Token: ${token.substring(0, 20)}...");
+      
       final res = await http.post(
         Uri.parse(AppUrl.goLiveCall),
-        headers: {"Authorization": "Bearer $token"},
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode({
+          "title": "Available for calls", 
+          "description": "Host is live and available for random calls"
+        }),
+      ).timeout(
+        Duration(seconds: 15),
+        onTimeout: () {
+          throw TimeoutException('Start live API timeout', Duration(seconds: 15));
+        },
       );
-      if (res.statusCode == 200) {
+      
+      debugPrint("🔴 StartLive API response - Status: ${res.statusCode}");
+      debugPrint("🔴 StartLive API response - Body: ${res.body}");
+      
+      if (res.statusCode == 200 || res.statusCode == 201) {
         final data = jsonDecode(res.body);
         _serverAppId = data['agora']?['appId']?.toString() ?? _serverAppId;
+        debugPrint("✅ Host successfully registered as live - Data: $data");
         return data;
       } else {
         final body = jsonDecode(res.body);
-        Get.snackbar("Error", body['message'] ?? "Start live failed");
+        debugPrint("❌ StartLive API failed - Status: ${res.statusCode}, Body: $body");
+        // Don't show snackbar for API errors to avoid disrupting UX
+        debugPrint("❌ Start live failed: ${body['message'] ?? 'Unknown error'}");
       }
     } catch (e) {
-      Get.snackbar("Error", e.toString());
+      debugPrint("💥 StartLive API exception: $e");
+      // Don't show snackbar for exceptions to avoid disrupting UX
+      debugPrint("❌ Failed to register host as live: ${e.toString()}");
     } finally {
+      debugPrint("🏁 StartLive API finished - Loading: false");
       isLoading.value = false;
     }
     return null;
@@ -688,40 +734,138 @@ class CallController extends GetxController {
   Future<Map<String, dynamic>?> requestPrivateCall({
     required int hostId,
     required String hostName,
+    String? randomCallId,
   }) async {
     try {
-      debugPrint("📞 Requesting private call to host: $hostName (ID: $hostId)");
+      debugPrint("📞 ===========================================");
+      debugPrint("📞 REQUESTING PRIVATE CALL");
+      debugPrint("📞 ===========================================");
+      debugPrint("📞 Target Host: $hostName (ID: $hostId)");
+      debugPrint("📞 Current User: ${AppUrl.user_name} (ID: ${AppUrl.riolive_id})");
+      debugPrint("📞 User Role: ${AppUrl.user_role}");
       
+      // ✅ Validation checks
       if (AppUrl.token?.isEmpty ?? true) {
+        debugPrint("❌ Authentication token not available");
         throw Exception('Authentication token not available');
       }
 
+      if (hostId == AppUrl.riolive_id) {
+        debugPrint("❌ Cannot request private call to yourself");
+        throw Exception('Cannot request private call to yourself');
+      }
+
+      if (AppUrl.user_role == 'host') {
+        debugPrint("⚠️ Host requesting private call to another host");
+      }
+
+      // Generate randomCallId if not provided (for debugging)
+      final callId = randomCallId ?? 'private_call_${DateTime.now().millisecondsSinceEpoch}';
+      
+      final requestBody = {
+        'hostId': hostId,
+        'randomCallId': callId,
+      };
+      
+      debugPrint("📞 ===========================================");
+      debugPrint("📞 REQUEST DETAILS:");
+      debugPrint("📞 URL: ${AppUrl.privateCallRequest}");
+      debugPrint("📞 Method: POST");
+      debugPrint("📞 Headers: Content-Type: application/json");
+      debugPrint("📞 Auth: Bearer ${AppUrl.token?.substring(0, 20)}...");
+      debugPrint("📞 Body: ${json.encode(requestBody)}");
+      debugPrint("📞 Timeout: 15 seconds");
+      debugPrint("📞 ===========================================");
+      
       final response = await http.post(
         Uri.parse(AppUrl.privateCallRequest),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${AppUrl.token}',
         },
-        body: json.encode({
-          'hostId': hostId,
-          'hostName': hostName,
-        }),
+        body: json.encode(requestBody),
+      ).timeout(
+        Duration(seconds: 15),
+        onTimeout: () {
+          throw Exception('Private call request timeout after 15 seconds');
+        },
       );
 
-      debugPrint("📞 Private call request response - Status: ${response.statusCode}");
-      debugPrint("📞 Private call request response - Body: ${response.body}");
+      debugPrint("📞 ===========================================");
+      debugPrint("📞 RESPONSE RECEIVED:");
+      debugPrint("📞 Status Code: ${response.statusCode}");
+      debugPrint("📞 Response Headers: ${response.headers}");
+      debugPrint("📞 Response Body: ${response.body}");
+      debugPrint("📞 ===========================================");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = json.decode(response.body);
-        debugPrint("✅ Private call request successful - Data: $data");
+        
+        debugPrint("✅ ===========================================");
+        debugPrint("✅ PRIVATE CALL REQUEST SUCCESSFUL!");
+        debugPrint("✅ Response Status: ${data['status']}");
+        debugPrint("✅ Message: ${data['message']}");
+        debugPrint("✅ Private Call ID: ${data['privateCall']?['id']}");
+        debugPrint("✅ Private Call Status: ${data['privateCall']?['status']}");
+        debugPrint("✅ Debug Info: ${data['debug']}");
+        debugPrint("✅ Backend should emit to room: ${data['debug']?['hostRoomId']}");
+        debugPrint("✅ Target host is live: ${data['debug']?['hostIsLive']}");
+        debugPrint("✅ ===========================================");
+        
+        // ✅ CRITICAL: Join user to private call room to receive accepted/rejected events
+        final privateCallId = data['privateCall']?['id']?.toString();
+        if (privateCallId != null) {
+          debugPrint("🏠 ===========================================");
+          debugPrint("🏠 JOINING USER TO PRIVATE CALL ROOM");
+          debugPrint("🏠 Private Call ID: $privateCallId");
+          debugPrint("🏠 User ID: ${AppUrl.riolive_id}");
+          debugPrint("🏠 Socket Connected: ${SocketService.to.isConnected.value}");
+          debugPrint("🏠 ===========================================");
+          
+          _joinUserToPrivateCallRoom(privateCallId);
+        } else {
+          debugPrint("❌ Cannot join room - Private Call ID missing");
+        }
+        
         return data;
       } else {
-        debugPrint("❌ Private call request failed: ${response.statusCode} - ${response.body}");
-        throw Exception('Private call request failed: ${response.statusCode}');
+        debugPrint("❌ ===========================================");
+        debugPrint("❌ PRIVATE CALL REQUEST FAILED!");
+        debugPrint("❌ HTTP Status: ${response.statusCode}");
+        debugPrint("❌ Response: ${response.body}");
+        
+        // Try to parse error details
+        try {
+          final errorData = json.decode(response.body);
+          debugPrint("❌ Error Status: ${errorData['status']}");
+          debugPrint("❌ Error Message: ${errorData['message']}");
+          debugPrint("❌ Error Details: ${errorData['error']}");
+          
+          if (errorData['message'] != null) {
+            throw Exception('Backend Error: ${errorData['message']}');
+          }
+        } catch (parseError) {
+          debugPrint("❌ Could not parse error response: $parseError");
+        }
+        debugPrint("❌ ===========================================");
+        
+        throw Exception('Private call request failed with status: ${response.statusCode}');
       }
     } catch (e) {
-      debugPrint("❌ Error requesting private call: $e");
-      return null;
+      debugPrint("💥 ===========================================");
+      debugPrint("💥 PRIVATE CALL REQUEST EXCEPTION!");
+      debugPrint("💥 Error Type: ${e.runtimeType}");
+      debugPrint("💥 Error Message: $e");
+      debugPrint("💥 Stack Trace: ${StackTrace.current}");
+      debugPrint("💥 Host ID: $hostId");
+      debugPrint("💥 Host Name: $hostName");
+      debugPrint("💥 User ID: ${AppUrl.riolive_id}");
+      debugPrint("💥 User Role: ${AppUrl.user_role}");
+      debugPrint("💥 Token Available: ${AppUrl.token?.isNotEmpty ?? false}");
+      debugPrint("💥 ===========================================");
+      
+      // Re-throw with more context
+      throw Exception('Private call request failed: $e');
     }
   }
 
@@ -805,33 +949,179 @@ class CallController extends GetxController {
     required String callId,
   }) async {
     try {
-      debugPrint("🔚 Ending private call: $callId");
+      debugPrint("🔚 ==========================================");
+      debugPrint("🔚 ENDING PRIVATE CALL");
+      debugPrint("🔚 ==========================================");
+      debugPrint("🔚 Call ID: $callId");
+      debugPrint("🔚 Current User: ${AppUrl.user_name} (ID: ${AppUrl.riolive_id})");
+      debugPrint("🔚 User Role: ${AppUrl.user_role}");
+      debugPrint("🔚 Token Available: ${AppUrl.token?.isNotEmpty ?? false}");
+      debugPrint("🔚 Token Preview: ${AppUrl.token?.substring(0, 20) ?? 'null'}...");
+      debugPrint("🔚 ==========================================");
       
       if (AppUrl.token?.isEmpty ?? true) {
+        debugPrint("❌ Authentication token not available");
         throw Exception('Authentication token not available');
       }
 
+      if (callId.isEmpty) {
+        debugPrint("❌ Call ID is empty");
+        throw Exception('Call ID is required');
+      }
+
+      final url = '${AppUrl.privateCallEnd}$callId';
+      debugPrint("🔚 REQUEST DETAILS:");
+      debugPrint("🔚 URL: $url");
+      debugPrint("🔚 Method: POST");
+      debugPrint("🔚 Headers: Content-Type: application/json");
+      debugPrint("🔚 Auth: Bearer ${AppUrl.token?.substring(0, 20)}...");
+      debugPrint("🔚 Timeout: 10 seconds");
+      debugPrint("🔚 ==========================================");
+
       final response = await http.post(
-        Uri.parse('${AppUrl.privateCallEnd}$callId'),
+        Uri.parse(url),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${AppUrl.token}',
         },
+      ).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          debugPrint("⏰ Private call end request timed out after 10 seconds");
+          throw Exception('Request timeout after 10 seconds');
+        },
       );
 
-      debugPrint("🔚 End private call response - Status: ${response.statusCode}");
-      debugPrint("🔚 End private call response - Body: ${response.body}");
+      debugPrint("🔚 ==========================================");
+      debugPrint("🔚 RESPONSE RECEIVED:");
+      debugPrint("🔚 Status Code: ${response.statusCode}");
+      debugPrint("🔚 Response Headers: ${response.headers}");
+      debugPrint("🔚 Response Body: ${response.body}");
+      debugPrint("🔚 ==========================================");
 
       if (response.statusCode == 200) {
-        debugPrint("✅ Private call ended successfully");
+        final responseData = json.decode(response.body);
+        debugPrint("✅ ==========================================");
+        debugPrint("✅ PRIVATE CALL ENDED SUCCESSFULLY!");
+        debugPrint("✅ Response Data: $responseData");
+        debugPrint("✅ Status: ${responseData['status']}");
+        debugPrint("✅ Message: ${responseData['message']}");
+        debugPrint("✅ ==========================================");
         return true;
       } else {
-        debugPrint("❌ End private call failed: ${response.statusCode} - ${response.body}");
+        debugPrint("❌ ==========================================");
+        debugPrint("❌ PRIVATE CALL END FAILED!");
+        debugPrint("❌ Status Code: ${response.statusCode}");
+        debugPrint("❌ Error Body: ${response.body}");
+        debugPrint("❌ ==========================================");
+        
+        // Try to parse error message
+        try {
+          final errorData = json.decode(response.body);
+          final errorMessage = errorData['message'] ?? 'Unknown error';
+          debugPrint("❌ Server Error Message: $errorMessage");
+        } catch (e) {
+          debugPrint("❌ Could not parse error response: $e");
+        }
+        
         return false;
       }
     } catch (e) {
-      debugPrint("❌ Error ending private call: $e");
+      debugPrint("💥 ==========================================");
+      debugPrint("💥 PRIVATE CALL END EXCEPTION!");
+      debugPrint("💥 Error Type: ${e.runtimeType}");
+      debugPrint("💥 Error Message: $e");
+      debugPrint("💥 Stack Trace: ${StackTrace.current}");
+      debugPrint("💥 Call ID: $callId");
+      debugPrint("💥 User ID: ${AppUrl.riolive_id}");
+      debugPrint("💥 User Role: ${AppUrl.user_role}");
+      debugPrint("💥 Token Available: ${AppUrl.token?.isNotEmpty ?? false}");
+      debugPrint("💥 ==========================================");
       return false;
+    }
+  }
+
+  // ================== PRIVATE CALL HELPERS ==================
+  
+  /// Join user to private call room to receive accept/reject events
+  void _joinUserToPrivateCallRoom(String privateCallId) {
+    try {
+      if (!SocketService.to.isConnected.value) {
+        debugPrint("❌ Socket not connected - cannot join private call room");
+        return;
+      }
+      
+      // Generate consistent room names that backend uses
+      final userRoomId = "user_room_${AppUrl.riolive_id}_$privateCallId";
+      final privateCallRoom = "private_call_room_$privateCallId";
+      final requesterRoom = "requester_room_${AppUrl.riolive_id}";
+      
+      debugPrint("🏠 Joining user to multiple room formats:");
+      debugPrint("🏠 - User Room: $userRoomId");
+      debugPrint("🏠 - Private Call Room: $privateCallRoom");
+      debugPrint("🏠 - Requester Room: $requesterRoom");
+      
+      // Method 1: Direct socket join with room ID
+      SocketService.to.socket?.emit("join_room", {
+        "roomId": userRoomId,
+        "userId": AppUrl.riolive_id,
+        "role": "user",
+        "privateCallId": privateCallId
+      });
+      
+      // Method 2: Join private call specific room
+      SocketService.to.socket?.emit("join_room", {
+        "roomId": privateCallRoom,
+        "userId": AppUrl.riolive_id,
+        "role": "requester"
+      });
+      
+      // Method 3: Requester specific room
+      SocketService.to.socket?.emit("join_room", {
+        "roomId": requesterRoom,
+        "userId": AppUrl.riolive_id,
+        "role": "requester"
+      });
+      
+      // Method 4: Alternative join format
+      SocketService.to.socket?.emit("join", {"room": userRoomId});
+      SocketService.to.socket?.emit("join", {"room": privateCallRoom});
+      SocketService.to.socket?.emit("join", {"room": requesterRoom});
+      
+      debugPrint("✅ User joined private call rooms for receiving events");
+      
+      // Debug: Show user room status after 2 seconds
+      Timer(Duration(seconds: 2), () {
+        _debugUserRoomStatus(privateCallId);
+      });
+      
+    } catch (e) {
+      debugPrint("❌ Error joining user to private call room: $e");
+    }
+  }
+
+  /// Debug user socket room status
+  void _debugUserRoomStatus(String privateCallId) {
+    try {
+      debugPrint("🔍 ===========================================");
+      debugPrint("🔍 DEBUG: USER SOCKET ROOM STATUS");
+      debugPrint("🔍 Private Call ID: $privateCallId");
+      debugPrint("🔍 User ID: ${AppUrl.riolive_id}");
+      debugPrint("🔍 Socket Connected: ${SocketService.to.isConnected.value}");
+      debugPrint("🔍 Socket ID: ${SocketService.to.socket?.id}");
+      debugPrint("🔍 ===========================================");
+      
+      // Try to emit a test message to verify room membership
+      SocketService.to.socket?.emit("test_user_in_room", {
+        "privateCallId": privateCallId,
+        "userId": AppUrl.riolive_id,
+        "message": "Testing if user is in private call room"
+      });
+      
+      debugPrint("🔍 Sent test message to verify room membership");
+      
+    } catch (e) {
+      debugPrint("❌ Error debugging user room status: $e");
     }
   }
 

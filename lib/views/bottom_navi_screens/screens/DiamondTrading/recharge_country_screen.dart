@@ -464,11 +464,16 @@ class _RechargeCountryScreenState extends State<RechargeCountryScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Name with emoji
-                CustomText(
-                  agent['name'],
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CustomText(
+                      agent['name'],
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 4),
                 

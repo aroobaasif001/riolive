@@ -1,7 +1,8 @@
 class AppUrl {
   ///Base URL
   // static var baseUrl = "http://192.168.1.17:5000";
-  static var baseUrl = "https://backend-api-1-zmcd.onrender.com";
+  // static var baseUrl = "https://backend-api-1-zmcd.onrender.com"; // new
+  static var baseUrl = "https://backend-api-pgu8.onrender.com"; //old
 
   ///Registration Api's
   static var signup = "${baseUrl}/api/users/signup";

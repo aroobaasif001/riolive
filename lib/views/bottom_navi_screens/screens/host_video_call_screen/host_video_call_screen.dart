@@ -10,7 +10,8 @@ import '../../../../controller/random_call_controller.dart';
 import '../../../../customwidgets/custom_container.dart';
 import '../../../../customwidgets/custombutton.dart';
 import '../../../../customwidgets/customtext.dart';
-import '../../../../services/socket_service.dart';
+// import '../../../../services/socket_service.dart';
+import '../../../../customwidgets/filter_bottom_sheet.dart';
 import 'host_start_live_streaming_screen/host_start_live_streaming_screen.dart';
 
 class HostVideoCallScreen extends StatefulWidget {
@@ -177,125 +178,7 @@ class _HostVideoCallScreenState extends State<HostVideoCallScreen>
     super.dispose();
   }
 
-  void _showFilterPopup(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.black87,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Positioned(
-                top: 10,
-                right: 10,
-                child: IconButton(
-                  icon: Icon(Icons.wifi_find, color: Colors.white),
-                  onPressed: () {
-                    SocketService.to.debugSocketStatus();
-                    // Test socket connection
-                    SocketService.to.socket?.emit("test", {"message": "test"});
-                  },
-                ),
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                "Select Filter",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const Divider(color: Colors.white24),
-
-              ListTile(
-                leading: const Icon(Icons.clear, color: Colors.white),
-                title: const Text(
-                  "None",
-                  style: TextStyle(color: Colors.white),
-                ),
-                onTap: () async {
-                  await callController.engine?.setBeautyEffectOptions(
-                    enabled: false,
-                    options: const BeautyOptions(),
-                  );
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.face_retouching_natural,
-                  color: Colors.white,
-                ),
-                title: const Text(
-                  "Smooth Skin",
-                  style: TextStyle(color: Colors.white),
-                ),
-                onTap: () async {
-                  await callController.engine?.setBeautyEffectOptions(
-                    enabled: true,
-                    options: const BeautyOptions(
-                      lighteningContrastLevel:
-                          LighteningContrastLevel.lighteningContrastHigh,
-                      lighteningLevel: 0.6,
-                      smoothnessLevel: 0.7,
-                      rednessLevel: 0.1,
-                    ),
-                  );
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.brightness_6, color: Colors.white),
-                title: const Text(
-                  "Brighten",
-                  style: TextStyle(color: Colors.white),
-                ),
-                onTap: () async {
-                  await callController.engine?.setBeautyEffectOptions(
-                    enabled: true,
-                    options: const BeautyOptions(
-                      lighteningContrastLevel:
-                          LighteningContrastLevel.lighteningContrastNormal,
-                      lighteningLevel: 0.9,
-                      smoothnessLevel: 0.3,
-                      rednessLevel: 0.1,
-                    ),
-                  );
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.color_lens, color: Colors.white),
-                title: const Text(
-                  "Add Warmth",
-                  style: TextStyle(color: Colors.white),
-                ),
-                onTap: () async {
-                  await callController.engine?.setBeautyEffectOptions(
-                    enabled: true,
-                    options: BeautyOptions(
-                      lighteningContrastLevel:
-                          LighteningContrastLevel.lighteningContrastLow,
-                      lighteningLevel: 0.5,
-                      smoothnessLevel: 0.4,
-                      rednessLevel: 0.6,
-                    ),
-                  );
-                  Navigator.pop(context);
-                },
-              ),
-              const SizedBox(height: 10),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  // Old inline filter popup removed; unified FilterBottomSheet is used instead
 
   @override
   Widget build(BuildContext context) {
@@ -512,16 +395,17 @@ class _HostVideoCallScreenState extends State<HostVideoCallScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Left circle (people icon)
+                    // Left circle (filters) - unified bottom sheet
                     InkWell(
                       onTap: () {
-                        _showFilterPopup(context);
+                        // Use the same filter UI used in live screen
+                        FilterBottomSheet.show(context);
                       },
                       child: CustomContainer(
                         child: Padding(
                           padding: const EdgeInsets.all(10.0),
                           child: Image.asset(
-                            "assets/icons/three_circle.png", // 👈 apna image path yahan replace karo
+                            "assets/icons/three_circle.png",
                             height: 52,
                             width: 52,
                             fit: BoxFit.contain,
@@ -592,17 +476,22 @@ class _HostVideoCallScreenState extends State<HostVideoCallScreen>
                   height: 55,
                   width: size.width * 0.5,
                   onPressed: () async {
+                    debugPrint("🔴 LIVE BUTTON PRESSED - Starting live call...");
                     final data = await callController.startLiveCall(
                       AppUrl.token,
                     );
+                    debugPrint("🔴 LIVE BUTTON - startLiveCall response: $data");
+                    
                     if (data != null && data["status"] == "success") {
                       final agora = data["agora"];
-                      print(agora);
+                      debugPrint("🔴 LIVE BUTTON - Agora data: $agora");
+                      debugPrint("✅ LIVE BUTTON - Host registered successfully, navigating to live screen...");
+                      
                       final result = await Get.to(
                         () => const HostStartLiveStreamingScreen(),
                         arguments: {
                           "channelName": agora["channelName"],
-                          "token": agora["token"],
+                          "token": agora["hostToken"] ?? agora["token"],
                           "appId": agora["appId"],
                           "uid": agora["uid"],
                           "isHost": true,
@@ -611,11 +500,13 @@ class _HostVideoCallScreenState extends State<HostVideoCallScreen>
 
                       // When user ends live, reinitialize local preview here
                       if (result == 'ended' || result == true) {
+                        debugPrint("⚫ LIVE ENDED - Reinitializing preview...");
                         // Slight delay to ensure previous screen is fully popped
                         await Future.delayed(const Duration(milliseconds: 200));
                         await _initAgoraPreview();
                       }
                     } else {
+                      debugPrint("❌ LIVE BUTTON - Failed to start live: $data");
                       Get.snackbar(
                         "Error",
                         data?["message"] ?? "Failed to start live",

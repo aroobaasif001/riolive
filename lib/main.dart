@@ -32,9 +32,15 @@ Future<void> main() async {
   Get.put(SocketService());
 
   // 👇 Wrap your app with DevicePreview
+
   runApp(
-    const MyApp(),
+    DevicePreview(
+      enabled: !kReleaseMode,          // show preview only in debug/profile
+      builder: (context) => const MyApp(),
+    ),
   );
+
+  // runApp( const MyApp(),);
 }
 
 class MyApp extends StatelessWidget {
@@ -45,7 +51,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Rio Live App',
       debugShowCheckedModeBanner: false,
-      home: ShopScreen(),
+      home: AppStartup(),
 
 
       // 🔑 DevicePreview integration

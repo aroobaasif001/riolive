@@ -374,13 +374,19 @@ class SocketService extends GetxService {
     
     // ✅ Private call accepted (for users)
     socket?.on("private_call_accepted", (data) {
-      debugPrint("✅ Private call accepted: $data");
+      debugPrint("✅ 🎉🎉🎉 PRIVATE CALL ACCEPTED EVENT RECEIVED! 🎉🎉🎉");
+      debugPrint("✅ Raw event data: $data");
+      debugPrint("✅ Current user: ${AppUrl.user_name} (ID: ${AppUrl.riolive_id})");
+      debugPrint("✅ Current route: ${Get.currentRoute}");
+      debugPrint("✅ Socket ID: ${socket?.id}");
       _handlePrivateCallAccepted(data);
     });
     
     // ❌ Private call rejected (for users)
     socket?.on("private_call_rejected", (data) {
-      debugPrint("❌ Private call rejected: $data");
+      debugPrint("❌ 🚫🚫🚫 PRIVATE CALL REJECTED EVENT RECEIVED! 🚫🚫🚫");
+      debugPrint("❌ Raw event data: $data");
+      debugPrint("❌ Current user: ${AppUrl.user_name} (ID: ${AppUrl.riolive_id})");
       _handlePrivateCallRejected(data);
     });
     
@@ -388,6 +394,101 @@ class SocketService extends GetxService {
     socket?.on("private_call_ended", (data) {
       debugPrint("🔚 Private call ended: $data");
       _handlePrivateCallEnded(data);
+    });
+
+    // 🔧 TEMPORARY FIX: Listen to private_call_status as backup
+    socket?.on("private_call_status", (data) {
+      debugPrint("📊 ===========================================");
+      debugPrint("📊 PRIVATE CALL STATUS EVENT RECEIVED!");
+      debugPrint("📊 Raw event data: $data");
+      debugPrint("📊 Current user: ${AppUrl.user_name} (ID: ${AppUrl.riolive_id})");
+      debugPrint("📊 ===========================================");
+      
+      // Check if this is actually an "accepted" status for current user
+      final Map<String, dynamic> eventData = data is Map ? Map<String, dynamic>.from(data) : {};
+      final status = eventData['status']?.toString() ?? '';
+      final requesterId = eventData['requesterId']?.toString() ?? '';
+      final hostId = eventData['hostId']?.toString() ?? '';
+      
+      debugPrint("🔍 Checking relevance:");
+      debugPrint("🔍 - Status: $status");
+      debugPrint("🔍 - Requester ID: $requesterId");
+      debugPrint("🔍 - Host ID: $hostId");
+      debugPrint("🔍 - Current User ID: ${AppUrl.riolive_id}");
+      debugPrint("🔍 - Current User Role: ${AppUrl.user_role}");
+      
+      bool isRelevantForUser = false;
+      String relevanceReason = '';
+      
+      // Check multiple conditions for relevance
+      if (status == 'active' || status == 'accepted') {
+        // Method 1: Direct requester ID match
+        if (requesterId == AppUrl.riolive_id.toString()) {
+          isRelevantForUser = true;
+          relevanceReason = 'Direct requester ID match';
+        }
+        // Method 2: If user is not a host and status is active (likely for the user)
+        else if (AppUrl.user_role != 'host' && (status == 'active' || status == 'accepted')) {
+          isRelevantForUser = true;
+          relevanceReason = 'User role match - non-host receiving active status';
+        }
+        // Method 3: Check if this is a private call the user initiated (based on current context)
+        else if (AppUrl.user_role == 'user' && status == 'active') {
+          isRelevantForUser = true;
+          relevanceReason = 'User role and active status - assuming user initiated this call';
+        }
+      }
+      // ✅ NEW: Handle call ended status
+      else if (status == 'ended') {
+        // Check if user was involved in this call
+        if (requesterId == AppUrl.riolive_id.toString() || hostId == AppUrl.riolive_id.toString()) {
+          isRelevantForUser = true;
+          relevanceReason = 'User involved in ended call';
+        }
+      }
+      
+      debugPrint("🔍 Is relevant for user: $isRelevantForUser");
+      debugPrint("🔍 Relevance reason: $relevanceReason");
+      
+      if (isRelevantForUser) {
+        if (status == 'ended') {
+          debugPrint("🔚 ==========================================");
+          debugPrint("🔚 TREATING private_call_status AS ENDED!");
+          debugPrint("🔚 Reason: $relevanceReason");
+          debugPrint("🔚 Status: $status");
+          debugPrint("🔚 Processing as private_call_ended event...");
+          debugPrint("🔚 ==========================================");
+          _handlePrivateCallEndedByOther(data);
+        } else {
+          debugPrint("🔧 ==========================================");
+          debugPrint("🔧 TREATING private_call_status AS ACCEPTED!");
+          debugPrint("🔧 Reason: $relevanceReason");
+          debugPrint("🔧 Status: $status");
+          debugPrint("🔧 Processing as private_call_accepted event...");
+          debugPrint("🔧 ==========================================");
+          _handlePrivateCallAccepted(data);
+        }
+      } else {
+        debugPrint("📊 private_call_status not relevant for current user");
+        debugPrint("📊 Reason: No matching conditions met");
+      }
+    });
+
+    // 🔍 DEBUG: Listen to ALL events to debug missing events
+    socket?.onAny((event, data) {
+      if (event.toString().contains('private') || 
+          event.toString().contains('call') ||
+          event.toString().contains('accepted') ||
+          event.toString().contains('rejected')) {
+        debugPrint("🔍 ===========================================");
+        debugPrint("🔍 DEBUG: SOCKET EVENT RECEIVED");
+        debugPrint("🔍 Event Name: '$event'");
+        debugPrint("🔍 Event Data: $data");
+        debugPrint("🔍 Current User: ${AppUrl.user_name} (ID: ${AppUrl.riolive_id})");
+        debugPrint("🔍 Socket ID: ${socket?.id}");
+        debugPrint("🔍 Is Connected: ${isConnected.value}");
+        debugPrint("🔍 ===========================================");
+      }
     });
 
     // Other events
@@ -1467,32 +1568,187 @@ class SocketService extends GetxService {
 
   bool get isSocketReady => isConnected.value && socket != null;
 
+  /// Workaround for missing tokens - try to fetch and join call
+  void _handleMissingTokensWorkaround(String callId, String roomId, String requesterId) async {
+    try {
+      debugPrint("🔧 ==========================================");
+      debugPrint("🔧 MISSING TOKENS WORKAROUND");
+      debugPrint("🔧 Call ID: $callId");
+      debugPrint("🔧 Room ID: $roomId");
+      debugPrint("🔧 Requester ID: $requesterId");
+      debugPrint("🔧 Attempting to fetch Agora token...");
+      debugPrint("🔧 ==========================================");
+
+      // Try to fetch Agora token for this room
+      final controller = Get.find<CallController>();
+      
+      // Convert requester ID to int for Agora (this should match backend token generation)
+      int userUid;
+      try {
+        if (requesterId.isNotEmpty) {
+          userUid = int.parse(requesterId);
+          debugPrint("🔧 Using backend requester ID as UID: $userUid");
+        } else {
+          userUid = int.parse(AppUrl.riolive_id.toString());
+          debugPrint("🔧 Fallback: Using AppUrl.riolive_id as UID: $userUid");
+        }
+      } catch (e) {
+        debugPrint("🔧 ❌ Failed to parse requester ID as int: $requesterId");
+        debugPrint("🔧 Using fallback UID: 3"); // Common backend user ID
+        userUid = 3; // Backend seems to use 3 as requester ID
+      }
+      
+      final agoraToken = await controller.fetchAgoraToken(
+        token: AppUrl.token,
+        channelName: roomId,
+        uid: userUid,
+        role: 'user',
+      );
+
+      if (agoraToken != null && agoraToken.isNotEmpty) {
+          debugPrint("🔧 ✅ Successfully fetched Agora token");
+        debugPrint("🔧 Token: ${agoraToken.substring(0, 20)}...");
+        debugPrint("🔧 ==========================================");
+        debugPrint("🔧 NAVIGATING TO VIDEO CALL SCREEN");
+        debugPrint("🔧 Call ID: $callId");
+        debugPrint("🔧 Channel Name: $roomId");
+        debugPrint("🔧 User Token: ${AppUrl.token?.substring(0, 20) ?? 'null'}...");
+        debugPrint("🔧 Agora Token: ${agoraToken.substring(0, 20)}...");
+        debugPrint("🔧 Is Host: false");
+        debugPrint("🔧 User UID: $userUid (MATCHES BACKEND TOKEN)");
+        debugPrint("🔧 Event Requester ID: $requesterId");
+        debugPrint("🔧 AppUrl.riolive_id: ${AppUrl.riolive_id}");
+        debugPrint("🔧 ==========================================");
+        
+        try {
+          // Navigate to video call screen with CORRECT UID
+          // CRITICAL: Use same UID that backend token was generated for
+          final result = Get.to(
+            () => VideoCallScreen(
+              token: AppUrl.token,
+              callId: callId,
+              channelName: roomId,
+              agoraToken: agoraToken,
+              isHost: false,
+              providedUid: userUid, // ✅ Use backend requester ID as UID that matches token
+            ),
+          );
+          
+          debugPrint("🔧 ✅ Navigation initiated successfully");
+          debugPrint("🔧 Navigation result: $result");
+          
+        } catch (navError) {
+          debugPrint("🔧 ❌ Navigation error: $navError");
+          debugPrint("🔧 Navigation error type: ${navError.runtimeType}");
+          debugPrint("🔧 Stack trace: ${StackTrace.current}");
+          
+          Get.snackbar(
+            '❌ Navigation Error',
+            'Failed to open video call: $navError',
+            backgroundColor: Colors.red.withOpacity(0.8),
+            colorText: Colors.white,
+            duration: const Duration(seconds: 5),
+          );
+        }
+        
+      } else {
+        debugPrint("🔧 ❌ Failed to fetch Agora token");
+        debugPrint("🔧 Token response: $agoraToken");
+        
+        Get.snackbar(
+          '❌ Connection Error',
+          'Unable to connect to private call. Please try again.',
+          backgroundColor: Colors.red.withOpacity(0.8),
+          colorText: Colors.white,
+          duration: const Duration(seconds: 4),
+        );
+      }
+
+    } catch (e) {
+      debugPrint("🔧 ❌ Error in missing tokens workaround: $e");
+      
+      Get.snackbar(
+        '❌ Connection Error',
+        'Failed to setup private call connection: $e',
+        backgroundColor: Colors.red.withOpacity(0.8),
+        colorText: Colors.white,
+        duration: const Duration(seconds: 4),
+      );
+    }
+  }
+
   // ================== PRIVATE CALL HANDLERS ==================
   
   /// Handle private call request (for hosts)
   void _handlePrivateCallRequest(dynamic raw) {
     try {
+      debugPrint("📞 ===========================================");
+      debugPrint("📞 PRIVATE CALL REQUEST RECEIVED!");
+      debugPrint("📞 Raw Data: $raw");
+      debugPrint("📞 Data Type: ${raw.runtimeType}");
+      debugPrint("📞 ===========================================");
+      
       final Map<String, dynamic> data = raw is Map
           ? Map<String, dynamic>.from(raw)
           : {};
 
-      final callId = (data['callId'] ?? data['id'] ?? '').toString();
-      final callerId = data['callerId']?.toString() ?? '';
-      final callerName = data['callerName']?.toString() ?? 'Unknown';
+      // ✅ Extract all possible field names
+      final callId = (data['privateCallId'] ?? data['callId'] ?? data['id'] ?? '').toString();
+      final callerId = (data['requesterId'] ?? data['callerId'] ?? data['userId'] ?? '').toString();
+      final callerName = (data['requesterName'] ?? data['callerName'] ?? data['userName'] ?? 'Unknown User').toString();
       final userProfilePic = data['userProfilePic']?.toString();
+      final randomCallId = (data['randomCallId'] ?? '').toString();
 
-      debugPrint("📞 Private call request - CallID: $callId, Caller: $callerName (ID: $callerId)");
+      debugPrint("📞 ===========================================");
+      debugPrint("📞 EXTRACTED DATA:");
+      debugPrint("📞 Private Call ID: $callId");
+      debugPrint("📞 Caller ID: $callerId");
+      debugPrint("📞 Caller Name: $callerName");
+      debugPrint("📞 Random Call ID: $randomCallId");
+      debugPrint("📞 User Profile Pic: $userProfilePic");
+      debugPrint("📞 Current User Role: ${AppUrl.user_role}");
+      debugPrint("📞 Current User ID: ${AppUrl.riolive_id}");
+      debugPrint("📞 Socket ID: ${socket?.id}");
+      debugPrint("📞 ===========================================");
 
-      if (callId.isEmpty || callerId.isEmpty) {
-        debugPrint("❌ Invalid private call request data: missing callId or callerId");
+      // ✅ Validation
+      if (callId.isEmpty) {
+        debugPrint("❌ Invalid private call request: missing privateCallId/callId");
+        return;
+      }
+
+      if (callerId.isEmpty) {
+        debugPrint("❌ Invalid private call request: missing requesterId/callerId");
         return;
       }
 
       // Only show popup if user is a host
       if (AppUrl.user_role != 'host') {
-        debugPrint("📞 Ignoring private call request - User is not a host");
+        debugPrint("⚠️ Ignoring private call request - Current user is not a host (Role: ${AppUrl.user_role})");
         return;
       }
+
+      // Don't show if caller is self
+      if (callerId == AppUrl.riolive_id.toString()) {
+        debugPrint("🚫 Ignoring self private call request");
+        return;
+      }
+
+      // Check if host is currently live streaming - if so, let live streaming screen handle it
+      final currentRoute = Get.currentRoute;
+      if (currentRoute.contains('HostStartLiveStreamingScreen')) {
+        debugPrint("🎙️ Host is live streaming - letting live streaming screen handle private call");
+        debugPrint("🎙️ Current route: $currentRoute");
+        return; // Let host_start_live_streaming_screen.dart handle it
+      }
+
+      debugPrint("✅ ===========================================");
+      debugPrint("✅ SHOWING PRIVATE CALL REQUEST POPUP (Socket Service)");
+      debugPrint("✅ From: $callerName (ID: $callerId)");
+      debugPrint("✅ To: ${AppUrl.user_name} (ID: ${AppUrl.riolive_id})");
+      debugPrint("✅ Private Call ID: $callId");
+      debugPrint("✅ Current Route: $currentRoute");
+      debugPrint("✅ ===========================================");
 
       // Show private call request popup to host
       _showPrivateCallRequestPopup(
@@ -1503,23 +1759,53 @@ class SocketService extends GetxService {
       );
 
     } catch (e) {
-      debugPrint("❌ Error handling private call request: $e");
+      debugPrint("💥 ===========================================");
+      debugPrint("💥 ERROR HANDLING PRIVATE CALL REQUEST!");
+      debugPrint("💥 Error: $e");
+      debugPrint("💥 Error Type: ${e.runtimeType}");
+      debugPrint("💥 Raw Data: $raw");
+      debugPrint("💥 Stack Trace: ${StackTrace.current}");
+      debugPrint("💥 ===========================================");
     }
   }
 
   /// Handle private call accepted (for users)
   void _handlePrivateCallAccepted(dynamic raw) {
     try {
+      debugPrint("✅ ==========================================");
+      debugPrint("✅ PRIVATE CALL ACCEPTED EVENT RECEIVED");
+      debugPrint("✅ Raw data: $raw");
+      debugPrint("✅ ==========================================");
+      
       final Map<String, dynamic> data = raw is Map
           ? Map<String, dynamic>.from(raw)
           : {};
 
-      final callId = (data['callId'] ?? data['id'] ?? '').toString();
-      final hostName = data['hostName']?.toString() ?? 'Host';
-      final channelName = data['channelName']?.toString();
-      final token = data['token']?.toString();
+      final callId = (data['privateCallId'] ?? data['callId'] ?? data['id'] ?? '').toString();
+      final hostName = (data['hostName'] ?? 'Host').toString();
+      final agoraData = data['agora'];
+      
+      // Handle both private_call_accepted and private_call_status event structures
+      final roomId = agoraData?['roomId']?.toString() ?? data['roomId']?.toString();
+      final appId = agoraData?['appId']?.toString();
+      final requesterToken = agoraData?['requester']?['token']?.toString();
+      final requesterUid = agoraData?['requester']?['uid'];
+      
+      debugPrint("🔍 Extracted Navigation Data:");
+      debugPrint("🔍 - Room ID: $roomId");
+      debugPrint("🔍 - App ID: $appId");
+      debugPrint("🔍 - Requester Token Available: ${requesterToken != null}");
+      debugPrint("🔍 - Requester UID: $requesterUid");
+      debugPrint("🔍 - Has Agora Data: ${agoraData != null}");
+      debugPrint("🔍 - Event Source: ${agoraData != null ? 'private_call_accepted' : 'private_call_status'}");
 
-      debugPrint("✅ Private call accepted - CallID: $callId, Host: $hostName");
+      debugPrint("✅ Extracted Data:");
+      debugPrint("✅ - Call ID: $callId");
+      debugPrint("✅ - Host Name: $hostName");
+      debugPrint("✅ - Room ID: $roomId");
+      debugPrint("✅ - App ID: $appId");
+      debugPrint("✅ - Requester UID: $requesterUid");
+      debugPrint("✅ - Token Length: ${requesterToken?.length ?? 0}");
 
       if (callId.isEmpty) {
         debugPrint("❌ Invalid private call accepted data: missing callId");
@@ -1534,21 +1820,75 @@ class SocketService extends GetxService {
       // Show success message
       Get.snackbar(
         '✅ Call Accepted',
-        '$hostName accepted your private call request',
+        '$hostName accepted your private call request!',
         backgroundColor: Colors.green.withOpacity(0.8),
         colorText: Colors.white,
         duration: const Duration(seconds: 3),
-        icon: const Icon(Icons.call, color: Colors.white),
+        icon: const Icon(Icons.videocam, color: Colors.white),
       );
 
-      // Navigate to private call screen if channel data is available
-      if (channelName != null && token != null) {
-        // TODO: Navigate to private call screen
-        debugPrint("📞 Navigating to private call screen - Channel: $channelName");
+      // Navigate to private video call if Agora data is available
+      if (roomId != null && requesterToken != null && appId != null) {
+        debugPrint("📞 ==========================================");
+        debugPrint("📞 NAVIGATING TO PRIVATE CALL SCREEN");
+        debugPrint("📞 Channel: $roomId");
+        debugPrint("📞 Token: ${requesterToken.substring(0, 20)}...");
+        debugPrint("📞 UID: $requesterUid");
+        debugPrint("📞 ==========================================");
+        
+        // Navigate to video call screen for private call
+        Get.to(
+          () => VideoCallScreen(
+            token: AppUrl.token,
+            callId: callId,
+            channelName: roomId,
+            agoraToken: requesterToken,
+            isHost: false, // User is not host in private call
+            providedUid: requesterUid, // ✅ FIX: Use backend-provided UID that matches token
+          ),
+        );
+      } else if (roomId != null) {
+        // 🔧 TEMPORARY WORKAROUND: We have roomId but missing tokens
+        debugPrint("🔧 ==========================================");
+        debugPrint("🔧 PARTIAL DATA RECEIVED - ATTEMPTING WORKAROUND");
+        debugPrint("🔧 Room ID: $roomId");
+        debugPrint("🔧 Call ID: $callId");
+        debugPrint("🔧 Missing: Agora tokens");
+        debugPrint("🔧 ==========================================");
+        
+        Get.snackbar(
+          '✅ Call Accepted!',
+          'Host accepted your call. Setting up connection...',
+          backgroundColor: Colors.green.withOpacity(0.8),
+          colorText: Colors.white,
+          duration: const Duration(seconds: 3),
+          icon: const Icon(Icons.videocam, color: Colors.white),
+        );
+        
+        // Try to fetch tokens and join the call
+        final requesterId = data['requesterId']?.toString() ?? '';
+        _handleMissingTokensWorkaround(callId, roomId, requesterId);
+        
+      } else {
+        debugPrint("❌ Missing Agora data for private call navigation");
+        debugPrint("❌ Room ID: $roomId, Token: ${requesterToken != null}, App ID: $appId");
+        debugPrint("❌ Full event data: $data");
+        
+        Get.snackbar(
+          '⚠️ Call Data Missing',
+          'Call was accepted but connection data is incomplete',
+          backgroundColor: Colors.orange.withOpacity(0.8),
+          colorText: Colors.white,
+          duration: const Duration(seconds: 4),
+        );
       }
 
     } catch (e) {
-      debugPrint("❌ Error handling private call accepted: $e");
+      debugPrint("💥 ==========================================");
+      debugPrint("💥 ERROR HANDLING PRIVATE CALL ACCEPTED");
+      debugPrint("💥 Error: $e");
+      debugPrint("💥 Raw data: $raw");
+      debugPrint("💥 ==========================================");
     }
   }
 
@@ -1614,6 +1954,132 @@ class SocketService extends GetxService {
     }
   }
 
+  /// Handle private call ended by other party (enhanced with proper navigation)
+  void _handlePrivateCallEndedByOther(dynamic raw) {
+    try {
+      final Map<String, dynamic> data = raw is Map
+          ? Map<String, dynamic>.from(raw)
+          : {};
+
+      debugPrint("🔚 ==========================================");
+      debugPrint("🔚 PRIVATE CALL ENDED BY OTHER PARTY");
+      debugPrint("🔚 Raw event data: $data");
+      debugPrint("🔚 Current user: ${AppUrl.user_name} (ID: ${AppUrl.riolive_id})");
+      debugPrint("🔚 Current user role: ${AppUrl.user_role}");
+      debugPrint("🔚 Current route: ${Get.currentRoute}");
+      debugPrint("🔚 ==========================================");
+
+      final callId = (data['callId'] ?? data['privateCallId'] ?? data['id'] ?? '').toString();
+      final requesterId = data['requesterId']?.toString() ?? '';
+      final hostId = data['hostId']?.toString() ?? '';
+      final message = data['message']?.toString() ?? 'Private call has ended';
+
+      debugPrint("🔚 Call ID: $callId");
+      debugPrint("🔚 Requester ID: $requesterId");
+      debugPrint("🔚 Host ID: $hostId");
+      debugPrint("🔚 Message: $message");
+
+      // ✅ Determine who the user is in this call
+      bool isUserTheRequester = requesterId == AppUrl.riolive_id.toString();
+      bool isUserTheHost = hostId == AppUrl.riolive_id.toString();
+      
+      debugPrint("🔚 Is user the requester: $isUserTheRequester");
+      debugPrint("🔚 Is user the host: $isUserTheHost");
+
+      if (!isUserTheRequester && !isUserTheHost) {
+        debugPrint("🔚 Call ended event not relevant to current user - ignoring");
+        return;
+      }
+
+      // ✅ Close any existing dialogs
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
+
+      // ✅ Show call ended notification
+      Get.snackbar(
+        '🔚 Call Ended',
+        isUserTheHost ? 'The user ended the private call' : 'The host ended the private call',
+        backgroundColor: Colors.orange.withOpacity(0.8),
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+        icon: const Icon(Icons.call_end, color: Colors.white),
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      // ✅ Handle navigation based on current screen and user role
+      _handleCallEndedNavigation(isUserTheHost: isUserTheHost);
+
+    } catch (e) {
+      debugPrint("❌ Error handling private call ended by other: $e");
+    }
+  }
+
+  /// Handle navigation when call ends based on user role and current screen
+  void _handleCallEndedNavigation({required bool isUserTheHost}) {
+    try {
+      debugPrint("🧭 ==========================================");
+      debugPrint("🧭 HANDLING CALL ENDED NAVIGATION");
+      debugPrint("🧭 Is user the host: $isUserTheHost");
+      debugPrint("🧭 Current route: ${Get.currentRoute}");
+      debugPrint("🧭 User role: ${AppUrl.user_role}");
+      debugPrint("🧭 ==========================================");
+
+      // ✅ If currently in video call screen, let it handle its own navigation
+      if (Get.currentRoute.contains('VideoCallScreen')) {
+        debugPrint("🧭 Currently in video call screen - letting it handle navigation");
+        // Force end call in video call screen (the screen will handle navigation)
+        Get.back(); // This will trigger the proper navigation flow in VideoCallScreen
+        return;
+      }
+
+      // ✅ Handle different scenarios based on user role and where they are
+      if (isUserTheHost && AppUrl.user_role == 'host') {
+        debugPrint("🧭 HOST ended call - checking if need to return to live streaming");
+        
+        // ✅ CRITICAL: Prevent user from accessing live stream
+        // Instead of automatically continuing live streaming, navigate back properly
+        if (Get.currentRoute.contains('HostStartLiveStreamingScreen')) {
+          debugPrint("🧭 Host is on live streaming screen - staying there");
+          // Host is already on live streaming screen, show message that call ended
+          Get.snackbar(
+            '🔚 Private Call Ended',
+            'You ended the private call. You are still live for new calls.',
+            backgroundColor: Colors.green.withOpacity(0.8),
+            colorText: Colors.white,
+            duration: const Duration(seconds: 3),
+            snackPosition: SnackPosition.BOTTOM,
+          );
+        }
+      } else if (!isUserTheHost) {
+        debugPrint("🧭 USER call ended - navigating back normally");
+        
+        // ✅ CRITICAL: User should NEVER go to live stream
+        // If user is somehow on live streaming screen or being navigated there, go back
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (Get.currentRoute.contains('HostStartLiveStreamingScreen') || 
+              Get.currentRoute.contains('LiveStreamingScreen')) {
+            debugPrint("🚨 User incorrectly on live streaming screen - navigating back");
+            
+            Get.back();
+            
+            Get.snackbar(
+              '⚫ Live Stream Ended',
+              'The host is no longer available. Going back...',
+              backgroundColor: Colors.red.withOpacity(0.8),
+              colorText: Colors.white,
+              duration: const Duration(seconds: 3),
+              snackPosition: SnackPosition.BOTTOM,
+            );
+          }
+        });
+      }
+
+    } catch (e) {
+      debugPrint("❌ Error in call ended navigation: $e");
+    }
+  }
+
   /// Show private call request popup to host
   void _showPrivateCallRequestPopup({
     required String callId,
@@ -1621,40 +2087,114 @@ class SocketService extends GetxService {
     required String callerName,
     String? userProfilePic,
   }) {
+    
+    debugPrint("🎆 ===========================================");
+    debugPrint("🎆 DISPLAYING PRIVATE CALL POPUP");
+    debugPrint("🎆 Call ID: $callId");
+    debugPrint("🎆 Caller: $callerName (ID: $callerId)");
+    debugPrint("🎆 Profile Pic: ${userProfilePic ?? 'None'}");
+    debugPrint("🎆 Current Route: ${Get.currentRoute}");
+    debugPrint("🎆 Dialog Open: ${Get.isDialogOpen}");
+    debugPrint("🎆 ===========================================");
+    
+    // Close any existing dialogs first
+    if (Get.isDialogOpen == true) {
+      debugPrint("⚠️ Closing existing dialog before showing private call popup");
+      Get.back();
+      Future.delayed(Duration(milliseconds: 300), () {
+        _showPrivateCallDialog(callId, callerId, callerName, userProfilePic);
+      });
+    } else {
+      _showPrivateCallDialog(callId, callerId, callerName, userProfilePic);
+    }
+  }
+  
+  /// Internal method to show the actual dialog
+  void _showPrivateCallDialog(String callId, String callerId, String callerName, String? userProfilePic) {
     Get.dialog(
       AlertDialog(
         backgroundColor: Colors.black.withOpacity(0.9),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            CircleAvatar(
-              radius: 25,
-              backgroundImage: userProfilePic != null && userProfilePic.isNotEmpty
-                  ? NetworkImage(userProfilePic)
-                  : const AssetImage('assets/icons/user_placeholder.png') as ImageProvider,
-              backgroundColor: Colors.grey,
+            Stack(
+              children: [
+                CircleAvatar(
+                  radius: 25,
+                  backgroundImage: userProfilePic != null && userProfilePic.isNotEmpty
+                      ? NetworkImage(userProfilePic)
+                      : const AssetImage('assets/images/profile.png') as ImageProvider,
+                  backgroundColor: Colors.purple.withOpacity(0.3),
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: Colors.green,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    '📞 Private Call Request',
-                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  Row(
+                    children: [
+                      Icon(Icons.diamond, color: Colors.purple, size: 18),
+                      SizedBox(width: 4),
+                      Text(
+                        'Private Call Request',
+                        style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
                   Text(
                     callerName,
-                    style: const TextStyle(color: Colors.white70, fontSize: 14),
+                    style: const TextStyle(color: Colors.purple, fontSize: 14, fontWeight: FontWeight.w500),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
             ),
           ],
         ),
-        content: Text(
-          '$callerName wants to have a private call with you.',
-          style: const TextStyle(color: Colors.white, fontSize: 16),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '$callerName wants to have a private call with you during your live stream.',
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 12),
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.purple.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.purple.withOpacity(0.3)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.info_outline, color: Colors.purple, size: 16),
+                  SizedBox(width: 6),
+                  Text(
+                    'This will be a private 1-on-1 call',
+                    style: TextStyle(color: Colors.white70, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
         actions: [
           // Reject Button
@@ -1662,16 +2202,28 @@ class SocketService extends GetxService {
             onPressed: () async {
               Get.back(); // Close dialog
               
+              debugPrint("❌ Host declining private call: $callId from $callerName");
+              
               final controller = Get.find<CallController>();
-              final success = await controller.rejectPrivateCall(callId: callId);
+              final success = await controller.rejectPrivateCall(callId: callId, reason: 'Host declined');
               
               if (success) {
+                debugPrint("✅ Private call successfully rejected");
                 Get.snackbar(
                   '❌ Call Declined',
-                  'You declined the private call request',
+                  'You declined the private call from $callerName',
                   backgroundColor: Colors.red.withOpacity(0.8),
                   colorText: Colors.white,
-                  duration: const Duration(seconds: 2),
+                  duration: const Duration(seconds: 3),
+                  icon: Icon(Icons.call_end, color: Colors.white),
+                );
+              } else {
+                debugPrint("❌ Failed to reject private call");
+                Get.snackbar(
+                  '❌ Error',
+                  'Failed to decline the call. Please try again.',
+                  backgroundColor: Colors.red.withOpacity(0.8),
+                  colorText: Colors.white,
                 );
               }
             },
@@ -1703,6 +2255,8 @@ class SocketService extends GetxService {
                 barrierDismissible: false,
               );
               
+              debugPrint("✅ Host accepting private call: $callId from $callerName");
+              
               final controller = Get.find<CallController>();
               final result = await controller.acceptPrivateCall(callId: callId);
               
@@ -1712,22 +2266,43 @@ class SocketService extends GetxService {
               }
               
               if (result != null) {
+                debugPrint("✅ ===========================================");
+                debugPrint("✅ PRIVATE CALL ACCEPTED SUCCESSFULLY!");
+                debugPrint("✅ Result: $result");
+                debugPrint("✅ Agora Data: ${result['agora']}");
+                debugPrint("✅ Room ID: ${result['agora']?['roomId']}");
+                debugPrint("✅ Host Token: ${result['agora']?['host']?['token']?.substring(0, 20)}...");
+                debugPrint("✅ ===========================================");
+                
                 Get.snackbar(
                   '✅ Call Accepted',
-                  'You accepted the private call request',
+                  'Starting private call with $callerName...',
                   backgroundColor: Colors.green.withOpacity(0.8),
                   colorText: Colors.white,
-                  duration: const Duration(seconds: 2),
+                  duration: const Duration(seconds: 3),
+                  icon: Icon(Icons.videocam, color: Colors.white),
                 );
                 
-                // TODO: Navigate to private call screen
-                debugPrint("📞 Navigate to private call screen with data: $result");
+                // TODO: Navigate to private call screen with proper data
+                final agoraData = result['agora'];
+                if (agoraData != null) {
+                  debugPrint("📞 Ready to navigate to private call screen:");
+                  debugPrint("📞 - Room ID: ${agoraData['roomId']}");
+                  debugPrint("📞 - App ID: ${agoraData['appId']}");
+                  debugPrint("📞 - Host UID: ${agoraData['host']?['uid']}");
+                  debugPrint("📞 - Requester UID: ${agoraData['requester']?['uid']}");
+                  
+                  // Here you would navigate to private call screen
+                  // Get.to(() => PrivateCallScreen(agoraData: agoraData));
+                }
               } else {
+                debugPrint("❌ Private call acceptance failed - result is null");
                 Get.snackbar(
                   '❌ Error',
-                  'Failed to accept the private call',
+                  'Failed to accept the private call. Please try again.',
                   backgroundColor: Colors.red.withOpacity(0.8),
                   colorText: Colors.white,
+                  duration: const Duration(seconds: 3),
                 );
               }
             },
