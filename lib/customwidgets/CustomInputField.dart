@@ -28,13 +28,13 @@ class CustomInputField extends StatelessWidget {
       onTap: onTap,
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(fontSize: 12, color: Colors.black54),
+        hintStyle: const TextStyle(fontSize: 16, color: Colors.black26,fontWeight: FontWeight.w400),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
           borderSide: BorderSide.none,
         ),
         filled: true,
-        fillColor: Colors.grey.shade300.withOpacity(0.6),
+        fillColor:Color(0xffDDDDDD),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 14,

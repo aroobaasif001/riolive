@@ -2,23 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:riolive/customwidgets/customtext.dart';
 import 'custom_container.dart';
 
-
 class CustomDropdownField extends StatelessWidget {
   final String hintText;
   final VoidCallback? onTap;
   final double height;
+  final double width;          // ✅ width added
   final double borderRadius;
   final double fontSize;
   final FontWeight fontWeight;
+  final Color backgroundColor; // ✅ background color added
 
   const CustomDropdownField({
     super.key,
     required this.hintText,
     this.onTap,
     this.height = 64,
+    this.width = double.infinity,      // ✅ default full width
     this.borderRadius = 32,
     this.fontSize = 18,
     this.fontWeight = FontWeight.w600,
+    this.backgroundColor = Colors.white, // ✅ default white background
   });
 
   @override
@@ -27,9 +30,9 @@ class CustomDropdownField extends StatelessWidget {
       onTap: onTap,
       child: CustomContainer(
         height: height,
-        width: double.infinity,
+        width: width, // ✅ applied here
         borderRadius: BorderRadius.circular(borderRadius),
-        conColor: Colors.white,
+        conColor: backgroundColor, // ✅ applied here
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),

@@ -241,8 +241,7 @@ class _MineScreenState extends State<MineScreen> {
                         ),
 
                         const SizedBox(height: 12),
-                        CustomContainer
-                          (
+                        CustomContainer(
                           conColor: const Color(0xffE9F5FF), // light blue panel bg
                           borderRadius: BorderRadius.circular(16),
                           padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
