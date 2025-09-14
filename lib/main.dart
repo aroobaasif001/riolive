@@ -10,6 +10,7 @@ import 'package:riolive/services/socket_service.dart';
 import 'package:riolive/utile/app_url.dart';
 import 'package:riolive/views/bottom_navi_screens/bottom_navi_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/messages_screen/event_screen.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/agency_screen1/agency_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/invite_screens/invitefriends_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/invite_screens/invitehost_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/live_data_screens/live_broadcast_data_screen.dart';
@@ -33,7 +34,10 @@ Future<void> main() async {
 
   // 👇 Wrap your app with DevicePreview
   runApp(
-    const MyApp(),
+    DevicePreview(
+      enabled: true, // sirf development ke liye true rakho
+      builder: (context) => const MyApp(),
+    ),
   );
 }
 
@@ -45,7 +49,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Rio Live App',
       debugShowCheckedModeBanner: false,
-      home: ShopScreen(),
+      home: AgencyScreen(),
 
 
       // 🔑 DevicePreview integration

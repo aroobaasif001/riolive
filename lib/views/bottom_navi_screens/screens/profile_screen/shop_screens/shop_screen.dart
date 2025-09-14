@@ -63,7 +63,6 @@ class ShopScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   r.hGap(70),
-
                   // ===== Top grid (3 items x 2 rows) — uses topGridGap =====
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: horizontalPad),
