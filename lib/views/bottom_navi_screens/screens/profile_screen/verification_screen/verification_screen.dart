@@ -13,6 +13,9 @@ class VerificationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 🔹 initialize responsive helper (baseline: 375x812)
+    R.init(context);
+
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -25,9 +28,9 @@ class VerificationScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
         ),
         centerTitle: true,
-        title: const CustomText(
+        title: CustomText(
           "Authentication",
-          fontSize: 20,
+          fontSize: R.sp(20),
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -35,81 +38,89 @@ class VerificationScreen extends StatelessWidget {
         height: size.height,
         width: size.width,
         image: const DecorationImage(
-          image: AssetImage("assets/images/bg11.png"), // 👈 background image path
+          image: AssetImage("assets/images/bg11.png"),
           fit: BoxFit.cover,
         ),
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: EdgeInsets.symmetric(
+              horizontal: R.w(20),
+              vertical: R.h(16),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 20),
+                SizedBox(height: R.h(20)),
 
                 // 🔹 My Authentication + Description (left) + Illustration (right)
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           CustomText(
                             "My Authentication",
-                            fontSize: 16,
+                            fontSize: R.sp(16),
                             fontWeight: FontWeight.bold,
                           ),
-                          SizedBox(height: 8),
+                          SizedBox(height: R.h(8)),
                           CustomText(
                             "To protect you and other account security.\n"
                                 "we recommend you to complete verification.",
-                            fontSize: 13,
+                            fontSize: R.sp(13),
                             maxLines: 4,
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: R.w(10)),
                     Image.asset(
                       "assets/images/auth_illustration.png",
-                      height: 90,
-                      width: 90,
+                      height: R.w(90),
+                      width: R.w(90),
                       fit: BoxFit.contain,
                     ),
                   ],
                 ),
-                const SizedBox(height: 40),
+
+                SizedBox(height: R.h(40)),
 
                 // 1️⃣ Face Authentication
                 CustomContainer(
-                  height: 90,
+                  height: R.h(90),
                   width: double.infinity,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(R.r(16)),
                   conColor: Colors.white,
                   border: Border.all(
-                    color: Color(0x66000000),
+                    color: const Color(0x66000000),
                     width: 1,
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: R.w(12),
+                    vertical: R.h(10),
+                  ),
                   child: Row(
                     children: [
-                      Image.asset("assets/images/face7.png", height: 40, width: 40),
-                      const SizedBox(width: 12),
-                      const Expanded(
+                      Image.asset("assets/images/face7.png",
+                          height: R.w(40), width: R.w(40)),
+                      SizedBox(width: R.w(12)),
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             CustomText(
                               "Face Authentication",
-                              fontSize: 15,
+                              fontSize: R.sp(15),
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
                             ),
-                            SizedBox(height: 9),
+                            SizedBox(height: R.h(9)),
                             CustomText(
                               "Please complete real person verification...",
-                              fontSize: 12,
+                              fontSize: R.sp(12),
                               color: Colors.black54,
                             ),
                           ],
@@ -120,47 +131,54 @@ class VerificationScreen extends StatelessWidget {
                         onPressed: () {
                           Get.to(() => const Faceauthenticationscreen());
                         },
-                        height: 36,
-                        width: 70,
-                        borderRadius: 20,
-                        gradientColors: [Color(0xFF8EC2FB), Color(0xFFE496FF)],
+                        height: R.h(36),
+                        width: R.w(70),
+                        borderRadius: R.r(20),
+                        gradientColors: const [
+                          Color(0xFF8EC2FB),
+                          Color(0xFFE496FF)
+                        ],
                       ),
                     ],
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                SizedBox(height: R.h(16)),
 
                 // 2️⃣ Bind a Phone
                 CustomContainer(
-                  height: 90,
+                  height: R.h(90),
                   width: double.infinity,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(R.r(16)),
                   conColor: Colors.white,
-                  border: Border.all(           // 👈 Black border added
-                    color: Color(0x66000000),
+                  border: Border.all(
+                    color: const Color(0x66000000),
                     width: 1,
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: R.w(12),
+                    vertical: R.h(10),
+                  ),
                   child: Row(
                     children: [
-                      Image.asset("assets/images/bind7.png", height: 40, width: 40),
-                      const SizedBox(width: 12),
-                      const Expanded(
+                      Image.asset("assets/images/bind7.png",
+                          height: R.w(40), width: R.w(40)),
+                      SizedBox(width: R.w(12)),
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             CustomText(
                               "Bind a Phone",
-                              fontSize: 15,
+                              fontSize: R.sp(15),
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
                             ),
-                            SizedBox(height: 9),
+                            SizedBox(height: R.h(9)),
                             CustomText(
                               "Please bind mobile number...",
-                              fontSize: 12,
+                              fontSize: R.sp(12),
                               color: Colors.black54,
                             ),
                           ],
@@ -171,48 +189,54 @@ class VerificationScreen extends StatelessWidget {
                         onPressed: () {
                           Get.to(() => const BindPhoneScreen());
                         },
-                        height: 36,
-                        width: 70,
-                        borderRadius: 20,
-                        gradientColors: [Color(0xFF8EC2FB), Color(0xFFE496FF)],
+                        height: R.h(36),
+                        width: R.w(70),
+                        borderRadius: R.r(20),
+                        gradientColors: const [
+                          Color(0xFF8EC2FB),
+                          Color(0xFFE496FF)
+                        ],
                       ),
                     ],
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                SizedBox(height: R.h(16)),
 
                 // 3️⃣ Join Agency
                 CustomContainer(
-                  height: 90,
+                  height: R.h(90),
                   width: double.infinity,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(R.r(16)),
                   conColor: Colors.white,
                   border: Border.all(
-                    color: Color(0x66000000),
+                    color: const Color(0x66000000),
                     width: 1,
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: R.w(12),
+                    vertical: R.h(10),
+                  ),
                   child: Row(
                     children: [
-                      Image.asset("assets/images/bind7.png", height: 40, width: 40),
-                      const SizedBox(width: 12),
-                      const Expanded(
+                      Image.asset("assets/images/bind7.png",
+                          height: R.w(40), width: R.w(40)),
+                      SizedBox(width: R.w(12)),
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             CustomText(
                               "Join Agency",
-                              fontSize: 15,
+                              fontSize: R.sp(15),
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
                             ),
-                            SizedBox(height: 9),
+                            SizedBox(height: R.h(9)),
                             CustomText(
                               "Please enter agency invite code",
-                              fontSize: 11,
-
+                              fontSize: R.sp(11),
                               color: Colors.black54,
                             ),
                           ],
@@ -223,15 +247,17 @@ class VerificationScreen extends StatelessWidget {
                         onPressed: () {
                           Get.to(() => const AgencyScreen());
                         },
-                        height: 36,
-                        width: 70,
-                        borderRadius: 20,
-                        gradientColors: [Color(0xFF8EC2FB), Color(0xFFE496FF)],
+                        height: R.h(36),
+                        width: R.w(70),
+                        borderRadius: R.r(20),
+                        gradientColors: const [
+                          Color(0xFF8EC2FB),
+                          Color(0xFFE496FF)
+                        ],
                       ),
                     ],
                   ),
                 ),
-
               ],
             ),
           ),
@@ -239,4 +265,33 @@ class VerificationScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+/// =================================================================
+///               SUPER LIGHTWEIGHT RESPONSIVE UTILS
+///   Baseline: 375 x 812 (iPhone-ish). No 3rd-party packages.
+/// =================================================================
+class R {
+  static late double _sw; // screen width
+  static late double _sh; // screen height
+  static late double _ws; // width scale vs baseline
+  static late double _hs; // height scale vs baseline
+
+  static void init(BuildContext context, {double designW = 375, double designH = 812}) {
+    final size = MediaQuery.of(context).size;
+    _sw = size.width;
+    _sh = size.height;
+    _ws = _sw / designW;
+    _hs = _sh / designH;
+  }
+
+  /// Width-based scaling (best for horizontal paddings, button widths, icons)
+  static double w(double px) => px * _ws;
+
+  /// Height-based scaling (best for vertical paddings, heights)
+  static double h(double px) => px * _hs;
+
+  static double sp(double px) => px * _ws;
+
+  static double r(double px) => px * _ws;
 }

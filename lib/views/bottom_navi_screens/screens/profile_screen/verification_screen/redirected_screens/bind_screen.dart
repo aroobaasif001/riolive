@@ -8,6 +8,9 @@ class BindPhoneScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ init responsive helper (baseline: 375 x 812)
+    R.init(context);
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -35,42 +38,42 @@ class BindPhoneScreen extends StatelessWidget {
               // 🔹 Top image
               Container(
                 width: double.infinity,
-                height: 260,
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
+                height: R.h(260),
+                decoration: BoxDecoration(
+                  image: const DecorationImage(
                     image: AssetImage("assets/images/bind.png"),
                     fit: BoxFit.cover,
                   ),
                   borderRadius: BorderRadius.only(
-                    bottomRight: Radius.circular(50),
+                    bottomRight: Radius.circular(R.r(50)),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 35),
+              SizedBox(height: R.h(35)),
 
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.0),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: R.w(24)),
                 child: CustomText(
                   "Bind a Phone",
                   fontType: AppFont.poppins,
-                  fontSize: 24,
+                  fontSize: R.sp(24),
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
-                  textAlign: TextAlign.start, // ✅ left align
+                  textAlign: TextAlign.start,
                 ),
               ),
 
+              SizedBox(height: R.h(24)),
 
-
-              const SizedBox(height: 24),
+              // 📱 Phone field
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                padding: EdgeInsets.symmetric(horizontal: R.w(24)),
                 child: Container(
-                  height: 55,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  height: R.h(55),
+                  padding: EdgeInsets.symmetric(horizontal: R.w(12)),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(R.r(30)),
                     border: Border.all(color: Colors.black.withOpacity(0.2)),
                     color: Colors.white,
                   ),
@@ -85,7 +88,7 @@ class BindPhoneScreen extends StatelessWidget {
                             value: value,
                             child: CustomText(
                               value,
-                              fontSize: 16,
+                              fontSize: R.sp(16),
                               color: Colors.black,
                               fontType: AppFont.poppins,
                             ),
@@ -93,15 +96,16 @@ class BindPhoneScreen extends StatelessWidget {
                         }).toList(),
                         onChanged: (val) {},
                       ),
-                      const SizedBox(width: 10),
-                      const Expanded(
+                      SizedBox(width: R.w(10)),
+                      Expanded(
                         child: TextField(
                           keyboardType: TextInputType.phone,
+                          style: TextStyle(fontSize: R.sp(15)),
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText: "Please enter your phone number",
                             hintStyle: TextStyle(
-                              fontSize: 15,
+                              fontSize: R.sp(15),
                               color: Colors.black54,
                             ),
                           ),
@@ -112,16 +116,16 @@ class BindPhoneScreen extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: R.h(20)),
 
-
+              // ✅ Next button (image bg)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                padding: EdgeInsets.symmetric(horizontal: R.w(25)),
                 child: Container(
                   width: double.infinity,
-                  height: 50,
+                  height: R.h(50),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(R.r(30)),
                     image: const DecorationImage(
                       image: AssetImage("assets/images/button_bg.png"),
                       fit: BoxFit.cover,
@@ -130,7 +134,7 @@ class BindPhoneScreen extends StatelessWidget {
                   child: Center(
                     child: CustomText(
                       "Next",
-                      fontSize: 16,
+                      fontSize: R.sp(16),
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                       fontType: AppFont.poppins,
@@ -138,47 +142,79 @@ class BindPhoneScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+
+              SizedBox(height: R.h(20)),
+
+              // Terms text
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                padding: EdgeInsets.symmetric(horizontal: R.w(20)),
                 child: Wrap(
                   alignment: WrapAlignment.center,
-                  children: const [
+                  children: [
                     CustomText(
                       "By using Riolive, you agree to the ",
-                      fontSize:  10.5,
+                      fontSize: R.sp(10.5),
                       color: Colors.black,
                       fontType: AppFont.poppins,
                     ),
                     CustomText(
                       "Terms Of Services ",
-                      fontSize: 10.5,
+                      fontSize: R.sp(10.5),
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF9557F9),
+                      color: const Color(0xFF9557F9),
                       fontType: AppFont.poppins,
                     ),
                     CustomText(
                       "And ",
-                      fontSize: 10.5,
+                      fontSize: R.sp(10.5),
                       color: Colors.black,
                       fontType: AppFont.poppins,
                     ),
                     CustomText(
                       "Privacy Policy",
-                      fontSize: 10.5,
+                      fontSize: R.sp(10.5),
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF9557F9),
+                      color: const Color(0xFF9557F9),
                       fontType: AppFont.poppins,
                     ),
                   ],
                 ),
               ),
-
-
             ],
           ),
         ),
       ),
     );
   }
+}
+
+/// =================================================================
+///               SUPER LIGHTWEIGHT RESPONSIVE UTILS
+///   Baseline: 375 x 812 (iPhone-ish). No 3rd-party packages.
+/// =================================================================
+class R {
+  static late double _sw; // screen width
+  static late double _sh; // screen height
+  static late double _ws; // width scale vs baseline
+  static late double _hs; // height scale vs baseline
+
+  static void init(BuildContext context, {double designW = 375, double designH = 812}) {
+    final size = MediaQuery.of(context).size;
+    _sw = size.width;
+    _sh = size.height;
+    _ws = _sw / designW;
+    _hs = _sh / designH;
+  }
+
+  /// Width-based scaling (horizontal paddings, widths, icons)
+  static double w(double px) => px * _ws;
+
+  /// Height-based scaling (vertical paddings, heights)
+  static double h(double px) => px * _hs;
+
+  /// Font scaling (typically width-based feels better)
+  static double sp(double px) => px * _ws;
+
+  /// Radius scaling (corner radius, circular sizes)
+  static double r(double px) => px * _ws;
 }

@@ -8,6 +8,9 @@ class CreateAgencyScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ init responsive helper (baseline 375 x 812)
+    R.init(context);
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -18,9 +21,9 @@ class CreateAgencyScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
         ),
         centerTitle: true,
-        title: const CustomText(
+        title: CustomText(
           "Create an Agency",
-          fontSize: 18,
+          fontSize: R.sp(18),
           fontWeight: FontWeight.bold,
           color: Colors.black,
         ),
@@ -35,51 +38,59 @@ class CreateAgencyScreen extends StatelessWidget {
           ),
         ),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(R.w(16)),
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: 340, // 👈 content ki width limit ki (screen choti hogi)
+              constraints: BoxConstraints(
+                maxWidth: R.w(340), // 👈 content width clamp
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 80),
+                  SizedBox(height: R.h(80)),
 
                   // 🔹 Your RioLive ID
-                  const CustomText("*Your RioLive Id",
-                      fontSize: 14, fontWeight: FontWeight.w500),
-                  const SizedBox(height: 6),
-                   CustomInputField(hintText: "ID Number"),
+                  CustomText(
+                    "*Your RioLive Id",
+                    fontSize: R.sp(14),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  SizedBox(height: R.h(6)),
+                  CustomInputField(hintText: "ID Number"),
 
-                  const SizedBox(height: 16),
+                  SizedBox(height: R.h(16)),
 
                   // 🔹 Verification Code + Get Button Inside Field
-                  const CustomText("RioLive Verification Code",
-                      fontSize: 14, fontWeight: FontWeight.w500),
-                  const SizedBox(height: 6),
+                  CustomText(
+                    "RioLive Verification Code",
+                    fontSize: R.sp(14),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  SizedBox(height: R.h(6)),
                   TextField(
+                    style: TextStyle(fontSize: R.sp(12)),
                     decoration: InputDecoration(
                       hintText: "Verification Code",
-                      hintStyle:
-                      const TextStyle(fontSize: 12, color: Colors.black54),
+                      hintStyle: TextStyle(fontSize: R.sp(12), color: Colors.black54),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
+                        borderRadius: BorderRadius.circular(R.r(30)),
                         borderSide: BorderSide.none,
                       ),
                       filled: true,
                       fillColor: Colors.grey.shade300.withOpacity(0.6),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 14),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: R.w(20),
+                        vertical: R.h(14),
+                      ),
                       suffixIcon: Container(
-                        margin: const EdgeInsets.only(right: 10),
+                        margin: EdgeInsets.only(right: R.w(10)),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
                             colors: [Color(0xFFFD6FFF), Color(0xFF8EC2FB)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(R.r(20)),
                         ),
                         child: ElevatedButton(
                           onPressed: () {
@@ -89,16 +100,15 @@ class CreateAgencyScreen extends StatelessWidget {
                             backgroundColor: Colors.transparent,
                             shadowColor: Colors.transparent,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(R.r(20)),
                             ),
-                            padding:
-                            const EdgeInsets.symmetric(horizontal: 12),
-                            minimumSize: const Size(50, 30),
+                            padding: EdgeInsets.symmetric(horizontal: R.w(12)),
+                            minimumSize: Size(R.w(50), R.h(30)),
                           ),
-                          child: const Text(
+                          child: Text(
                             "Get",
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: R.sp(12),
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                             ),
@@ -108,58 +118,65 @@ class CreateAgencyScreen extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 16),
+                  SizedBox(height: R.h(16)),
 
                   // 🔹 Country
-                  const CustomText("Country",
-                      fontSize: 14, fontWeight: FontWeight.w500),
-                  const SizedBox(height: 6),
-                   CustomInputField(
+                  CustomText(
+                    "Country",
+                    fontSize: R.sp(14),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  SizedBox(height: R.h(6)),
+                  CustomInputField(
                     hintText: "Please enter Country",
-                    suffixIcon:
-                    Icon(Icons.arrow_drop_down, color: Colors.black54),
+                    suffixIcon: Icon(Icons.arrow_drop_down, color: Colors.black54, size: R.sp(22)),
                   ),
 
-                  const SizedBox(height: 16),
+                  SizedBox(height: R.h(16)),
 
                   // 🔹 Description
-                  const CustomText("Description",
-                      fontSize: 14, fontWeight: FontWeight.w500),
-                  const SizedBox(height: 6),
+                  CustomText(
+                    "Description",
+                    fontSize: R.sp(14),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  SizedBox(height: R.h(6)),
                    CustomInputField(hintText: "Please Add"),
 
-                  const SizedBox(height: 16),
+                  SizedBox(height: R.h(16)),
 
                   // 🔹 WhatsApp
-                  const CustomText("WhatsApp",
-                      fontSize: 14, fontWeight: FontWeight.w500),
-                  const SizedBox(height: 6),
-                   CustomInputField(
+                  CustomText(
+                    "WhatsApp",
+                    fontSize: R.sp(14),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  SizedBox(height: R.h(6)),
+                  CustomInputField(
                     hintText: "Please fill in WhatsApp with country code",
-                    suffixIcon:
-                    Icon(Icons.arrow_drop_down, color: Colors.black54),
+                    suffixIcon: Icon(Icons.arrow_drop_down, color: Colors.black54, size: R.sp(22)),
                   ),
 
-                  const SizedBox(height: 24),
+                  SizedBox(height: R.h(24)),
 
                   // 🔹 Experience Section
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(R.w(16)),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade200.withOpacity(0.6),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(R.r(12)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const CustomText(
+                        CustomText(
                           "Experience",
-                          fontSize: 14,
+                          fontSize: R.sp(14),
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: R.h(12)),
 
                         // Radio Buttons Vertical
                         Column(
@@ -167,112 +184,111 @@ class CreateAgencyScreen extends StatelessWidget {
                           children: [
                             Row(
                               children: [
-                                Radio(
-                                    value: true,
-                                    groupValue: true,
-                                    onChanged: (_) {}),
-                                const CustomText("Yes", fontSize: 12),
+                                Radio<bool>(
+                                  value: true,
+                                  groupValue: true,
+                                  onChanged: (_) {},
+                                  visualDensity: VisualDensity.compact,
+                                ),
+                                CustomText("Yes", fontSize: R.sp(12)),
                               ],
                             ),
                             Row(
                               children: [
-                                Radio(
-                                    value: false,
-                                    groupValue: true,
-                                    onChanged: (_) {}),
-                                const CustomText("No", fontSize: 12),
+                                Radio<bool>(
+                                  value: false,
+                                  groupValue: true,
+                                  onChanged: (_) {},
+                                  visualDensity: VisualDensity.compact,
+                                ),
+                                CustomText("No", fontSize: R.sp(12)),
                               ],
                             ),
                           ],
                         ),
 
-                        const SizedBox(height: 12),
+                        SizedBox(height: R.h(12)),
 
                         // Normal TextField (underline)
-                        const CustomText("Name of other Platforms:",
-                            fontSize: 12),
-                        const SizedBox(height: 6),
-                        const TextField(
+                        CustomText("Name of other Platforms:", fontSize: R.sp(12)),
+                        SizedBox(height: R.h(6)),
+                        TextField(
+                          style: TextStyle(fontSize: R.sp(12)),
                           decoration: InputDecoration(
                             hintText: "Please enter",
-                            hintStyle: TextStyle(
-                                fontSize: 12, color: Colors.black54),
-                            border: UnderlineInputBorder(),
+                            hintStyle: TextStyle(fontSize: R.sp(12), color: Colors.black54),
+                            border: const UnderlineInputBorder(),
                           ),
                         ),
 
-                        const SizedBox(height: 12),
-                        const CustomText("Proof of cooperation (optional)",
-                            fontSize: 12),
-                        const SizedBox(height: 8),
+                        SizedBox(height: R.h(12)),
+                        CustomText("Proof of cooperation (optional)", fontSize: R.sp(12)),
+                        SizedBox(height: R.h(8)),
                         Container(
-                          height: 80,
-                          width: 100,
+                          height: R.h(80),
+                          width: R.w(100),
                           decoration: BoxDecoration(
                             color: const Color(0xffDDDDDD),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(R.r(12)),
                           ),
-                          child: const Icon(Icons.camera_alt,
-                              color: Colors.black54),
+                          child: const Icon(Icons.camera_alt, color: Colors.black54),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 30),
+
+                  SizedBox(height: R.h(30)),
 
                   // 🔹 Apply Gradient Button
                   CustomGradientButton(
                     text: "Apply",
                     onPressed: () {},
                     width: double.infinity,
-                    height: 50,
-                    borderRadius: 12,
-                    gradientColors: const [
-                      Color(0xFFFD6FFF),
-                      Color(0xFF8EC2FB)
-                    ],
+                    height: R.h(50),
+                    borderRadius: R.r(12),
+                    gradientColors: const [Color(0xFFFD6FFF), Color(0xFF8EC2FB)],
                   ),
 
-                  const SizedBox(height: 20),
+                  SizedBox(height: R.h(20)),
 
                   // 🔹 Warm Tips
-                  const CustomText(
+                  CustomText(
                     "Warm Tips:",
-                    fontSize: 14,
+                    fontSize: R.sp(14),
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: R.h(8)),
 
                   // 👉 Left padding for tips
                   Padding(
-                    padding: const EdgeInsets.only(left: 12),
+                    padding: EdgeInsets.only(left: R.w(12)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         CustomText(
                           "1. Plz invite 5 valid hosts at least within a month after registration.",
-                          fontSize: 12,
+                          fontSize: R.sp(12),
                           fontWeight: FontWeight.w400,
-                          color: Color(0x80000000),
+                          color: const Color(0x80000000),
                           softWrap: true,
                           maxLines: 3,
                         ),
-                        SizedBox(height: 8),
+                        SizedBox(height: R.h(8)),
                         CustomText(
                           "2. Valid host: Live for over 2 hours daily at least on one day within a week.",
-                          fontSize: 12,
+                          fontSize: R.sp(12),
                           fontWeight: FontWeight.w400,
-                          color: Color(0x80000000),
+                          color: const Color(0x80000000),
                           softWrap: true,
                           maxLines: 3,
                         ),
-                        SizedBox(height: 10),
+                        SizedBox(height: R.h(10)),
                         CustomText(
                           "3. If active valid hosts is less than 5 in a month, platform holds the right to take follow-up action to the agency.",
-                          fontSize: 12,
+                          fontSize: R.sp(12),
                           fontWeight: FontWeight.w400,
-                          color: Color(0x80000000),
+                          color: const Color(0x80000000),
                           softWrap: true,
                           maxLines: 3,
                         ),
@@ -287,4 +303,35 @@ class CreateAgencyScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+/// =================================================================
+///                    LIGHTWEIGHT RESPONSIVE UTILS
+///   Baseline: 375 x 812 (iPhone-ish). No extra packages.
+/// =================================================================
+class R {
+  static late double _sw; // screen width
+  static late double _sh; // screen height
+  static late double _ws; // width scale
+  static late double _hs; // height scale
+
+  static void init(BuildContext context, {double designW = 375, double designH = 812}) {
+    final size = MediaQuery.of(context).size;
+    _sw = size.width;
+    _sh = size.height;
+    _ws = _sw / designW;
+    _hs = _sh / designH;
+  }
+
+  /// Width-based scaling (horizontal paddings, widths, icons)
+  static double w(double px) => px * _ws;
+
+  /// Height-based scaling (vertical paddings, heights)
+  static double h(double px) => px * _hs;
+
+  /// Font scaling (usually width-based feels better)
+  static double sp(double px) => px * _ws;
+
+  /// Radius scaling (corner radius, circular sizes)
+  static double r(double px) => px * _ws;
 }
