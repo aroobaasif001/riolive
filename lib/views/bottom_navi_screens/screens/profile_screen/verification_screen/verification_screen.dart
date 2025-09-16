@@ -14,6 +14,8 @@ class VerificationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final height = size.height;
+    final width = size.width;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -22,220 +24,164 @@ class VerificationScreen extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           onPressed: () => Get.back(),
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: Colors.black, size: width * 0.06),
         ),
         centerTitle: true,
-        title: const CustomText(
+        title: CustomText(
           "Authentication",
-          fontSize: 20,
+          fontSize:  20,
           fontWeight: FontWeight.bold,
         ),
       ),
       body: CustomContainer(
-        height: size.height,
-        width: size.width,
+        height: height,
+        width: width,
         image: const DecorationImage(
-          image: AssetImage("assets/images/bg11.png"), // 👈 background image path
+          image: AssetImage("assets/images/bg11.png"),
           fit: BoxFit.cover,
         ),
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: EdgeInsets.symmetric(
+              horizontal: width * 0.05,
+              vertical: height * 0.02,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 20),
+                SizedBox(height: height * 0.03),
 
-                // 🔹 My Authentication + Description (left) + Illustration (right)
+                // My Authentication Row
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           CustomText(
                             "My Authentication",
-                            fontSize: 16,
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
-                          SizedBox(height: 8),
+                          SizedBox(height: height * 0.02),
                           CustomText(
-                            "To protect you and other account security.\n"
+                            "To protect you and other account security. "
                                 "we recommend you to complete verification.",
-                            fontSize: 13,
+                            fontSize: 16,
                             maxLines: 4,
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: width * 0.02),
                     Image.asset(
                       "assets/images/auth_illustration.png",
-                      height: 90,
-                      width: 90,
+                      height: 106.42,
+                      width: 95.03,
                       fit: BoxFit.contain,
                     ),
                   ],
                 ),
-                const SizedBox(height: 40),
+                SizedBox(height: height * 0.05),
 
-                // 1️⃣ Face Authentication
-                CustomContainer(
-                  height: 90,
-                  width: double.infinity,
-                  borderRadius: BorderRadius.circular(16),
-                  conColor: Colors.white,
-                  border: Border.all(
-                    color: Color(0x66000000),
-                    width: 1,
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  child: Row(
-                    children: [
-                      Image.asset("assets/images/face7.png", height: 40, width: 40),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CustomText(
-                              "Face Authentication",
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                            SizedBox(height: 9),
-                            CustomText(
-                              "Please complete real person verification...",
-                              fontSize: 12,
-                              color: Colors.black54,
-                            ),
-                          ],
-                        ),
-                      ),
-                      CustomGradientButton(
-                        text: "Go",
-                        onPressed: () {
-                          Get.to(() => const Faceauthenticationscreen());
-                        },
-                        height: 36,
-                        width: 70,
-                        borderRadius: 20,
-                        gradientColors: [Color(0xFF8EC2FB), Color(0xFFE496FF)],
-                      ),
-                    ],
-                  ),
+                // Face Authentication
+                _buildOption(
+                  context,
+                  width: width,
+                  height: height,
+                  icon: "assets/images/face7.png",
+                  title: "Face Authentication",
+                  subtitle: "Please complete real person verification...",
+                  buttonText: "Go",
+                  onTap: () => Get.to(() => const Faceauthenticationscreen()),
                 ),
+                SizedBox(height: height * 0.02),
 
-                const SizedBox(height: 16),
-
-                // 2️⃣ Bind a Phone
-                CustomContainer(
-                  height: 90,
-                  width: double.infinity,
-                  borderRadius: BorderRadius.circular(16),
-                  conColor: Colors.white,
-                  border: Border.all(           // 👈 Black border added
-                    color: Color(0x66000000),
-                    width: 1,
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  child: Row(
-                    children: [
-                      Image.asset("assets/images/bind7.png", height: 40, width: 40),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CustomText(
-                              "Bind a Phone",
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                            SizedBox(height: 9),
-                            CustomText(
-                              "Please bind mobile number...",
-                              fontSize: 12,
-                              color: Colors.black54,
-                            ),
-                          ],
-                        ),
-                      ),
-                      CustomGradientButton(
-                        text: "Bind",
-                        onPressed: () {
-                          Get.to(() => const BindPhoneScreen());
-                        },
-                        height: 36,
-                        width: 70,
-                        borderRadius: 20,
-                        gradientColors: [Color(0xFF8EC2FB), Color(0xFFE496FF)],
-                      ),
-                    ],
-                  ),
+                // Bind a Phone
+                _buildOption(
+                  context,
+                  width: width,
+                  height: height,
+                  icon: "assets/images/bind7.png",
+                  title: "Bind a Phone",
+                  subtitle: "Please bind mobile number...",
+                  buttonText: "Bind",
+                  onTap: () => Get.to(() => const BindPhoneScreen()),
                 ),
+                SizedBox(height: height * 0.02),
 
-                const SizedBox(height: 16),
-
-                // 3️⃣ Join Agency
-                CustomContainer(
-                  height: 90,
-                  width: double.infinity,
-                  borderRadius: BorderRadius.circular(16),
-                  conColor: Colors.white,
-                  border: Border.all(
-                    color: Color(0x66000000),
-                    width: 1,
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  child: Row(
-                    children: [
-                      Image.asset("assets/images/bind7.png", height: 40, width: 40),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CustomText(
-                              "Join Agency",
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                            SizedBox(height: 9),
-                            CustomText(
-                              "Please enter agency invite code",
-                              fontSize: 11,
-
-                              color: Colors.black54,
-                            ),
-                          ],
-                        ),
-                      ),
-                      CustomGradientButton(
-                        text: "Join",
-                        onPressed: () {
-                          Get.to(() => const AgencyScreen());
-                        },
-                        height: 36,
-                        width: 70,
-                        borderRadius: 20,
-                        gradientColors: [Color(0xFF8EC2FB), Color(0xFFE496FF)],
-                      ),
-                    ],
-                  ),
+                // Join Agency
+                _buildOption(
+                  context,
+                  width: width,
+                  height: height,
+                  icon: "assets/images/bind7.png",
+                  title: "Join Agency",
+                  subtitle: "Please enter agency invite code",
+                  buttonText: "Join",
+                  onTap: () => Get.to(() => const AgencyScreen()),
                 ),
-
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildOption(
+      BuildContext context, {
+        required double width,
+        required double height,
+        required String icon,
+        required String title,
+        required String subtitle,
+        required String buttonText,
+        required VoidCallback onTap,
+      }) {
+    return CustomContainer(
+      height: 105,
+      width: 385,
+      borderRadius: BorderRadius.circular(16),
+      conColor: Colors.white,
+      border: Border.all(color: const Color(0x66000000), width: 1),
+      padding: EdgeInsets.symmetric(horizontal: width * 0.03, vertical: height * 0.015),
+      child: Row(
+        children: [
+          Image.asset(icon, height: 46, width: 46),
+          SizedBox(width: width * 0.03),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CustomText(
+                  title,
+                  fontSize: width * 0.04,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+                SizedBox(height: height * 0.01),
+                CustomText(
+                  subtitle,
+                  fontSize: width * 0.04,
+                  color: Colors.black54,
+                ),
+              ],
+            ),
+          ),
+          CustomGradientButton(
+            text: buttonText,
+            onPressed: onTap,
+            fontSize: 16,   // 👈 text size fix at 16
+            height: 40,
+            width: 73,
+            borderRadius: 20,
+            gradientColors: const [Color(0xFF8EC2FB), Color(0xFFE496FF)],
+          ),
+
+        ],
       ),
     );
   }

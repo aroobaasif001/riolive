@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../../../customwidgets/custom_gradient_button.dart';
 import '../../../../../../customwidgets/customtext.dart';
+
 class Faceauthenticationscreen extends StatelessWidget {
   const Faceauthenticationscreen({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,6 +41,8 @@ class Faceauthenticationscreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 60),
+
+                /// Profile Placeholder
                 CircleAvatar(
                   radius: 60,
                   backgroundColor: Colors.blue.shade100,
@@ -51,47 +55,47 @@ class Faceauthenticationscreen extends StatelessWidget {
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 10),
                 const CustomText(
                   "Please upload a clear photo of yourself first",
-                  fontSize: 13,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                   textAlign: TextAlign.center,
                 ),
+                const SizedBox(height: 10),
+
                 Divider(
                   thickness: 1,
-                  color: Colors.black.withOpacity(0.08),
+                  color: Colors.black.withOpacity(0.1),
                 ),
-                const SizedBox(height: 5),
+
+                const SizedBox(height: 20),
+
+                /// 3 Options Row (Fixed)
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: _buildActionButton(
-                        "Upload Picture",
-                        'assets/images/face_auth2.png',
-                      ),
+                    _buildActionButton(
+                      "Upload Picture",
+                      'assets/images/face_auth2.png',
                     ),
-                    const SizedBox(width: 5,height: 20),
-                    Expanded(
-                      child: _buildActionButton(
-                        "Selfie With your ID",
-                        'assets/images/face_auth2.png',
-                      ),
+                    _buildActionButton(
+                      "Selfie With your ID",
+                      'assets/images/face_auth2.png',
                     ),
-                    const SizedBox(width: 1),
-                    Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 10), // 👈 jitna neeche chahiye utna adjust karein
-                        child: _buildActionButton(
-                          "Upload your \nShort video",
-                          'assets/images/face_auth2.png',
-                        ),
-                      ),
+                    _buildActionButton(
+                      "Upload your\nShort video",
+                      'assets/images/face_auth2.png',
                     ),
                   ],
                 ),
+
                 const SizedBox(height: 100),
+
+                /// Bottom Buttons
                 Column(
                   children: [
                     ElevatedButton(
@@ -118,8 +122,9 @@ class Faceauthenticationscreen extends StatelessWidget {
                     const SizedBox(height: 20),
                     CustomGradientButton(
                       text: "Start to Certificate",
-                      width: 300,
-                      height: 50,
+                      fontSize: 20,
+                      height: 57,
+                      width: 386,
                       fontWeight: FontWeight.bold,
                       borderRadius: 24,
                       onPressed: () {},
@@ -134,20 +139,21 @@ class Faceauthenticationscreen extends StatelessWidget {
     );
   }
 
+  /// 🔹 Reusable Button (Image + Text)
   Widget _buildActionButton(String label, String imagePath) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Image.asset(
           imagePath,
-          width: 50,
-          height: 50,
+          width: 60,
+          height: 60,
           fit: BoxFit.cover,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         CustomText(
           label,
-          fontSize: 10,
+          fontSize: 14,
           fontWeight: FontWeight.w400,
           textAlign: TextAlign.center,
           color: Colors.black87,

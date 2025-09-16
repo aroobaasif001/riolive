@@ -80,7 +80,7 @@ class CustomListItem extends StatelessWidget {
                   Text(
                     title,
                     style: const TextStyle(
-                        fontSize: 15, fontWeight: FontWeight.w600),
+                        fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                   const Icon(
                     Icons.arrow_forward_ios,

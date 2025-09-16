@@ -66,12 +66,20 @@ class _ContactCustomerServiceScreenState
                     icon: const Icon(Icons.arrow_back, color: Colors.black),
                     onPressed: () => Get.back(),
                   ),
-                  const CustomText(
-                    "Contact customer service",
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center, // ✅ center horizontally
+                    children: [
+                      CustomText(
+                        "Contact customer service",
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
+
+
                 ],
               ),
               const SizedBox(height: 20),
@@ -79,8 +87,8 @@ class _ContactCustomerServiceScreenState
               // Problem Type
               const CustomText(
                 "Problem Type",
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
               const SizedBox(height: 8),
@@ -88,12 +96,14 @@ class _ContactCustomerServiceScreenState
               // Dropdown for Problem Type
               DropdownButtonFormField<String>(
                 value: _selectedProblemType,
-                hint: const CustomText("Please select the problem type"),
+                hint: const CustomText("Please select the problem type",
+                fontSize: 16,
+                ),
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.grey.shade300.withOpacity(0.6),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(22),
                     borderSide: BorderSide.none,
                   ),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -115,7 +125,7 @@ class _ContactCustomerServiceScreenState
               // Issue
               const CustomText(
                 "Please Describe your issue",
-                fontSize: 14,
+                fontSize: 16,
                 fontWeight: FontWeight.w500,
                 color: Colors.black,
               ),
@@ -138,7 +148,7 @@ class _ContactCustomerServiceScreenState
                         border: InputBorder.none,
                         hintText: "Please Describe your issue....",
                         hintStyle:
-                        TextStyle(fontSize: 12, color: Color(0xff000000)),
+                        TextStyle(fontSize: 16, color: Color(0xff000000)),
                         counterText: "", // remove default counter
                       ),
                     ),
@@ -158,24 +168,24 @@ class _ContactCustomerServiceScreenState
               // Upload photo
               const CustomText(
                 "Upload photo",
-                fontSize: 14,
+                fontSize: 16,
                 fontWeight: FontWeight.w500,
                 color: Colors.black,
               ),
               const SizedBox(height: 8),
               CustomContainer(
-                height: 100,
-                width: 100,
+                height: 132,
+                width: 144,
                 borderRadius: BorderRadius.circular(12),
                 conColor: Color(0x2ea1a1a1),
                 child: const Center(
-                  child: Icon(Icons.add_a_photo, size: 50, color: Colors.grey),
+                  child: Icon(Icons.photo_camera_outlined, size: 50, color: Colors.grey),
                 ),
               ),
               const SizedBox(height: 8),
               const CustomText(
                 "Upload up to 5 photos, the size of each photo does not exceed 2MB",
-                fontSize: 12,
+                fontSize: 16,
                 color: Colors.grey,
                 softWrap: true,
                 maxLines: 3,
@@ -185,7 +195,7 @@ class _ContactCustomerServiceScreenState
               // Phone
               const CustomText(
                 "Phone",
-                fontSize: 14,
+                fontSize: 16,
                 fontWeight: FontWeight.w500,
                 color: Colors.black,
               ),
@@ -208,15 +218,19 @@ class _ContactCustomerServiceScreenState
                 hintText: "Gmail",
                 keyboardType: TextInputType.emailAddress,
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 80),
 
               // Submit button
               CustomGradientButton(
                 text: "Submit",
+                fontSize: 16,
+                height: 55,
+                width: 336,
                 onPressed: () {
                   // Submit logic
                 },
               ),
+
             ],
           ),
         ),
