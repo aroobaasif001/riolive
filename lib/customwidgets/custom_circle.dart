@@ -10,6 +10,7 @@ class CustomCircle extends StatelessWidget {
   final String? centerRightImg;
   final String? bottomLeftImg;
   final String? bottomRightImg;
+  final double? scaleFactor; // ✅ Add scale factor for responsiveness
 
   const CustomCircle({
     super.key,
@@ -20,26 +21,30 @@ class CustomCircle extends StatelessWidget {
     this.centerRightImg,
     this.bottomLeftImg,
     this.bottomRightImg,
+    this.scaleFactor, // ✅ Optional scale factor
   });
 
-  Widget _buildShadowedImage(String? imgPath, {double size = 67}) {
+  Widget _buildShadowedImage(String? imgPath, {double size = 60}) {
     if (imgPath == null) return const SizedBox.shrink();
+    final scale = scaleFactor ?? 1.0; // ✅ Use scale factor
+    final scaledSize = size * scale;
+    
     return Stack(
       alignment: Alignment.center,
       children: [
         CustomContainer(
-          height: size,
-          width: size,
+          height: scaledSize,
+          width: scaledSize,
           image: const DecorationImage(
             image: AssetImage('assets/images/circle shadow.png'),
             fit: BoxFit.fill,
           ),
         ),
         CustomContainer(
-          height: size - 8,
-          width: size - 8,
+          height: scaledSize - (8 * scale),
+          width: scaledSize - (8 * scale),
           shape: BoxShape.circle,
-          image: DecorationImage(image: AssetImage(imgPath), fit: BoxFit.fill),
+          image: DecorationImage(image: AssetImage(imgPath), fit: BoxFit.cover),
         ),
       ],
     );
@@ -47,10 +52,12 @@ class CustomCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scale = scaleFactor ?? 1.0; // ✅ Use scale factor
+    
     return Center(
       child: CustomContainer(
-        height: 320,
-        width: 350,
+        height: 320 * scale,
+        width: 350 * scale,
         shape: BoxShape.circle,
         child: Stack(
           children: [
@@ -58,8 +65,8 @@ class CustomCircle extends StatelessWidget {
             Align(
               alignment: Alignment.topCenter,
               child: CustomContainer(
-                height: 300,
-                width: 300,
+                height: 300 * scale,
+                width: 300 * scale,
                 image: const DecorationImage(
                   image: AssetImage('assets/images/circle_img.png'),
                   fit: BoxFit.fill,
@@ -71,7 +78,7 @@ class CustomCircle extends StatelessWidget {
             Align(
               alignment: Alignment.topLeft,
               child: Padding(
-                padding: const EdgeInsets.only(left: 70),
+                padding: EdgeInsets.only(left: 70 * scale),
                 child: _buildShadowedImage(topLeftImg),
               ),
             ),
@@ -80,19 +87,19 @@ class CustomCircle extends StatelessWidget {
             Align(
               alignment: Alignment.topRight,
               child: Padding(
-                padding: const EdgeInsets.only(right: 70),
+                padding: EdgeInsets.only(right: 70 * scale),
                 child: _buildShadowedImage(topRightImg),
               ),
             ),
 
             // Center Circle
             Padding(
-              padding: const EdgeInsets.only(left: 3, bottom: 22),
+              padding: EdgeInsets.only(left: 3 * scale, bottom: 22 * scale),
               child: Align(
                 alignment: Alignment.center,
                 child: CustomContainer(
-                  height: 80,
-                  width: 80,
+                  height: 80 * scale,
+                  width: 80 * scale,
                   shape: BoxShape.circle,
                   image: centerImg != null
                       ? DecorationImage(image: AssetImage(centerImg!), fit: BoxFit.cover)
@@ -106,7 +113,7 @@ class CustomCircle extends StatelessWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: Padding(
-                padding: const EdgeInsets.only(left: 10),
+                padding: EdgeInsets.only(left: 10 * scale),
                 child: _buildShadowedImage(centerLeftImg),
               ),
             ),
@@ -115,7 +122,7 @@ class CustomCircle extends StatelessWidget {
             Align(
               alignment: Alignment.centerRight,
               child: Padding(
-                padding: const EdgeInsets.only(right: 10),
+                padding: EdgeInsets.only(right: 10 * scale),
                 child: _buildShadowedImage(centerRightImg),
               ),
             ),
@@ -124,7 +131,7 @@ class CustomCircle extends StatelessWidget {
             Align(
               alignment: Alignment.bottomLeft,
               child: Padding(
-                padding: const EdgeInsets.only(left: 70),
+                padding: EdgeInsets.only(left: 70 * scale),
                 child: _buildShadowedImage(bottomLeftImg),
               ),
             ),
@@ -133,7 +140,7 @@ class CustomCircle extends StatelessWidget {
             Align(
               alignment: Alignment.bottomRight,
               child: Padding(
-                padding: const EdgeInsets.only(right: 70),
+                padding: EdgeInsets.only(right: 70 * scale),
                 child: _buildShadowedImage(bottomRightImg),
               ),
             ),

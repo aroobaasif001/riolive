@@ -6,7 +6,7 @@ import 'package:riolive/customwidgets/custom_container.dart';
 import 'package:riolive/customwidgets/customappbar_agencyscreen.dart';
 
 import '../../../../../../customwidgets/custom_gradient_button.dart';
-import 'HostApplicationScreen.dart'; // e.g. RioliveAppBar
+import '../../agency_screen1/HostApplicationScreen.dart'; // e.g. RioliveAppBar
 
 class AgencyManagementV2 extends StatefulWidget {
   const AgencyManagementV2({super.key});

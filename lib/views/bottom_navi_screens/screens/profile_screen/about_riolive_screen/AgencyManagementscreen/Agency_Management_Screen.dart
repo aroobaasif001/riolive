@@ -10,6 +10,7 @@ import 'AgencyManagementV2.dart';
 import 'MIne_screen.dart';
 import 'Sub_agency/Sub_agency.dart';
 
+
 class AgencyManagementScreen extends StatelessWidget {
   const AgencyManagementScreen({super.key});
 
@@ -97,17 +98,24 @@ class _TopSummaryCard extends StatelessWidget {
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(width: 4),
-                        const Icon(Icons.copy, color: Colors.black54, size: 14),
-                        const SizedBox(width: 4),
-                        CustomContainer(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
+
+
+                        InkWell(
+                          onTap: () {
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                            child: CustomText("Host", color: Colors.grey),
                           ),
-                          decoration: BoxDecoration(
-                            color: Colors.blue,
-                            borderRadius: BorderRadius.circular(12),
+                        ),
+
+                        InkWell(
+                          onTap: () {
+
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                            child: CustomText("Sub AGENCY", color: Colors.grey),
                           ),
                           child: const CustomText(
                             "Agency",

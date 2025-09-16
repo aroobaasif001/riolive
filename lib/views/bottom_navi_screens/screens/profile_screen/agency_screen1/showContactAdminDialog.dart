@@ -30,23 +30,24 @@ void showContactAdminDialog(BuildContext context) {
                     children: [
                       const CustomText(
                         "Need help? contact Admin",
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
                         color: Colors.black,
                       ),
                       const SizedBox(height: 12),
 
                       // avatar
-                      const CircleAvatar(
-                        radius: 36,
-                        backgroundImage: AssetImage("assets/images/profile.png"),
-                      ),
-
+                     CustomContainer(
+                       height: 71,
+                       width: 72,
+                       shape: BoxShape.circle,
+                       child: Image(image: AssetImage('assets/images/pro.png')),
+                     ),
                       const SizedBox(height: 12),
                       const CustomText(
                         "Rio Live",
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
+                        fontSize: 25,
+                        fontWeight: FontWeight.w600,
                       ),
 
                       const SizedBox(height: 8),
@@ -55,10 +56,10 @@ void showContactAdminDialog(BuildContext context) {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const SizedBox(width: 8),
-                          const CustomText("WhatsApp +44 54546789",
-                              fontSize: 14, color: Colors.black),
+                          const CustomText("+44 54546789",
+                              fontSize: 14, color: Colors.black,fontWeight: FontWeight.w500,),
                           const SizedBox(width: 6),
-                          const Icon(Icons.copy, size: 16, color: Colors.black54),
+                          const Icon(Icons.copy, size: 16, color: Colors.black),
                         ],
                       ),
 
@@ -66,9 +67,11 @@ void showContactAdminDialog(BuildContext context) {
 
                       // chat badge
                       CustomContainer(
+                        height: 45,
+                        width: 50,
+                        padding: EdgeInsets.all(5),
                         conColor: const Color(0xFFCDC4C3),
-                        borderRadius: BorderRadius.circular(40),
-                        padding: const EdgeInsets.all(8),
+                        borderRadius: BorderRadius.circular(10),
                         child: Image.asset(
                           "assets/icons/chat25.png",
                           width: 28,
@@ -76,11 +79,13 @@ void showContactAdminDialog(BuildContext context) {
                         ),
                       ),
 
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 10),
                       const CustomText(
-                        "Official Live Support Chat",
-                        fontSize: 12,
-                        color: Colors.black54,
+                        "Official Live Support",
+                        fontSize: 10,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600,
+                        fontType: AppFont.poppins,
                       ),
                     ],
                   ),

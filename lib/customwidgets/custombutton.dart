@@ -40,8 +40,14 @@ class CustomButton extends StatelessWidget {
         height: height ?? screenWidth * 0.15, // Default ~14% of width
         width: width ?? screenWidth * 0.8, // Default 80% of width
         decoration: fb.BoxDecoration(
-          color: backgroundColor,
+          color: gradientColors == null ? backgroundColor : null,
           borderRadius: BorderRadius.circular(40),
+          gradient: gradientColors != null
+              ? LinearGradient(
+                  colors: gradientColors,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight
+          ) : null,
           boxShadow: [
             // Outer Shadow
             fb.BoxShadow(

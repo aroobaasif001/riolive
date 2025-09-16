@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:riolive/customwidgets/customtext.dart';
 import '../../../../../../customwidgets/custom_gradient_button.dart';
-import '../about_riolive_screen/AgencyManagementscreen/Agency_Management_Screen.dart';
 
 class MyAgentScreen extends StatelessWidget {
   const MyAgentScreen({super.key});
