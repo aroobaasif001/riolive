@@ -18,6 +18,7 @@ class SignUpScreen extends StatelessWidget {
 
     return SafeArea(
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Container(
           width: double.infinity,
           height: double.infinity,
@@ -54,24 +55,14 @@ class SignUpScreen extends StatelessWidget {
                 SizedBox(height: 25),
                 CustomTextFormField(
                   controller: signUpController.email,
-                  hintText: 'Enter your email or phone number...',
+                  hintText: 'Enter your email address...',
                   prefix: Image(
                     image: AssetImage('assets/icons/emailicon.png'),
                     height: 22,
                     width: 28,
                   ),
                 ),
-                SizedBox(height: 16),
-                CustomTextFormField(
-                  controller: signUpController.password,
-                  hintText: 'Enter Password',
-                  prefix: Image(
-                    image: AssetImage('assets/icons/passwordicon.png'),
-                    height: 22,
-                    width: 28,
-                  ),
-                ),
-                SizedBox(height: 110),
+                SizedBox(height: 200),
                 // Show the loading indicator or the button
                 Obx(() {
                   return signUpController.isLoading.value
@@ -79,9 +70,9 @@ class SignUpScreen extends StatelessWidget {
                       : CustomButton(
                           height: 57,
                           width: 386,
-                          text: 'SignUp',
+                          text: 'Next',
                           onPressed:
-                              signUpController.signUp, // Call the signUp method
+                              signUpController.sendOtp, // Call the sendOtp method
                         );
                 }),
                 SizedBox(height: 16),

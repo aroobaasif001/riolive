@@ -79,6 +79,7 @@ class _BottomNaviScreenState extends State<BottomNaviScreen> {
       // Let content extend under the curved bar for the floating effect
       extendBody: true,
       extendBodyBehindAppBar: true,
+      resizeToAvoidBottomInset: false,
       // Keep the current tab state alive while switching
       body: IndexedStack(index: _selectedIndex, children: _screens),
       // ✅ TikTok-style curved navigation with center camera button

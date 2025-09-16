@@ -6,6 +6,7 @@ import 'package:riolive/customwidgets/termsagreement.dart';
 
 import '../../../controller/signin_controller.dart';
 import '../../splashscreen/splash_screen.dart';
+import 'signup_screen.dart';
 
 class SignInScreen extends StatelessWidget {
   const SignInScreen({super.key});
@@ -17,7 +18,7 @@ class SignInScreen extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
         // (optional) explicit – default true hota hai
-        resizeToAvoidBottomInset: true,
+        resizeToAvoidBottomInset: false,
         body: Container(
           width: double.infinity,
           height: double.infinity,
@@ -98,6 +99,36 @@ class SignInScreen extends StatelessWidget {
                   )
                       : const SizedBox();
                 }),
+                const SizedBox(height: 40),
+                // Register/Add New Account Section
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "Don't have an account? ",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Get.to(() => const SignUpScreen());
+                      },
+                      child: const Text(
+                        "Register",
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+            
               ],
             ),
           ),

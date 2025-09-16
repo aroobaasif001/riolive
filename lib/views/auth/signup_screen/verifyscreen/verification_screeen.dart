@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:riolive/customwidgets/custombutton.dart';
 import 'package:riolive/customwidgets/customtext.dart';
 
+import '../../../../controller/signup_controller.dart';
 import '../../../../customwidgets/customOtpbubblesbar.dart';
 
 class VerificationScreeen extends StatelessWidget {
@@ -10,9 +11,10 @@ class VerificationScreeen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final signUpController = Get.find<SignUpController>(); // Get existing controller
     return SafeArea(
       child: Scaffold(
-        resizeToAvoidBottomInset: true,
+        resizeToAvoidBottomInset: false,
         body: Container(
           width: double.infinity,
           height: double.infinity,
@@ -61,20 +63,46 @@ class VerificationScreeen extends StatelessWidget {
                           length: 4,
                           diameter: 62,
                           strokeWidth: 2.5,
+                          onChanged: (code) {
+                            signUpController.otp.text = code;
+                          },
                           onCompleted: (code) {
-                            // verify ya next step yahan
+                            signUpController.otp.text = code;
                           },
                         ),
                         SizedBox(height: 42),
-                        CustomButton(height: 57, width: 207, text: 'Submit', onPressed: () {}),
+                        // Show loading indicator or button
+                        Obx(() {
+                          return signUpController.isOtpLoading.value
+                              ? CircularProgressIndicator()
+                              : CustomButton(
+                                  height: 57,
+                                  width: 207,
+                                  text: 'Submit',
+                                  onPressed: signUpController.verifyOtp,
+                                );
+                        }),
                         SizedBox(height: 34),
-                        CustomText(
-                          'Resend OTP',
-                          fontWeight: FontWeight.w600,
-                          fontSize: 22,
-                          color: Color(0xffFFFFFF),
-                          letterSpacing: 1,
+                        GestureDetector(
+                          onTap: signUpController.resendOtp,
+                          child: CustomText(
+                            'Resend OTP',
+                            fontWeight: FontWeight.w600,
+                            fontSize: 22,
+                            color: Color(0xffFFFFFF),
+                            letterSpacing: 1,
+                          ),
                         ),
+                        SizedBox(height: 20),
+                        // Display error message if any
+                        Obx(() {
+                          return signUpController.errorMessage.value.isNotEmpty
+                              ? Text(
+                                  signUpController.errorMessage.value,
+                                  style: TextStyle(color: Colors.red),
+                                )
+                              : SizedBox();
+                        }),
                       ],
                     ),
                   ),

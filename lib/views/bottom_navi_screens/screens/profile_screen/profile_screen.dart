@@ -10,7 +10,7 @@ import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/verific
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/wallet_sceens/grab_orders1_screen.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/wallet_sceens/wallet_screen.dart';
 import '../../../../utile/app_url.dart';
-import '../DiamondTrading/diamond_trading_main_screen.dart';
+import 'DiamondTrading/diamond_trading_main_screen.dart';
 import 'about_riolive_screen/about_screen.dart';
 
 import 'agency_screen1/agency_screen.dart';

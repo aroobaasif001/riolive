@@ -5,7 +5,10 @@ class AppUrl {
   static var baseUrl = "https://backend-api-pgu8.onrender.com"; //old
 
   ///Registration Api's
+  static var getOTP = "${baseUrl}/api/users/get-otp";
+  static var verifyOTP = "${baseUrl}/api/users/verify-otp";
   static var signup = "${baseUrl}/api/users/signup";
+  static var getUserProfile = "${baseUrl}/api/users/profile";
   static var login = "${baseUrl}/api/users/login";
   static var logout = "${baseUrl}/api/users/logout";
   static var stayLogin = "${baseUrl}/api/users/stay-login";

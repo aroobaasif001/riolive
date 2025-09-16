@@ -108,9 +108,11 @@ class CustomText extends StatelessWidget {
         .merge(style);
 
     // ✅ Safe defaults to prevent yellow overflow stripes
-    final int effectiveMaxLines = maxLines ?? 1;
-    final TextOverflow effectiveOverflow = overflow ?? TextOverflow.ellipsis;
-    final bool effectiveSoftWrap = softWrap ?? false;
+// ✅ Safe defaults same as Flutter Text widget
+    final int? effectiveMaxLines = maxLines; // null means unlimited lines
+    final TextOverflow? effectiveOverflow = overflow; // null means default clip
+    final bool? effectiveSoftWrap = softWrap; // null means default true
+
 
     final textWidget = Text(
       text,
@@ -124,13 +126,10 @@ class CustomText extends StatelessWidget {
       textScaleFactor: textScaleFactor,
       strutStyle: strutStyle,
       textWidthBasis: textWidthBasis,
-      textHeightBehavior: textHeightBehavior ??
-          const TextHeightBehavior(
-            applyHeightToFirstAscent: false,
-            applyHeightToLastDescent: false,
-          ),
+      textHeightBehavior: textHeightBehavior,
       semanticsLabel: semanticsLabel,
     );
+
 
     if (padding == null || padding == EdgeInsets.zero) return textWidget;
     return Padding(padding: padding!, child: textWidget);
