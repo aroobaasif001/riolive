@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../../../customwidgets/custom_container.dart';
 import '../../../../../../customwidgets/custom_gradient_button.dart';
 import '../../../../../../customwidgets/customtext.dart';
+import '../../../../../../utile/dialog_helper.dart';
 import '../showContactAdminDialog.dart';
 import '../showInviteHostSheet.dart';
 class TopSummaryScreen extends StatelessWidget {
@@ -168,11 +169,17 @@ class TopSummaryScreen extends StatelessWidget {
                         gradientColors: const [Color(0xffFE7E07), Color(0xffFFDE67)],
                         begin: Alignment.centerLeft, end: Alignment.centerRight,
                         textColor: Colors.black, fontSize: 10, fontWeight: FontWeight.w600,
-                        onPressed: () => showInviteHostSheet(context),
+                        onPressed: () => InviteDialog.showInviteSheet(
+                          context,
+                          backgroundColor: const Color(0xFFD4F1C5),
+                          height: 250// 👈 yahan custom bg color
+                        ),
                       ),
                     ],
                   ),
                 ),
+
+
                 // ⬅️ rows ke darmiyan gap kam
                 Expanded(
                   child: Row(

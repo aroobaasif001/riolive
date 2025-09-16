@@ -250,7 +250,7 @@ void openTopSearchDialog(BuildContext context) {
     context: context,
     barrierLabel: 'search',
     barrierDismissible: true,
-    barrierColor: Colors.black.withOpacity(0.15),
+    barrierColor: Colors.black.withOpacity(0.5),
     transitionDuration: const Duration(milliseconds: 220),
     pageBuilder: (ctx, a1, a2) {
       return Material(
@@ -266,63 +266,89 @@ void openTopSearchDialog(BuildContext context) {
             ),
 
             // frosted panel pinned to TOP (bottom radius = 10)
+            // === Frosted panel (full rounded) with 4-col grid pills ===
             Positioned(
-              left: 0, right: 0, top: 120,
-              child: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(10),
-                  bottomRight: Radius.circular(10),
-                ),
-                child: Container(
-                  width: 430,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.30),
-                    border: Border.all(color: Colors.white.withOpacity(0.25), width: 1),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.10),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10), // space for top bar
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const CustomText(
-                        'Recent',
-                        fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white,
-                      ),
-                      const SizedBox(height: 14),
-                      // pills
-                      Wrap(
-                        spacing: 10, runSpacing: 10,
-                        children: recent.map((e) {
-                          return Container(
-                            height: 26,
-                            width: 89,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE7EBF5).withOpacity(0.95),
-                              borderRadius: BorderRadius.circular(999),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.06),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Center(child: CustomText(e, fontWeight: FontWeight.w400, fontSize: 12)),
-                          );
-                        }).toList(),
-                      ),
-                    ],
+              left: 0, right: 0, top: 110,
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(10),
+                    bottomRight: Radius.circular(10),
+                  ), // ✅ sirf bottom corners rounded
+                  child: Container(
+                    width: double.infinity,   // full screen width
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.30),
+                      border: Border.all(color: Colors.white.withOpacity(0.25), width: 1),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.10),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const CustomText(
+                          'Recent',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(height: 12),
+
+                        LayoutBuilder(
+                          builder: (context, box) {
+                            const gap = 14.0;
+                            final totalGaps = gap * 3;
+                            final itemWidth = (box.maxWidth - totalGaps) / 4;
+                            const itemHeight = 30.0;
+                            return Wrap(
+                              spacing: gap,
+                              runSpacing: gap,
+                              children: recent.map((e) {
+                                return SizedBox(
+                                  width: itemWidth,
+                                  height: itemHeight,
+                                  child: DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFDFDFE9),
+                                      borderRadius: BorderRadius.circular(999),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.06),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Center(
+                                      child: CustomText(
+                                        e,
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
+
+
+
 
             // top floating bar: TextFormField (smaller width) + logo, with inner shadow
             Positioned(
@@ -337,10 +363,6 @@ void openTopSearchDialog(BuildContext context) {
                         // base dark gradient with outer shadow + border
                         Container(
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF4A4656), Color(0xFF2D2433)],
-                              begin: Alignment.topLeft, end: Alignment.bottomRight,
-                            ),
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(color: Colors.white.withOpacity(0.25), width: 0.8),
                             boxShadow: [
@@ -378,7 +400,7 @@ void openTopSearchDialog(BuildContext context) {
                           child: Center(
                             child: TextFormField(
                               initialValue: "",
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                              style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
                               decoration: InputDecoration(
                                 isCollapsed: true,
                                 contentPadding: const EdgeInsets.symmetric(vertical: 12),
@@ -395,9 +417,12 @@ void openTopSearchDialog(BuildContext context) {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 5),
                   // brand/logo right side
-                  Image.asset('assets/images/textlogo.png', height: 34),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: Image.asset('assets/images/textlogo.png', height: 35),
+                  ),
                 ],
               ),
             ),
@@ -425,7 +450,7 @@ void showCountryDialogTop(BuildContext context) {
     context: context,
     barrierDismissible: true,
     barrierLabel: 'country-dialog',
-    barrierColor: Colors.black.withOpacity(.0),
+    barrierColor: Colors.black.withOpacity(0.5),
     transitionDuration: const Duration(milliseconds: 220),
     pageBuilder: (ctx, a1, a2) {
       // NULL-SAFE chip
@@ -434,17 +459,16 @@ void showCountryDialogTop(BuildContext context) {
 
         Widget flagBox;
         if (flagPath == null || flagPath.isEmpty) {
-          // fallback if image path missing
           flagBox = CustomContainer(
             height: 16, width: 16,
             borderRadius: BorderRadius.circular(11),
-            conColor: Colors.white,
+            conColor: Colors.black,
           );
         } else {
           flagBox = CustomContainer(
             height: 16, width: 16,
             borderRadius: BorderRadius.circular(11),
-            conColor: Colors.white,
+            conColor: Colors.black,
             boxShadow: [
               BoxShadow(color: Colors.black.withOpacity(.30), blurRadius: 20, offset: const Offset(5, 2)),
             ],
@@ -467,7 +491,7 @@ void showCountryDialogTop(BuildContext context) {
               flagBox,
               const SizedBox(width: 10),
               CustomText(
-                label ?? '',          // <- safe
+                label ?? '',
                 color: txt,
                 fontWeight: FontWeight.w400,
                 fontSize: 12,
@@ -544,23 +568,39 @@ void showCountryDialogTop(BuildContext context) {
         elevation: 0,
         child: Stack(
           children: [
+            // ✅ tap anywhere on background to dismiss
             Positioned.fill(
-              child: BackdropFilter(
-                filter: ui.ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-                child: Container(color: Colors.black.withOpacity(0.08)),
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => Navigator.of(ctx).pop(),
+                child: BackdropFilter(
+                  filter: ui.ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                  child: Container(color: Colors.black.withOpacity(0.08)),
+                ),
               ),
             ),
-            Align(alignment: Alignment.topCenter, child: Padding(padding: const EdgeInsets.only(top: 14), child: dialogCard)),
+            // content stays interactive; taps here won't close
+            Align(
+              alignment: Alignment.topCenter,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 14),
+                child: dialogCard,
+              ),
+            ),
           ],
         ),
       );
     },
     transitionBuilder: (ctx, anim, _, child) {
       final a = CurvedAnimation(parent: anim, curve: Curves.easeOutCubic);
-      return SlideTransition(position: Tween<Offset>(begin: const Offset(0, -0.06), end: Offset.zero).animate(a), child: child);
+      return SlideTransition(
+        position: Tween<Offset>(begin: const Offset(0, -0.06), end: Offset.zero).animate(a),
+        child: child,
+      );
     },
   );
 }
+
 
 
 
@@ -684,13 +724,12 @@ class _TriangleClipper extends CustomClipper<Path> {
 
 // invite box
 
-
-
-
-
-
 class InviteDialog {
-  static Future<void> showInviteSheet(BuildContext context) async {
+  static Future<void> showInviteSheet(
+      BuildContext context, {
+        Color? backgroundColor, // optional bg color
+        double? height,         // 👈 optional height
+      }) async {
     // inline share item
     Widget shareItem({
       required String label,
@@ -732,7 +771,7 @@ class InviteDialog {
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent, // transparent base
+      backgroundColor: Colors.transparent,
       builder: (ctx) {
         return ClipRRect(
           borderRadius: const BorderRadius.only(
@@ -742,18 +781,19 @@ class InviteDialog {
           child: SafeArea(
             top: false,
             bottom: false,
-            child: Container(
-              height: 260,
-              decoration: BoxDecoration(
-                // ⬇️ ONLY CHANGE: make sheet color a bit more opaque for a clean glass look
-                color: Colors.white.withOpacity(0.80),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
+            child: SizedBox(
+              height: height ?? 260, // 👈 default 260, custom if provided
+              child: Material(
+                color: backgroundColor ?? Colors.white.withOpacity(0.80),
+                elevation: 0,
+                shadowColor: Colors.transparent,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
                 ),
-              ),
-              child: BackdropFilter(
-                filter: ui.ImageFilter.blur(sigmaX: 15, sigmaY: 15), // blur effect behind
+                clipBehavior: Clip.antiAlias,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 18),
                   child: Column(
@@ -761,7 +801,7 @@ class InviteDialog {
                     children: [
                       const Center(
                         child: Text(
-                          'Invite user',
+                          'Invite Host',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
@@ -799,6 +839,11 @@ class InviteDialog {
     );
   }
 }
+
+
+
+
+
 
 
 // purchase box

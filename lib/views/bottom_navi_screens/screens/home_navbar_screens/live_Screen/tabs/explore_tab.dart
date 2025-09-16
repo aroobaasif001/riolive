@@ -37,46 +37,59 @@ class _ExploreTabState extends State<ExploreTab> {
       slivers: [
         const SliverToBoxAdapter(child: SizedBox(height: 12)),
         SliverToBoxAdapter(
-          child: CarouselSlider(
-            items: banners
-                .map(
-                  (b) => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
-                  child: Image.asset(b, fit: BoxFit.cover, width: double.infinity),
+          child: SizedBox(
+            height: 120, // 110 banner + 10px space for dots inside
+            child: Stack(
+              children: [
+                // === Carousel ===
+                CarouselSlider(
+                  items: banners.map((b) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(14),
+                        child: Image.asset(b, fit: BoxFit.cover, width: double.infinity),
+                      ),
+                    );
+                  }).toList(),
+                  options: CarouselOptions(
+                    height: 110,
+                    viewportFraction: 0.93,
+                    autoPlay: true,
+                    enlargeCenterPage: true,
+                    onPageChanged: (index, reason) {
+                      setState(() => _bannerIndex = index);
+                    },
+                  ),
                 ),
-              ),
-            )
-                .toList(),
-            options: CarouselOptions(
-              height: 110,
-              viewportFraction: 0.93,
-              autoPlay: true,
-              enlargeCenterPage: true,
-              onPageChanged: (index, reason) {
-                setState(() => _bannerIndex = index);
-              },
+
+                // === Dots INSIDE the banner ===
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 20, // inside rounded image
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      banners.length,
+                          (i) => AnimatedContainer(
+                        duration: const Duration(milliseconds: 220),
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withOpacity(_bannerIndex == i ? 1 : 0.35),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
-        SliverToBoxAdapter(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-              banners.length,
-                  (i) => Container(
-                width: _bannerIndex == i ? 18 : 6,
-                height: 6,
-                margin: const EdgeInsets.symmetric(horizontal: 3, vertical: 6),
-                decoration: BoxDecoration(
-                  color: _bannerIndex == i ? Colors.green : Colors.green.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-              ),
-            ),
-          ),
-        ),
+
         const SliverToBoxAdapter(child: SizedBox(height: 14)),
         SliverToBoxAdapter(
           child: Row(
@@ -84,7 +97,7 @@ class _ExploreTabState extends State<ExploreTab> {
               const SizedBox(width: 15),
               const Image(image: AssetImage('assets/icons/globleicon.png'), height: 25, width: 25),
               const SizedBox(width: 6),
-              const Text('Global', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+              const Text('Global', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700,color: Colors.white)),
               const SizedBox(width: 10),
               _CountryChip(
                 label: 'Philippines',
@@ -94,7 +107,7 @@ class _ExploreTabState extends State<ExploreTab> {
               ),
               // === Mint pill with 3 glossy, overlapped flag circles ===
               // Mini pill with 3 overlapped glossy flags (each 18x26)
-              SizedBox(width: 20,),
+              SizedBox(width: 2,),
               CustomContainer(
                 height: 27,
                 width: 63,
@@ -204,20 +217,28 @@ class _ExploreTabState extends State<ExploreTab> {
 
 
 
-              const SizedBox(width: 20),
+              const SizedBox(width: 6),
 
-              CustomCircleButton(
-                child: const Image(
-                  image: AssetImage('assets/icons/multiicon.png'),
-                  height: 10,
-                  width: 12,
-                ),
-                onPressed: () {
-                  showCountryDialogTop(context);
-                },
-                size: 25,
-              )
-            ],
+    InkWell(
+    onTap: () => showCountryDialogTop(context),
+    child: CustomContainer(
+    shape: BoxShape.circle,
+    conColor: Colors.white.withOpacity(0.4),
+    height: 27,
+    width: 27,
+    child: Center(
+    child: Image.asset(
+    'assets/icons/multiicon.png',
+    height: 16,   // 👈 yahan se control
+    width: 16,    // 👈 yahan se control
+    fit: BoxFit.contain,
+    filterQuality: FilterQuality.high,
+    ),
+    ),
+    ),
+    ),
+
+    ],
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 10)),
@@ -226,7 +247,7 @@ class _ExploreTabState extends State<ExploreTab> {
           sliver: SliverGrid(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              mainAxisExtent: 230,
+              mainAxisExtent: 200,
               mainAxisSpacing: 12,
               crossAxisSpacing: 12,
             ),
@@ -238,48 +259,12 @@ class _ExploreTabState extends State<ExploreTab> {
                 children: [
                   CustomContainer(
                     height: 159,
-                    padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(25),
                       topRight: Radius.circular(25),
                     ),
                     image: DecorationImage(image: AssetImage(img), fit: BoxFit.fill),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        CustomContainer(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          conColor: Colors.redAccent,
-                          borderRadius: BorderRadius.circular(12),
-                          child: const Text(
-                            'Live',
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12),
-                          ),
-                        ),
-                        CustomContainer(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          conColor: Colors.black54,
-                          borderRadius: BorderRadius.circular(12),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.favorite, color: Colors.pinkAccent, size: 14),
-                              const SizedBox(width: 4),
-                              const SizedBox.shrink(),
-                              Text(
-                                viewers,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                   CustomContainer(
                     height: 35,
@@ -333,7 +318,7 @@ class _CountryChip extends StatelessWidget {
         height: 27,
         width: 105,
         padding: EdgeInsets.symmetric(horizontal: 5 * scale, vertical: 2 * scale),
-        conColor: Colors.white38,
+        conColor: Colors.white.withOpacity(0.4),
         borderRadius: BorderRadius.circular(28 * scale),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           _FlagBadge(diameter: 20 * scale, emoji: emoji, flagAsset: flagAsset),
