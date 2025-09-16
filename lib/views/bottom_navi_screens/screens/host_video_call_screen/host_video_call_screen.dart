@@ -10,6 +10,7 @@ import '../../../../controller/random_call_controller.dart';
 import '../../../../customwidgets/custom_container.dart';
 import '../../../../customwidgets/custombutton.dart';
 import '../../../../customwidgets/customtext.dart';
+
 // import '../../../../services/socket_service.dart';
 import '../../../../customwidgets/filter_bottom_sheet.dart';
 import 'host_start_live_streaming_screen/host_start_live_streaming_screen.dart';
@@ -29,6 +30,7 @@ class _HostVideoCallScreenState extends State<HostVideoCallScreen>
 
   final controller = Get.put(HostVideoCallController());
   final size = Get.size;
+
   @override
   void initState() {
     print("init");
@@ -62,10 +64,11 @@ class _HostVideoCallScreenState extends State<HostVideoCallScreen>
   @override
   void didPopNext() {
     // Small delay to let the transition finish
-    Future.delayed(const Duration(milliseconds: 150), _forceReinitializePreview);
+    Future.delayed(
+      const Duration(milliseconds: 150),
+      _forceReinitializePreview,
+    );
   }
-
-  
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -106,8 +109,12 @@ class _HostVideoCallScreenState extends State<HostVideoCallScreen>
       );
 
       // Set proper profile and role for preview reliability on some devices
-      await callController.engine!.setChannelProfile(ChannelProfileType.channelProfileLiveBroadcasting);
-      await callController.engine!.setClientRole(role: ClientRoleType.clientRoleBroadcaster);
+      await callController.engine!.setChannelProfile(
+        ChannelProfileType.channelProfileLiveBroadcasting,
+      );
+      await callController.engine!.setClientRole(
+        role: ClientRoleType.clientRoleBroadcaster,
+      );
 
       // Small delay to avoid race after initialize
       await Future.delayed(const Duration(milliseconds: 120));
@@ -127,30 +134,37 @@ class _HostVideoCallScreenState extends State<HostVideoCallScreen>
 
   Future<void> _forceReinitializePreview() async {
     try {
-      try { await callController.engine?.stopPreview(); } catch (_) {}
+      try {
+        await callController.engine?.stopPreview();
+      } catch (_) {}
       await callController.leaveChannel();
-      try { await callController.engine?.release(); } catch (_) {}
+      try {
+        await callController.engine?.release();
+      } catch (_) {}
       callController.engine = null;
       await Future.delayed(const Duration(milliseconds: 300));
       await _initAgoraPreview();
-      Get.snackbar(
-        "Camera",
-        "Preview refreshed",
-        snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 2),
-      );
+      // Get.snackbar(
+      //   "Camera",
+      //   "Preview refreshed",
+      //   snackPosition: SnackPosition.BOTTOM,
+      //   duration: const Duration(seconds: 2),
+      // );
     } catch (e) {
       debugPrint("Force reinit error: $e");
-      Get.snackbar(
-        "Camera",
-        "Failed to refresh preview",
-        backgroundColor: Colors.red.withOpacity(0.8),
-        colorText: Colors.white,
-      );
+      // Get.snackbar(
+      //   "Camera",
+      //   "Failed to refresh preview",
+      //   backgroundColor: Colors.red.withOpacity(0.8),
+      //   colorText: Colors.white,
+      // );
     }
   }
 
-  Future<void> _startPreviewWithRetry(RtcEngine engine, {int retries = 2}) async {
+  Future<void> _startPreviewWithRetry(
+    RtcEngine engine, {
+    int retries = 2,
+  }) async {
     int attempts = 0;
     while (true) {
       try {
@@ -195,55 +209,57 @@ class _HostVideoCallScreenState extends State<HostVideoCallScreen>
                   rtcEngine: callController.engine!,
                   canvas: const VideoCanvas(
                     uid: 0,
-                    sourceType: VideoSourceType.videoSourceCamera, // 👈 important
+                    sourceType:
+                        VideoSourceType.videoSourceCamera, // 👈 important
                   ),
                 ),
               ),
             )
           else
             const Center(child: CircularProgressIndicator(color: Colors.white)),
-          // // 🔹 Background (replace with your live background image)
-          // CustomContainer(
-          //   height: size.height,
-          //   width: size.width,
-          //   image: const DecorationImage(
-          //     image: AssetImage("assets/images/hostVideoBg.png"),
-          //     fit: BoxFit.cover,
-          //   ),
-          // ),
-
-          // // 🔹 Camera Preview as Background
-          // FutureBuilder(
-          //   future: _initializeControllerFuture,
-          //   builder: (context, snapshot) {
-          //     if (snapshot.connectionState == ConnectionState.done) {
-          //       return CameraPreview(_cameraController);
-          //     } else {
-          //       return const Center(child: CircularProgressIndicator());
-          //     }
-          //   },
-          // ),
-
-          // 🔹 Overlay content
           SafeArea(
             child: Column(
               children: [
                 // Close button ❌
-                Padding(
-                  padding: const EdgeInsets.only(right: 15.0),
-                  child: Align(
-                    alignment: Alignment.bottomRight,
-                    child: CloseButton(
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStatePropertyAll(Colors.red),
-                      ),
-                      onPressed: () async {
-                        // 👇 stop preview & release engine
-                        await callController.engine?.stopPreview();
-                        await callController.leaveChannel();
-                        Get.back();
-                      },
-                      color: Colors.white,
+                InkWell(
+                  onTap: () async {
+                    await callController.engine?.stopPreview();
+                    await callController.leaveChannel();
+                    Get.back();
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 15.0),
+                    child: Align(
+                      alignment: Alignment.bottomRight,
+                      child: Container(
+                        padding: EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                          // borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      )
+                      // SizedBox(
+                        // child: CloseButton(
+                        //
+                        //   style: ButtonStyle(
+                        //     backgroundColor: WidgetStatePropertyAll(Colors.red),
+                        //     // iconSize: ,
+                        //   ),
+                        //   onPressed: () async {
+                        //     // 👇 stop preview & release engine
+                        //     await callController.engine?.stopPreview();
+                        //     await callController.leaveChannel();
+                        //     Get.back();
+                        //   },
+                        //   color: Colors.white,
+                        // ),
+                      // ),
                     ),
                   ),
                 ),
@@ -348,7 +364,8 @@ class _HostVideoCallScreenState extends State<HostVideoCallScreen>
                                           Image.asset(
                                             controller.isPublic.value
                                                 ? "assets/icons/group.png" // 👥
-                                                : "assets/icons/group.png", // 🔒
+                                                : "assets/icons/group.png",
+                                            // 🔒
                                             height: 18,
                                             width: 18,
                                           ),
@@ -440,118 +457,261 @@ class _HostVideoCallScreenState extends State<HostVideoCallScreen>
                         ),
                       ),
                     ),
-
-                    const SizedBox(width: 20),
-
-                    // Right circle (refresh preview)
-                    InkWell(
-                      onTap: _forceReinitializePreview,
-                      child: CustomContainer(
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.3),
-                          width: 1,
-                        ),
-                        conColor: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(40),
-                        child: const Padding(
-                          padding: EdgeInsets.all(10.0),
-                          child: Icon(
-                            Icons.refresh,
-                            color: Colors.white,
-                            size: 36,
-                          ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
 
                 const SizedBox(height: 20),
 
                 // Live Button
-                CustomButton(
-                  text: "Live",
-                  backgroundColor: Colors.purple,
-                  textColor: Colors.white,
-                  height: 55,
-                  width: size.width * 0.5,
-                  onPressed: () async {
-                    debugPrint("🔴 LIVE BUTTON PRESSED - Starting live call...");
-                    final data = await callController.startLiveCall(
-                      AppUrl.token,
+                InkWell(
+                  onTap: () async {
+                    debugPrint(
+                      "🔴 LIVE BUTTON PRESSED - Starting live call...",
                     );
-                    debugPrint("🔴 LIVE BUTTON - startLiveCall response: $data");
-                    
-                    if (data != null && data["status"] == "success") {
-                      final agora = data["agora"];
-                      debugPrint("🔴 LIVE BUTTON - Agora data: $agora");
-                      debugPrint("✅ LIVE BUTTON - Host registered successfully, navigating to live screen...");
-                      
-                      final result = await Get.to(
-                        () => const HostStartLiveStreamingScreen(),
-                        arguments: {
-                          "channelName": agora["channelName"],
-                          "token": agora["hostToken"] ?? agora["token"],
-                          "appId": agora["appId"],
-                          "uid": agora["uid"],
-                          "isHost": true,
-                        },
+
+                    // ✅ Show loading while preparing live stream
+                    Get.dialog(
+                      AlertDialog(
+                        backgroundColor: Colors.black87,
+                        content: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircularProgressIndicator(color: Colors.purple),
+                            SizedBox(width: 16),
+                            Text(
+                              'Preparing live stream...',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                      barrierDismissible: false,
+                    );
+
+                    try {
+                      // ✅ Properly cleanup current engine before going live
+                      debugPrint(
+                        "🔴 Cleaning up preview engine before live...",
+                      );
+                      try {
+                        await callController.engine?.stopPreview();
+                        await Future.delayed(const Duration(milliseconds: 100));
+                        await callController.leaveChannel();
+                        await Future.delayed(const Duration(milliseconds: 100));
+                        await callController.engine?.release();
+                        callController.engine = null;
+                      } catch (e) {
+                        debugPrint("🔴 Cleanup warning: $e");
+                      }
+
+                      // ✅ Wait for cleanup to complete
+                      await Future.delayed(const Duration(milliseconds: 300));
+
+                      final data = await callController.startLiveCall(
+                        AppUrl.token,
+                      );
+                      debugPrint(
+                        "🔴 LIVE BUTTON - startLiveCall response: $data",
                       );
 
-                      // When user ends live, reinitialize local preview here
-                      if (result == 'ended' || result == true) {
-                        debugPrint("⚫ LIVE ENDED - Reinitializing preview...");
-                        // Slight delay to ensure previous screen is fully popped
-                        await Future.delayed(const Duration(milliseconds: 200));
-                        await _initAgoraPreview();
+                      if (data != null && data["status"] == "success") {
+                        final agora = data["agora"];
+                        debugPrint("🔴 LIVE BUTTON - Agora data: $agora");
+                        debugPrint(
+                          "✅ LIVE BUTTON - Host registered successfully, navigating to live screen...",
+                        );
+
+                        // ✅ Close loading dialog
+                        Get.back();
+
+                        final result = await Get.to(
+                              () => const HostStartLiveStreamingScreen(),
+                          arguments: {
+                            "channelName": agora["channelName"],
+                            "token": agora["hostToken"] ?? agora["token"],
+                            "appId": agora["appId"],
+                            "uid": agora["uid"],
+                            "isHost": true,
+                          },
+                        );
+
+                        // When user ends live, reinitialize local preview here
+                        if (result == 'ended' || result == true) {
+                          debugPrint(
+                            "⚫ LIVE ENDED - Reinitializing preview...",
+                          );
+                          // Slight delay to ensure previous screen is fully popped
+                          await Future.delayed(
+                            const Duration(milliseconds: 500),
+                          );
+                          await _initAgoraPreview();
+                        }
+                      } else {
+                        // ✅ Close loading dialog on error
+                        Get.back();
+                        debugPrint(
+                          "❌ LIVE BUTTON - Failed to start live: $data",
+                        );
+                        Get.snackbar(
+                          "Error",
+                          data?["message"] ?? "Failed to start live",
+                          backgroundColor: Colors.red.withOpacity(0.8),
+                          colorText: Colors.white,
+                        );
                       }
-                    } else {
-                      debugPrint("❌ LIVE BUTTON - Failed to start live: $data");
+                    } catch (e) {
+                      // ✅ Close loading dialog on exception
+                      if (Get.isDialogOpen == true) Get.back();
+                      debugPrint("❌ LIVE BUTTON - Exception: $e");
                       Get.snackbar(
                         "Error",
-                        data?["message"] ?? "Failed to start live",
+                        "Failed to start live stream: $e",
+                        backgroundColor: Colors.red.withOpacity(0.8),
+                        colorText: Colors.white,
                       );
                     }
                   },
+                  child: Container(
+                    height: 55,
+                    width: 200,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(40),
+                      gradient: LinearGradient(
+                        colors: [Color(0xff996CE9), Color(0xffF858CB)],
+                      ),
+                    ),
+                    child: Center(child: CustomText("Live",color: Colors.white,fontSize: 22,fontWeight: FontWeight.w900,)),
+                  ),
                 ),
+
+                // CustomButton(
+                //   text: "Live",
+                //   backgroundColor: Colors.purple,
+                //   textColor: Colors.white,
+                //   height: 55,
+                //   gradientColors: [Color(0xff996CE9), Color(0xffF858CB)],
+                //   width: size.width * 0.5,
+                //   onPressed: () async {
+                //     debugPrint(
+                //       "🔴 LIVE BUTTON PRESSED - Starting live call...",
+                //     );
+                //
+                //     // ✅ Show loading while preparing live stream
+                //     Get.dialog(
+                //       AlertDialog(
+                //         backgroundColor: Colors.black87,
+                //         content: const Row(
+                //           mainAxisSize: MainAxisSize.min,
+                //           children: [
+                //             CircularProgressIndicator(color: Colors.purple),
+                //             SizedBox(width: 16),
+                //             Text(
+                //               'Preparing live stream...',
+                //               style: TextStyle(color: Colors.white),
+                //             ),
+                //           ],
+                //         ),
+                //       ),
+                //       barrierDismissible: false,
+                //     );
+                //
+                //     try {
+                //       // ✅ Properly cleanup current engine before going live
+                //       debugPrint(
+                //         "🔴 Cleaning up preview engine before live...",
+                //       );
+                //       try {
+                //         await callController.engine?.stopPreview();
+                //         await Future.delayed(const Duration(milliseconds: 100));
+                //         await callController.leaveChannel();
+                //         await Future.delayed(const Duration(milliseconds: 100));
+                //         await callController.engine?.release();
+                //         callController.engine = null;
+                //       } catch (e) {
+                //         debugPrint("🔴 Cleanup warning: $e");
+                //       }
+                //
+                //       // ✅ Wait for cleanup to complete
+                //       await Future.delayed(const Duration(milliseconds: 300));
+                //
+                //       final data = await callController.startLiveCall(
+                //         AppUrl.token,
+                //       );
+                //       debugPrint(
+                //         "🔴 LIVE BUTTON - startLiveCall response: $data",
+                //       );
+                //
+                //       if (data != null && data["status"] == "success") {
+                //         final agora = data["agora"];
+                //         debugPrint("🔴 LIVE BUTTON - Agora data: $agora");
+                //         debugPrint(
+                //           "✅ LIVE BUTTON - Host registered successfully, navigating to live screen...",
+                //         );
+                //
+                //         // ✅ Close loading dialog
+                //         Get.back();
+                //
+                //         final result = await Get.to(
+                //           () => const HostStartLiveStreamingScreen(),
+                //           arguments: {
+                //             "channelName": agora["channelName"],
+                //             "token": agora["hostToken"] ?? agora["token"],
+                //             "appId": agora["appId"],
+                //             "uid": agora["uid"],
+                //             "isHost": true,
+                //           },
+                //         );
+                //
+                //         // When user ends live, reinitialize local preview here
+                //         if (result == 'ended' || result == true) {
+                //           debugPrint(
+                //             "⚫ LIVE ENDED - Reinitializing preview...",
+                //           );
+                //           // Slight delay to ensure previous screen is fully popped
+                //           await Future.delayed(
+                //             const Duration(milliseconds: 500),
+                //           );
+                //           await _initAgoraPreview();
+                //         }
+                //       } else {
+                //         // ✅ Close loading dialog on error
+                //         Get.back();
+                //         debugPrint(
+                //           "❌ LIVE BUTTON - Failed to start live: $data",
+                //         );
+                //         Get.snackbar(
+                //           "Error",
+                //           data?["message"] ?? "Failed to start live",
+                //           backgroundColor: Colors.red.withOpacity(0.8),
+                //           colorText: Colors.white,
+                //         );
+                //       }
+                //     } catch (e) {
+                //       // ✅ Close loading dialog on exception
+                //       if (Get.isDialogOpen == true) Get.back();
+                //       debugPrint("❌ LIVE BUTTON - Exception: $e");
+                //       Get.snackbar(
+                //         "Error",
+                //         "Failed to start live stream: $e",
+                //         backgroundColor: Colors.red.withOpacity(0.8),
+                //         colorText: Colors.white,
+                //       );
+                //     }
+                //   },
+                // ),
 
                 const SizedBox(height: 30),
               ],
             ),
           ),
-
-          // 🔄 In-screen refresh button (visible even if FAB is hidden by layout)
-          Positioned(
-            right: 16,
-            bottom: 16,
-            child: GestureDetector(
-              onTap: _forceReinitializePreview,
-              child: Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: Colors.blueGrey.withOpacity(0.9),
-                  shape: BoxShape.circle,
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black45,
-                      blurRadius: 6,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: const Icon(Icons.refresh, color: Colors.white, size: 22),
-              ),
-            ),
-          ),
         ],
       ),
       // FAB also added; if not visible due to layout, use the in-screen button above
-      floatingActionButton: FloatingActionButton.small(
-        onPressed: _forceReinitializePreview,
-        backgroundColor: Colors.blueGrey,
-        child: const Icon(Icons.refresh, color: Colors.white),
-      ),
+      // floatingActionButton: FloatingActionButton.small(
+      //   onPressed: _forceReinitializePreview,
+      //   backgroundColor: Colors.blueGrey,
+      //   child: const Icon(Icons.refresh, color: Colors.white),
+      // ),
     );
   }
 }

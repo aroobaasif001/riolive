@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:riolive/customwidgets/custom_circle.dart';
 import 'package:riolive/customwidgets/customtext.dart';
-import 'package:riolive/views/bottom_navi_screens/screens/home_navbar_screens/match_screen/user_video_call_screen/user_video_call_screen.dart';
 
 import '../../../../../controller/random_call_controller.dart';
 import '../../../../../services/socket_service.dart';
@@ -29,52 +28,69 @@ class _MatchTabState extends State<MatchTab> {
     });
   }
 
-  final CallController _callController = CallController();
-
   @override
   Widget build(BuildContext context) {
+    // ✅ Responsive helper
+    final size = MediaQuery.of(context).size;
+    final isTablet = size.width > 600;
+    final scaleFactor = size.width / 390; // Base width 390px
+    
+    // ✅ More aggressive scaling for CustomCircle on smaller screens
+    double circleScaleFactor;
+    if (size.width < 350) {
+      // Very small screens - scale down more
+      circleScaleFactor = scaleFactor * 0.7;
+    } else if (size.width < 400) {
+      // Small screens - moderate scale down
+      circleScaleFactor = scaleFactor * 0.8;
+    } else {
+      // Regular and large screens - normal scaling
+      circleScaleFactor = scaleFactor;
+    }
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: Colors.transparent,
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const SizedBox(height: 30),
+            Spacer(flex: 1),
           CustomCircle(
             centerImg: 'assets/images/girl_img2.png',
-            topLeftImg: 'assets/images/girl_img2.png',
-            topRightImg: 'assets/images/girl_img2.png',
-            centerLeftImg: 'assets/images/girl_img2.png',
-            centerRightImg: 'assets/images/girl_img2.png',
-            bottomLeftImg: 'assets/images/girl_img2.png',
-            bottomRightImg: 'assets/images/girl_img2.png',
+            topLeftImg: 'assets/images/profile.png',
+            topRightImg: 'assets/images/profile12.png',
+            centerLeftImg: 'assets/images/profile.jpg',
+            centerRightImg: 'assets/images/story_0.png',
+            bottomLeftImg: 'assets/images/story_1.jpg',
+            bottomRightImg: 'assets/images/girl_img1.png',
+            scaleFactor: circleScaleFactor, // ✅ Use circle-specific scale factor
           ),
-          const SizedBox(height: 30),
-          const CustomText(
+          Spacer(flex: 1),
+          CustomText(
             'Match Random Video Call',
-            color: Color(0xff5EBFEF),
-            fontSize: 26,
+            color: const Color(0xff5EBFEF),
+            fontSize: isTablet ? 32 : (size.width < 350 ? 22 : 26) * scaleFactor,
             fontWeight: FontWeight.bold,
             fontType: AppFont.poppins,
           ),
-          const SizedBox(height: 30),
+          SizedBox(height: (size.width < 350 ? 12 : 20) * scaleFactor),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               Image(
-                image: AssetImage('assets/icons/diamondicon.png'),
-                height: 20,
-                width: 27,
+                image: const AssetImage('assets/icons/diamondicon.png'),
+                height: (size.width < 350 ? 16 : 20) * scaleFactor,
+                width: (size.width < 350 ? 21 : 27) * scaleFactor,
               ),
               CustomText(
                 '800/min',
-                color: Color(0xff60ED59),
-                fontSize: 26,
+                color: const Color(0xff60ED59),
+                fontSize: isTablet ? 32 : (size.width < 350 ? 22 : 26) * scaleFactor,
                 fontWeight: FontWeight.bold,
                 fontType: AppFont.poppins,
               ),
             ],
           ),
-          const SizedBox(height: 30),
+          SizedBox(height: (size.width < 350 ? 12 : 20) * scaleFactor),
           // Socket connection status indicator
           Obx(() {
             final status = SocketService.to.connectionStatus.value;
@@ -97,17 +113,17 @@ class _MatchTabState extends State<MatchTab> {
             return Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.circle, color: statusColor, size: 12),
-                const SizedBox(width: 8),
+                Icon(Icons.circle, color: statusColor, size: 12 * scaleFactor),
+                SizedBox(width: 8 * scaleFactor),
                 CustomText(
                   'Status: ${status.toUpperCase()}',
                   color: Colors.white,
-                  fontSize: 14,
+                  fontSize: isTablet ? 16 : (size.width < 350 ? 12 : 14) * scaleFactor,
                 ),
               ],
             );
           }),
-          const SizedBox(height: 20),
+          Spacer(flex: 1),
           Material(
             color: Colors.transparent,
             shape: const CircleBorder(),
@@ -177,13 +193,13 @@ class _MatchTabState extends State<MatchTab> {
                 }
               },
               child: Container(
-                height: 80,
-                width: 80,
+                height: (isTablet ? 100 : size.width < 350 ? 70 : 80) * scaleFactor,
+                width: (isTablet ? 100 : size.width < 350 ? 70 : 80) * scaleFactor,
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.white,
                 ),
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all((size.width < 350 ? 6 : 8) * scaleFactor),
                 child: Image.asset(
                   'assets/icons/phoneicon.png',
                   fit: BoxFit.contain,
@@ -191,6 +207,7 @@ class _MatchTabState extends State<MatchTab> {
               ),
             ),
           ),
+          Spacer(flex: 3),
           // // Debug button (remove in production)
           // TextButton(
           //   onPressed: () {

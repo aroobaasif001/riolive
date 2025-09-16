@@ -14,11 +14,13 @@ class CustomTextFormField extends StatelessWidget {
   final double width;  // Custom width
   final EdgeInsetsGeometry padding; // Custom padding
   final Color hintTextColor; // Custom hintText color
+  final Color textColor; // Custom text color
   final hint;
   final maxLines;
   final maxLength;
   final readOnly;
   final suffixIcon;
+  final Color? backgroundColor;
 
   const CustomTextFormField({
     super.key,
@@ -33,11 +35,13 @@ class CustomTextFormField extends StatelessWidget {
     this.width = 300.0, // Default width
     this.padding = const EdgeInsets.symmetric(horizontal: 16.0), // Default padding
     this.hintTextColor = Colors.black38,
+    this.textColor = Colors.black87, // Default text color
     this.hint,
     this.maxLines,
     this.maxLength,
     this.readOnly,
-    this.suffixIcon, // Default hintText color
+    this.suffixIcon,
+    this.backgroundColor, // Default background color
   });
 
   @override
@@ -49,7 +53,7 @@ class CustomTextFormField extends StatelessWidget {
       width: width, // Use custom width
       padding: padding, // Use custom padding
       decoration: fb.BoxDecoration(
-        color: Colors.white,
+        color: backgroundColor ?? Colors.white,
         borderRadius: BorderRadius.circular(40),
         boxShadow: [
           fb.BoxShadow(
@@ -95,7 +99,7 @@ class CustomTextFormField extends StatelessWidget {
               style: GoogleFonts.inter(
                 fontSize: screenWidth * 0.040,
                 fontWeight: FontWeight.w500,
-                color: Colors.black87,
+                color: textColor, // Use custom text color
               ),
               decoration: InputDecoration(
                 hintText: hintText,

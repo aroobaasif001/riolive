@@ -911,35 +911,90 @@ class CallController extends GetxController {
     String? reason,
   }) async {
     try {
-      debugPrint("❌ Rejecting private call: $callId");
+      debugPrint("❌ ===========================================");
+      debugPrint("❌ REJECTING PRIVATE CALL");
+      debugPrint("❌ Call ID: $callId");
+      debugPrint("❌ Host ID: ${AppUrl.riolive_id}");
+      debugPrint("❌ Reason: ${reason ?? 'Host declined'}");
+      debugPrint("❌ Token Available: ${AppUrl.token?.isNotEmpty ?? false}");
+      debugPrint("❌ ===========================================");
       
       if (AppUrl.token?.isEmpty ?? true) {
+        debugPrint("❌ Authentication token not available");
         throw Exception('Authentication token not available');
       }
 
+      final url = '${AppUrl.privateCallReject}$callId';
+      debugPrint("❌ REQUEST DETAILS:");
+      debugPrint("❌ URL: $url");
+      debugPrint("❌ Method: POST");
+      debugPrint("❌ Headers: Content-Type: application/json");
+      debugPrint("❌ Auth: Bearer ${AppUrl.token?.substring(0, 20)}...");
+      debugPrint("❌ Body: ${json.encode({'reason': reason ?? 'Host declined'})}");
+
       final response = await http.post(
-        Uri.parse('${AppUrl.privateCallReject}$callId'),
+        Uri.parse(url),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${AppUrl.token}',
         },
         body: json.encode({
-          'reason': reason ?? 'User declined',
+          'reason': reason ?? 'Host declined',
         }),
+      ).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          debugPrint("⏰ Private call reject request timed out after 10 seconds");
+          throw Exception('Request timeout after 10 seconds');
+        },
       );
 
-      debugPrint("❌ Reject private call response - Status: ${response.statusCode}");
-      debugPrint("❌ Reject private call response - Body: ${response.body}");
+      debugPrint("❌ ===========================================");
+      debugPrint("❌ RESPONSE RECEIVED:");
+      debugPrint("❌ Status Code: ${response.statusCode}");
+      debugPrint("❌ Response Headers: ${response.headers}");
+      debugPrint("❌ Response Body: ${response.body}");
+      debugPrint("❌ ===========================================");
 
       if (response.statusCode == 200) {
-        debugPrint("✅ Private call rejected successfully");
+        final responseData = json.decode(response.body);
+        debugPrint("✅ ===========================================");
+        debugPrint("✅ PRIVATE CALL REJECTED SUCCESSFULLY!");
+        debugPrint("✅ Response Data: $responseData");
+        debugPrint("✅ Status: ${responseData['status']}");
+        debugPrint("✅ Message: ${responseData['message']}");
+        debugPrint("✅ ===========================================");
+        
+        // Backend should emit "private_call_status" event with status: "rejected"
+        debugPrint("📤 Backend should emit private_call_status event to notify requester");
         return true;
       } else {
-        debugPrint("❌ Reject private call failed: ${response.statusCode} - ${response.body}");
+        debugPrint("❌ ===========================================");
+        debugPrint("❌ PRIVATE CALL REJECT FAILED!");
+        debugPrint("❌ Status Code: ${response.statusCode}");
+        debugPrint("❌ Error Body: ${response.body}");
+        debugPrint("❌ ===========================================");
+        
+        try {
+          final errorData = json.decode(response.body);
+          final errorMessage = errorData['message'] ?? 'Unknown error';
+          debugPrint("❌ Server Error Message: $errorMessage");
+        } catch (e) {
+          debugPrint("❌ Could not parse error response: $e");
+        }
+        
         return false;
       }
     } catch (e) {
-      debugPrint("❌ Error rejecting private call: $e");
+      debugPrint("💥 ===========================================");
+      debugPrint("💥 PRIVATE CALL REJECT EXCEPTION!");
+      debugPrint("💥 Error Type: ${e.runtimeType}");
+      debugPrint("💥 Error Message: $e");
+      debugPrint("💥 Stack Trace: ${StackTrace.current}");
+      debugPrint("💥 Call ID: $callId");
+      debugPrint("💥 Host ID: ${AppUrl.riolive_id}");
+      debugPrint("💥 Token Available: ${AppUrl.token?.isNotEmpty ?? false}");
+      debugPrint("💥 ===========================================");
       return false;
     }
   }

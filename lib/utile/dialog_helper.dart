@@ -1766,7 +1766,7 @@ Future<void> showLiveEndDialog(
       ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
       child: CustomText(
         text,
-        fontSize: 50,
+        fontSize: 40,
         fontWeight: FontWeight.w600,
         color: Colors.white,
         fontType: AppFont.poppins,
@@ -1784,44 +1784,75 @@ Future<void> showLiveEndDialog(
   // ---- header (black strip) ----
   Widget coinsHeader(int coins) {
     return CustomContainer(
-      height: 72,
+      height: 50,
       width: double.infinity,
       conColor: const Color(0xFF1C1416),
-      child: Stack(
+      child: Row(
         children: [
-          const Positioned(
-            top: 40,
-            left: 140,
-            child: CustomText(
-              'Total Coins earning this time',
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: Colors.white,
-            ),
+          Spacer(),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.monetization_on,
+                      color: Color(0xFFFFD76B), size: 18),
+                  const SizedBox(width: 6),
+                  CustomText(
+                    fmtCoins(coins),
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                  ),
+                ],
+              ),
+              CustomText(
+                        'Total Coins earning this time',
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
+
+            ],
           ),
-          Positioned(
-            left: 185,
-            top: 10,
-            child: Row(
-              children: [
-                const Icon(Icons.monetization_on,
-                    color: Color(0xFFFFD76B), size: 18),
-                const SizedBox(width: 6),
-                CustomText(
-                  fmtCoins(coins),
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                ),
-              ],
-            ),
-          ),
-          const Positioned(
-            right: 7,
-            top: 20,
-            child: Icon(Icons.chevron_right, color: Colors.white70, size: 40),
-          ),
+          SizedBox(width: 10,),
+          Icon(Icons.chevron_right, color: Colors.white70, size: 40),
         ],
       ),
+      // child: Stack(
+      //   children: [
+      //     const Positioned(
+      //       top: 40,
+      //       left: 140,
+      //       child: CustomText(
+      //         'Total Coins earning this time',
+      //         fontSize: 10,
+      //         fontWeight: FontWeight.w500,
+      //         color: Colors.white,
+      //       ),
+      //     ),
+      //     Positioned(
+      //       left: 185,
+      //       top: 10,
+      //       child: Row(
+      //         children: [
+      //           const Icon(Icons.monetization_on,
+      //               color: Color(0xFFFFD76B), size: 18),
+      //           const SizedBox(width: 6),
+      //           CustomText(
+      //             fmtCoins(coins),
+      //             fontWeight: FontWeight.w800,
+      //             color: Colors.white,
+      //           ),
+      //         ],
+      //       ),
+      //     ),
+      //     const Positioned(
+      //       right: 7,
+      //       top: 20,
+      //       child: Icon(Icons.chevron_right, color: Colors.white70, size: 40),
+      //     ),
+      //   ],
+      // ),
     );
   }
 
@@ -1831,13 +1862,13 @@ Future<void> showLiveEndDialog(
       children: [
         CustomText(
           left,
-          fontSize: 20,
+          fontSize: 14,
           fontWeight: FontWeight.w600,
           color: Colors.black,
         ),
         CustomText(
           right,
-          fontSize: 20,
+          fontSize: 14,
           fontWeight: FontWeight.w600,
           color: Colors.black,
         ),
@@ -1853,14 +1884,14 @@ Future<void> showLiveEndDialog(
           children: [
             // grey track
             CustomContainer(
-              height: 20,
+              height: 12,
               width: double.infinity,
               borderRadius: BorderRadius.circular(999),
               conColor: const Color(0xFF7B6F73),
             ),
             // gradient fill
             CustomContainer(
-              height: 20,
+              height: 12,
               width: (w * value.clamp(0, 1)),
               borderRadius: BorderRadius.circular(999),
               gradient: const LinearGradient(
@@ -1902,12 +1933,12 @@ Future<void> showLiveEndDialog(
                   labelRow('Call Duration:', fmtDur(callDuration)),
                   const SizedBox(height: 12),
                   pinkProgress(callDuration.inSeconds / (60 * 60)),
-                  const SizedBox(height: 22),
+                  const SizedBox(height: 15),
 
                   labelRow('Live Time:', fmtDur(liveTime)),
                   const SizedBox(height: 12),
                   pinkProgress(liveTime.inSeconds / (60 * 60)),
-                  const SizedBox(height: 22),
+                  const SizedBox(height: 15),
 
                   labelRow('Fans Amount:', '+${fansAmount.toString().padLeft(2, '0')}'),
                   const SizedBox(height: 12),

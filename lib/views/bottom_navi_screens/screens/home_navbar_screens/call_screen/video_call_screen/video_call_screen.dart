@@ -213,7 +213,6 @@ class _VideoCallScreenState extends State<VideoCallScreen>
 
       // ✅ Start periodic refresh timer to prevent hanging
       _startVideoRefreshTimer();
-
       _initialized = true;
       debugPrint("✅ Call initialized successfully");
     } catch (e) {

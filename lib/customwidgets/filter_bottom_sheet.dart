@@ -61,7 +61,7 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent> {
     return Container(
       height: screenSize.height * 0.4,
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.5),
+        color: Colors.black.withOpacity(0.8),
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(24),
           topRight: Radius.circular(24),

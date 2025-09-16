@@ -6,6 +6,7 @@ import 'custom_container.dart';
 import 'customtext.dart';
 import '../utile/app_url.dart';
 import '../controller/random_call_controller.dart';
+import 'filter_bottom_sheet.dart';
 
 void showRoomToolsSheet(BuildContext context) {
   showModalBottomSheet(
@@ -80,7 +81,7 @@ void showRoomToolsSheet(BuildContext context) {
                     fontSize: 20,
                   ),
                   const SizedBox(height: 10),
-                  _buildOtherToolsRow(),
+                  _buildOtherToolsRow(context),
                   const SizedBox(height: 10),
                   const CustomText(
                     "Games",
@@ -133,11 +134,15 @@ void showRoomToolsSheet(BuildContext context) {
 }
 
 /// Build other tools row - conditionally show Private Call based on user role
-Widget _buildOtherToolsRow() {
+Widget _buildOtherToolsRow(context) {
   List<Widget> tools = [
-    const BottomIcon(
+    BottomIcon(
       asset: 'assets/icons/three_circle.png',
       label: 'Filter',
+      onTap: (){
+        Get.back();
+        FilterBottomSheet.show(context);
+      },
     ),
     const BottomIcon(
       asset: 'assets/icons/live_time.png',
@@ -308,52 +313,15 @@ Future<void> _showPrivateCallHostSelection() async {
     if (liveHosts.isEmpty) {
       debugPrint("❌ No live hosts available for private calls");
       
-      // Show options: wait or debug mode
-      Get.dialog(
-        AlertDialog(
-          backgroundColor: Colors.black.withOpacity(0.9),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Row(
-            children: [
-              Icon(Icons.search_off, color: Colors.orange, size: 24),
-              SizedBox(width: 8),
-              Text('No Live Hosts', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'No hosts are currently live for private calls.',
-                style: TextStyle(color: Colors.white, fontSize: 16),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 16),
-              Text(
-                'You can:',
-                style: TextStyle(color: Colors.white70, fontSize: 14),
-              ),
-              SizedBox(height: 8),
-              Text(
-                '• Wait for hosts to go live\n• Try debug mode (for testing)',
-                style: TextStyle(color: Colors.white60, fontSize: 12),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Get.back(),
-              child: Text('Wait', style: TextStyle(color: Colors.grey)),
-            ),
-            TextButton(
-              onPressed: () {
-                Get.back();
-                _debugPrivateCallRequest();
-              },
-              child: Text('🧪 Debug Mode', style: TextStyle(color: Colors.orange)),
-            ),
-          ],
-        ),
+      // Show simple no hosts message
+      Get.snackbar(
+        '⚠️ No Live Hosts',
+        'No hosts are currently available for private calls. Please try again later.',
+        backgroundColor: Colors.orange.withOpacity(0.8),
+        colorText: Colors.white,
+        duration: const Duration(seconds: 4),
+        icon: const Icon(Icons.search_off, color: Colors.white),
+        snackPosition: SnackPosition.BOTTOM,
       );
       return;
     }
@@ -369,16 +337,16 @@ Future<void> _showPrivateCallHostSelection() async {
     
     debugPrint("❌ Error in host selection: $e");
     
-    // Fallback to debug mode
+    // Show error message
     Get.snackbar(
-      '⚠️ Error',
-      'Could not fetch live hosts. Using debug mode.',
-      backgroundColor: Colors.orange.withOpacity(0.8),
+      '❌ Connection Error',
+      'Unable to connect to server. Please check your internet connection and try again.',
+      backgroundColor: Colors.red.withOpacity(0.8),
       colorText: Colors.white,
-      duration: Duration(seconds: 3),
+      duration: Duration(seconds: 4),
+      icon: Icon(Icons.wifi_off, color: Colors.white),
+      snackPosition: SnackPosition.BOTTOM,
     );
-    
-    _debugPrivateCallRequest();
   }
 }
 
@@ -449,13 +417,6 @@ void _showHostSelectionDialog(List<Map<String, dynamic>> liveHosts) {
         TextButton(
           onPressed: () => Get.back(),
           child: Text('Cancel', style: TextStyle(color: Colors.grey)),
-        ),
-        TextButton(
-          onPressed: () {
-            Get.back();
-            _debugPrivateCallRequest();
-          },
-          child: Text('🧪 Debug Mode', style: TextStyle(color: Colors.orange)),
         ),
       ],
     ),
@@ -574,13 +535,6 @@ void _showHostPrivateCallOptions() {
           onPressed: () => Get.back(),
           child: Text('Got it', style: TextStyle(color: Colors.white)),
         ),
-        TextButton(
-          onPressed: () {
-            Get.back();
-            _debugPrivateCallRequest();
-          },
-          child: Text('🧪 Debug Mode', style: TextStyle(color: Colors.orange)),
-        ),
       ],
     ),
   );
@@ -657,13 +611,7 @@ void _debugPrivateCallRequest() async {
     
     if (liveHosts.isEmpty) {
       debugPrint("🧪 DEBUG: ❌ No live hosts found!");
-      Get.snackbar(
-        '⚠️ No Live Hosts',
-        'No hosts are currently live for private calls',
-        backgroundColor: Colors.orange.withOpacity(0.8),
-        colorText: Colors.white,
-        duration: const Duration(seconds: 3),
-      );
+      // Don't show snackbar for debug mode - just return silently
       return;
     }
     
@@ -683,15 +631,7 @@ void _debugPrivateCallRequest() async {
     debugPrint("🧪 DEBUG: - Token Available: ${AppUrl.token != null && AppUrl.token!.isNotEmpty}");
     debugPrint("🧪 DEBUG: - Host Data: $targetHost");
     
-    // Show loading
-    Get.snackbar(
-      '📞 Sending Request',
-      'Requesting private call to $hostName...',
-      backgroundColor: Colors.blue.withOpacity(0.8),
-      colorText: Colors.white,
-      duration: const Duration(seconds: 2),
-      showProgressIndicator: true,
-    );
+    // Debug mode - no loading UI for internal testing
     
     // Make the API call directly
     final result = await controller.requestPrivateCall(
@@ -709,44 +649,16 @@ void _debugPrivateCallRequest() async {
       debugPrint("🧪 DEBUG: ✅ Debug Info: ${result['debug']}");
       debugPrint("🧪 DEBUG: ==========================================");
       
-      // Show detailed success snackbar
-      Get.snackbar(
-        '✅ Private Call Sent',
-        'Request sent to $hostName successfully!',
-        backgroundColor: Colors.green.withOpacity(0.8),
-        colorText: Colors.white,
-        duration: const Duration(seconds: 4),
-        messageText: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Request sent to $hostName successfully!', style: TextStyle(color: Colors.white)),
-            SizedBox(height: 4),
-            Text('Call ID: ${result['privateCall']?['id']}', style: TextStyle(color: Colors.white70, fontSize: 12)),
-          ],
-        ),
-      );
+      // Debug success - minimal UI
+      debugPrint("🧪 DEBUG: Request sent successfully in debug mode");
     } else {
       debugPrint("🧪 DEBUG: ==========================================");
       debugPrint("🧪 DEBUG: ❌ Private call request FAILED!");
       debugPrint("🧪 DEBUG: ❌ Result was null - check API response above");
       debugPrint("🧪 DEBUG: ==========================================");
       
-      // Show detailed error snackbar  
-      Get.snackbar(
-        '❌ Request Failed',
-        'Private call request failed - Backend may need update',
-        backgroundColor: Colors.red.withOpacity(0.8),
-        colorText: Colors.white,
-        duration: const Duration(seconds: 4),
-        messageText: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Private call request failed', style: TextStyle(color: Colors.white)),
-            SizedBox(height: 4),
-            Text('Backend developer needs to update private call API', style: TextStyle(color: Colors.white70, fontSize: 12)),
-          ],
-        ),
-      );
+      // Debug failure - minimal UI
+      debugPrint("🧪 DEBUG: Request failed in debug mode");
     }
     
   } catch (e) {
@@ -756,21 +668,7 @@ void _debugPrivateCallRequest() async {
     debugPrint("🧪 DEBUG: ❌ Error Type: ${e.runtimeType}");
     debugPrint("🧪 DEBUG: ==========================================");
     
-    // Show detailed error snackbar
-    Get.snackbar(
-      '❌ Exception Occurred',
-      'Private call failed with exception',
-      backgroundColor: Colors.red.withOpacity(0.8),
-      colorText: Colors.white,
-      duration: const Duration(seconds: 4),
-      messageText: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Private call failed with exception', style: TextStyle(color: Colors.white)),
-          SizedBox(height: 4),
-          Text('Error: ${e.toString()}', style: TextStyle(color: Colors.white70, fontSize: 12)),
-        ],
-      ),
-    );
+    // Debug exception - minimal UI  
+    debugPrint("🧪 DEBUG: Exception occurred in debug mode");
   }
 }

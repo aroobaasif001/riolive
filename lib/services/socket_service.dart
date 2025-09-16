@@ -446,6 +446,19 @@ class SocketService extends GetxService {
           relevanceReason = 'User involved in ended call';
         }
       }
+      // ✅ NEW: Handle call rejected status
+      else if (status == 'rejected') {
+        // Check if user was the one who requested this call
+        if (requesterId == AppUrl.riolive_id.toString()) {
+          isRelevantForUser = true;
+          relevanceReason = 'User is the one who requested this rejected call (ID match)';
+        }
+        // ✅ FALLBACK: If user is not a host and receives rejection, likely for them
+        else if (AppUrl.user_role != 'host' && AppUrl.user_role == 'user') {
+          isRelevantForUser = true;
+          relevanceReason = 'User role - non-host receiving rejection event (likely intended for this user)';
+        }
+      }
       
       debugPrint("🔍 Is relevant for user: $isRelevantForUser");
       debugPrint("🔍 Relevance reason: $relevanceReason");
@@ -459,6 +472,14 @@ class SocketService extends GetxService {
           debugPrint("🔚 Processing as private_call_ended event...");
           debugPrint("🔚 ==========================================");
           _handlePrivateCallEndedByOther(data);
+        } else if (status == 'rejected') {
+          debugPrint("❌ ==========================================");
+          debugPrint("❌ TREATING private_call_status AS REJECTED!");
+          debugPrint("❌ Reason: $relevanceReason");
+          debugPrint("❌ Status: $status");
+          debugPrint("❌ Processing as private_call_rejected event...");
+          debugPrint("❌ ==========================================");
+          _handlePrivateCallRejected(data);
         } else {
           debugPrint("🔧 ==========================================");
           debugPrint("🔧 TREATING private_call_status AS ACCEPTED!");
@@ -491,10 +512,81 @@ class SocketService extends GetxService {
       }
     });
 
-    // Other events
+    // ================== LIVE STREAM EVENTS ==================
+    
+    // Host joins live streaming  
     socket?.on("host_joined_live", (raw) async {
       debugPrint("🔴 Host joined live: $raw");
       _handleLiveStreamNotification(raw);
+    });
+    
+    // Host properly ends live stream
+    socket?.on("host_live_ended", (raw) async {
+      debugPrint("⚫ Host live stream ended: $raw");
+      _handleLiveStreamEnded(raw, reason: 'Host ended the live stream');
+    });
+    
+    // Host app closed/crashed/killed (unexpected disconnect)
+    socket?.on("host_disconnected", (raw) async {
+      debugPrint("🔌 Host disconnected unexpectedly: $raw");
+      _handleLiveStreamEnded(raw, reason: 'Host connection lost');
+    });
+    
+    // Host went offline (app in background too long or killed)
+    socket?.on("host_went_offline", (raw) async {
+      debugPrint("📱 Host went offline: $raw");
+      _handleLiveStreamEnded(raw, reason: 'Host went offline');
+    });
+    
+    // Generic live stream status updates
+    socket?.on("live_stream_status", (raw) async {
+      debugPrint("📡 Live stream status update: $raw");
+      _handleLiveStreamStatusUpdate(raw);
+    });
+    
+    // ✅ Host properly calls go-offline API (using app_url.offLiveLiveCall)
+    socket?.on("host_goes_offline", (raw) async {
+      debugPrint("🔴 Host properly went offline via API: $raw");
+      _handleLiveStreamEnded(raw, reason: 'Host properly ended live streaming');
+    });
+    
+    // Alternative event names that backend might send
+    socket?.on("host_offline_api_called", (raw) async {
+      debugPrint("🔴 Host called go-offline API: $raw");
+      _handleLiveStreamEnded(raw, reason: 'Host ended live session');
+    });
+    
+    socket?.on("live_stream_stopped", (raw) async {
+      debugPrint("🛑 Live stream stopped: $raw");
+      _handleLiveStreamEnded(raw, reason: 'Live stream stopped');
+    });
+    
+    // ✅ Handle host_status updates to catch when host goes offline
+    socket?.on("host_status", (raw) async {
+      debugPrint("👤 Host status event received: $raw");
+      
+      try {
+        final Map<String, dynamic> data = raw is Map ? Map<String, dynamic>.from(raw) : {};
+        final hostId = data['hostId']?.toString() ?? '';
+        final status = data['status']?.toString() ?? '';
+        final hostName = data['hostName']?.toString() ?? 'Host';
+        final roomId = data['roomId']?.toString() ?? '';
+        
+        debugPrint("👤 Host Status Details: hostId=$hostId, status=$status, hostName=$hostName, roomId=$roomId");
+        
+        // Check if host went offline
+        if (status.toLowerCase() == 'offline') {
+          debugPrint("👤 ⚫ HOST WENT OFFLINE DETECTED!");
+          debugPrint("👤 Host: $hostName (ID: $hostId)");
+          debugPrint("👤 Room: $roomId");
+          debugPrint("👤 Triggering live stream ended for viewers...");
+          
+          _handleLiveStreamEnded(raw, reason: '$hostName ended the live stream');
+        }
+        
+      } catch (e) {
+        debugPrint("❌ Error processing host_status event: $e");
+      }
     });
 
     // ✅ Note: call_accepted, call_rejected, call_ended events are already handled above
@@ -1154,6 +1246,190 @@ class SocketService extends GetxService {
   void _handleLiveStreamNotification(dynamic raw) {
     // extend kar sakte ho agar lives ke liye toast/popup dikhani ho
   }
+  
+  /// Handle when live stream ends (for viewers)
+  void _handleLiveStreamEnded(dynamic raw, {required String reason}) {
+    try {
+      debugPrint("⚫ ===========================================");
+      debugPrint("⚫ LIVE STREAM ENDED EVENT");
+      debugPrint("⚫ Raw data: $raw");
+      debugPrint("⚫ Reason: $reason");
+      debugPrint("⚫ Current user: ${AppUrl.user_name} (ID: ${AppUrl.riolive_id})");
+      debugPrint("⚫ Current user role: ${AppUrl.user_role}");
+      debugPrint("⚫ Current route: ${Get.currentRoute}");
+      debugPrint("⚫ ===========================================");
+      
+      final Map<String, dynamic> data = raw is Map
+          ? Map<String, dynamic>.from(raw)
+          : {};
+      
+      final hostId = data['hostId']?.toString() ?? '';
+      final hostName = data['hostName']?.toString() ?? 'Host';
+      final streamId = data['streamId']?.toString() ?? '';
+      
+      debugPrint("⚫ Host ID: $hostId");
+      debugPrint("⚫ Host Name: $hostName");
+      debugPrint("⚫ Stream ID: $streamId");
+      
+      // Only show to viewers (users who are not hosts)
+      if (AppUrl.user_role == 'host') {
+        debugPrint("⚫ Current user is host - not showing live ended message");
+        return;
+      }
+      
+      // Check if user is currently watching live stream
+      final currentRoute = Get.currentRoute;
+      final isWatchingLive = currentRoute.contains('Live') || 
+                            currentRoute.contains('Stream') || 
+                            currentRoute.contains('Host');
+      
+      debugPrint("⚫ Is watching live stream: $isWatchingLive");
+      debugPrint("⚫ Current route: $currentRoute");
+      
+      if (isWatchingLive) {
+        // Show live ended dialog and navigate back
+        _showLiveStreamEndedDialog(hostName, reason);
+      } else {
+        // Just show a toast notification
+        Get.snackbar(
+          '⚫ Live Stream Ended',
+          '$hostName\'s live stream has ended',
+          backgroundColor: Colors.grey[800],
+          colorText: Colors.white,
+          duration: const Duration(seconds: 3),
+          icon: const Icon(Icons.tv_off, color: Colors.white),
+          snackPosition: SnackPosition.TOP,
+        );
+      }
+      
+    } catch (e) {
+      debugPrint("💥 Error handling live stream ended: $e");
+    }
+  }
+  
+  /// Handle live stream status updates
+  void _handleLiveStreamStatusUpdate(dynamic raw) {
+    try {
+      final Map<String, dynamic> data = raw is Map
+          ? Map<String, dynamic>.from(raw)
+          : {};
+      
+      final status = data['status']?.toString() ?? '';
+      final hostId = data['hostId']?.toString() ?? '';
+      final hostName = data['hostName']?.toString() ?? 'Host';
+      
+      debugPrint("📡 Live stream status: $status for $hostName (ID: $hostId)");
+      
+      if (status == 'ended' || status == 'offline' || status == 'disconnected') {
+        _handleLiveStreamEnded(data, reason: 'Live stream $status');
+      }
+      
+    } catch (e) {
+      debugPrint("💥 Error handling live stream status update: $e");
+    }
+  }
+  
+  /// Show dialog when live stream ends while user is watching
+  void _showLiveStreamEndedDialog(String hostName, String reason) {
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: Colors.black.withOpacity(0.95),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.tv_off, color: Colors.red, size: 24),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text(
+                'Live Stream Ended',
+                style: TextStyle(
+                  color: Colors.white, 
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '$hostName\'s live stream has ended.',
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              reason,
+              style: const TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'You will be redirected back.',
+              style: TextStyle(color: Colors.white60, fontSize: 12),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Get.back(); // Close dialog
+              _navigateBackFromLiveStream();
+            },
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.grey.withOpacity(0.2),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('OK', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+      barrierDismissible: false,
+    );
+  }
+  
+  /// Navigate back when live stream ends
+  void _navigateBackFromLiveStream() {
+    try {
+      debugPrint("🔙 Navigating back from ended live stream");
+      debugPrint("🔙 Current route: ${Get.currentRoute}");
+      
+      // Force close any video/live streaming related screens
+      final currentRoute = Get.currentRoute;
+      
+      if (currentRoute.contains('Live') || 
+          currentRoute.contains('Stream') || 
+          currentRoute.contains('Host') ||
+          currentRoute.contains('Video')) {
+        
+        Get.back();
+        
+        // Small delay then show confirmation
+        Future.delayed(const Duration(milliseconds: 500), () {
+          Get.snackbar(
+            '⚫ Stream Ended',
+            'Live stream has ended. You have been redirected back.',
+            backgroundColor: Colors.grey[800],
+            colorText: Colors.white,
+            duration: const Duration(seconds: 3),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            snackPosition: SnackPosition.BOTTOM,
+          );
+        });
+      }
+      
+    } catch (e) {
+      debugPrint("❌ Error navigating back from live stream: $e");
+    }
+  }
 
   // ================= HOST ROOM METHODS =================
   
@@ -1545,6 +1821,23 @@ class SocketService extends GetxService {
       socket?.off("call_rejected");
       socket?.off("call_ended");
       socket?.off("host_joined_live");
+      
+      // ✅ Clean up live stream listeners
+      socket?.off("host_live_ended");
+      socket?.off("host_disconnected");
+      socket?.off("host_went_offline");
+      socket?.off("live_stream_status");
+      socket?.off("host_goes_offline");
+      socket?.off("host_offline_api_called");
+      socket?.off("live_stream_stopped");
+      socket?.off("host_status");
+      
+      // ✅ Clean up private call listeners
+      socket?.off("private_call_request");
+      socket?.off("private_call_accepted");
+      socket?.off("private_call_rejected");
+      socket?.off("private_call_ended");
+      socket?.off("private_call_status");
 
       socket?.disconnect();
       socket?.dispose();
@@ -1895,33 +2188,50 @@ class SocketService extends GetxService {
   /// Handle private call rejected (for users)
   void _handlePrivateCallRejected(dynamic raw) {
     try {
+      debugPrint("❌ ===========================================");
+      debugPrint("❌ PRIVATE CALL REJECTED EVENT RECEIVED");
+      debugPrint("❌ Raw data: $raw");
+      debugPrint("❌ Current user: ${AppUrl.user_name} (ID: ${AppUrl.riolive_id})");
+      debugPrint("❌ ===========================================");
+      
       final Map<String, dynamic> data = raw is Map
           ? Map<String, dynamic>.from(raw)
           : {};
 
-      final callId = (data['callId'] ?? data['id'] ?? '').toString();
+      // Extract data based on backend response structure
+      final callId = (data['privateCallId'] ?? data['callId'] ?? data['id'] ?? '').toString();
       final hostName = data['hostName']?.toString() ?? 'Host';
-      final reason = data['reason']?.toString() ?? 'Declined';
+      final reason = data['reason']?.toString() ?? 'declined';
+      final requesterId = data['requesterId']?.toString();
 
-      debugPrint("❌ Private call rejected - CallID: $callId, Host: $hostName, Reason: $reason");
+      debugPrint("❌ Extracted Data:");
+      debugPrint("❌ - Call ID: $callId");
+      debugPrint("❌ - Host Name: $hostName");
+      debugPrint("❌ - Reason: $reason");
+      debugPrint("❌ - Requester ID: $requesterId");
+
+      // Note: We've already determined this rejection is relevant for current user in the main event handler
+      // So we don't need to do strict ID matching here - just show the rejection message
+      debugPrint("✅ Private call rejection confirmed for current user (determined by relevance check)");
 
       // Close any loading dialogs
       if (Get.isDialogOpen == true) {
         Get.back();
       }
 
-      // Show rejection message
+      // Show simple rejection message to user
       Get.snackbar(
         '❌ Call Declined',
-        '$hostName declined your private call request',
+        'The host declined your private call request',
         backgroundColor: Colors.red.withOpacity(0.8),
         colorText: Colors.white,
-        duration: const Duration(seconds: 3),
+        duration: const Duration(seconds: 4),
         icon: const Icon(Icons.call_end, color: Colors.white),
+        snackPosition: SnackPosition.BOTTOM,
       );
 
     } catch (e) {
-      debugPrint("❌ Error handling private call rejected: $e");
+      debugPrint("💥 Error handling private call rejected: $e");
     }
   }
 
