@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/agency_screen1/HostApplicationScreen.dart';
 
 import '../../../../../../customwidgets/custom_container.dart';
 import '../../../../../../customwidgets/custom_gradient_button.dart';
@@ -233,17 +234,23 @@ class TopMineScreen extends StatelessWidget {
                       const SizedBox(width: 3),
                       const Icon(Icons.chevron_right, size: 18, color: Colors.black54),
                       const Spacer(),
-                      CustomContainer(
-                        height: 38,
-                        width: 97,
-                        conColor: Color(0xff8EF797),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                          Image(image: AssetImage('assets/icons/Bell_Notification_24.png'),height: 22,width: 16,),
-                          CustomText('Application',fontWeight: FontWeight.w500,fontSize: 9,)
-                        ],),
+                      InkWell(
+                        onTap: () {
+
+                          Get.to(()=>HostApplicationScreen());
+                        },
+                        child: CustomContainer(
+                          height: 38,
+                          width: 97,
+                          conColor: Color(0xff8EF797),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                            Image(image: AssetImage('assets/icons/Bell_Notification_24.png'),height: 22,width: 16,),
+                            CustomText('Application',fontWeight: FontWeight.w500,fontSize: 9,)
+                          ],),
+                        ),
                       )
                     ],
 
