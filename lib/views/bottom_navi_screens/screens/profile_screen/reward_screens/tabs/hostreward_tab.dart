@@ -25,9 +25,7 @@ class HostrewardTab extends StatelessWidget {
                         height: 36,
                         width: 237,
                         borderRadius: BorderRadius.circular(5),
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFFA979FF), Color(0xFFB08CFF)],
-                        ),
+                        conColor: const Color(0x63870AE1), // 👈 bg color set here
                         boxShadow: [
                           BoxShadow(
                             color: const Color(0xFF9B7BFF).withOpacity(.35),
@@ -52,6 +50,7 @@ class HostrewardTab extends StatelessWidget {
                         ),
                       ),
                     ),
+
                     const SizedBox(height: 18),
 
                     // ================= Stats Card =================
@@ -77,27 +76,28 @@ class HostrewardTab extends StatelessWidget {
                             children: [
                               CustomText(
                                 '( June 10- June 16 )',
-                                fontSize: 14,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w600,
                                 color: Color(0xFF1F1F1F),
                                 shadows: [],
                               ),
                               CustomText(
                                 'Today Hourly Salary',
-                                fontSize: 14,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w600,
                                 color: Color(0xFF1F1F1F),
                                 shadows: [],
                               ),
                             ],
                           ),
+                          SizedBox(height: 5,),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
                             children: [
                               CustomText(
                                 'Income in the past 7 days',
-                                fontSize: 12,
+                                fontSize: 11,
                                 fontWeight: FontWeight.w500,
                                 color: Color(0xFF1F1F1F),
                                 shadows: [],
@@ -205,7 +205,7 @@ class HostrewardTab extends StatelessWidget {
                             child: CustomText(
                               'Today Live Duration 60 minutes',
                               fontSize: 12,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w700,
                               color: Color(0xFF1E1E1E),
                               shadows: [],
                             ),
@@ -257,7 +257,7 @@ class HostrewardTab extends StatelessWidget {
                                       '0/60Mins',
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
-                                      color: Color(0xFF8F96A2),
+                                      color: Colors.black54,
                                       shadows: [],
                                     ),
                                   ],
@@ -315,9 +315,9 @@ class HostrewardTab extends StatelessWidget {
                             '3. The increase in your count income today will change your task level for the next day, but will not change your task level and hourly salary ratio for today.\n\n'
                             '4. Your task will be refreshed after task timer count down. Timer will follow Singapore Time Zone UTC +1.\n\n'
                             '5. The accumulative time of the task of receiving your basic salary is only calculated according to the time you have started the single-player live broadcast. The party room duration is not counted.',
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: FontWeight.w400,
-                        color: Color(0xFF6E6E7E),
+                        color: Colors.black,
                         lineHeight: 1.5,
                         maxLines: 999,
                         overflow: TextOverflow.visible,
@@ -340,24 +340,46 @@ class HostrewardTab extends StatelessWidget {
       height: 20,
       width: 71,
       borderRadius: BorderRadius.circular(38),
-      gradient: selected
-          ? const LinearGradient(colors: [Color(0xFFFF6173), Color(0xFFFF6173)])
-          : const LinearGradient(colors: [Color(0xFFD4DBFF), Color(0xFFD4DBFF)]),
+      conColor: const Color(0x63E10A0E), // 👈 your color code
       alignment: Alignment.center,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: Stack(
         children: [
-          const Icon(Icons.monetization_on, color: Colors.yellow, size: 16),
-          const SizedBox(width: 4),
-          CustomText(
-            text,
-            color: selected ? Colors.white : const Color(0xFF6F79A4),
-            fontWeight: FontWeight.w500,
-            fontSize: 10,
-            shadows: const [],
+          // Inner shadow effect
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(38),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.white.withOpacity(0.25),
+                  blurRadius: 4,
+                  spreadRadius: -2, // negative = inner shadow feel
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+          ),
+          // Actual chip content
+          Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.monetization_on,
+                    color: Colors.yellow, size: 16),
+                const SizedBox(width: 4),
+                CustomText(
+                  text,
+                  color: Colors.white, // ✅ always white
+                  fontWeight: FontWeight.w500,
+                  fontSize: 10,
+                  shadows: const [],
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
+
+
 }

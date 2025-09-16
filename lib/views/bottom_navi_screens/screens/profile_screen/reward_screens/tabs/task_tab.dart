@@ -27,43 +27,89 @@ extension RSX on BuildContext { RS get rs => RS(this); }
 /// ==== Reusable atoms ====
 class GButton extends StatelessWidget {
   final String text;
-  final bool success;
+  final bool success; // true = claimed
   const GButton({super.key, required this.text, this.success = false});
+
   @override
   Widget build(BuildContext context) {
     final r = context.rs;
     return CustomContainer(
-      width: r.w(62), height: r.h(28), alignment: Alignment.center,
+      width: r.w(62),
+      height: r.h(28),
+      alignment: Alignment.center,
       borderRadius: BorderRadius.circular(r.px(24)),
       gradient: success
-          ? const LinearGradient(colors: [Color(0xFF7EFF96), Color(0xFF7DD0B7), Color(0xFF7B6AFF)])
-          : const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight,
-          colors: [Color(0xFFE87EFF), Color(0xFFA96AFF)]),
-      child: CustomText(text, color: Colors.white, fontSize: r.sp(12), fontWeight: FontWeight.w600),
+          ? const LinearGradient(
+        colors: [Color(0xFF7EFF96), Color(0xFF7DD0B7), Color(0xFF7B6AFF)],
+      )
+          : const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Color(0xFFE87EFF), Color(0xFFA96AFF)],
+      ),
+      child: CustomText(
+        text,
+        color: success ? Colors.black45 : Colors.white, // ✅ Claimed=gray, Go=white
+        fontSize: r.sp(12),
+        fontWeight: FontWeight.w600,
+      ),
     );
   }
 }
 
+
 class DayTile extends StatelessWidget {
-  final String label; final double w; final double h; final double imgH;
-  const DayTile({super.key, required this.label, required this.w, required this.h, required this.imgH});
+  final String label;
+  final double w;
+  final double h;
+  final double imgH;
+  final String img; // 👈 new field
+
+  const DayTile({
+    super.key,
+    required this.label,
+    required this.w,
+    required this.h,
+    required this.imgH,
+    required this.img, // 👈 required now
+  });
+
   @override
   Widget build(BuildContext context) {
     final r = context.rs;
     return CustomContainer(
-      width: r.w(w), height: r.h(h),
+      width: r.w(w),
+      height: r.h(h),
       borderRadius: BorderRadius.circular(r.px(18)),
-      gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [
-        Colors.white.withOpacity(.45), Colors.white.withOpacity(.30),
-      ]),
-      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Image.asset('assets/images/Layer 4.png', height: r.h(imgH), fit: BoxFit.contain),
-        SizedBox(height: r.h(6)),
-        CustomText(label, fontSize: r.sp(12), color: const Color(0xFF6A6A6A), fontWeight: FontWeight.w600),
-      ]),
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Colors.white.withOpacity(.45),
+          Colors.white.withOpacity(.30),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            img, // 👈 dynamic image path
+            height: r.h(imgH),
+            fit: BoxFit.contain,
+          ),
+          SizedBox(height: r.h(6)),
+          CustomText(
+            label,
+            fontSize: r.sp(12),
+            color: const Color(0xFF6A6A6A),
+            fontWeight: FontWeight.w600,
+          ),
+        ],
+      ),
     );
   }
 }
+
 
 class RewardItem extends StatelessWidget {
   final String img, title; final double labelW;
@@ -158,7 +204,7 @@ class TaskTab extends StatelessWidget {
             child: CustomContainer(
               conColor: Colors.transparent,
               child: Container(
-                height: r.h(44), width: r.w(130), alignment: Alignment(-0.5, 0),
+                height: r.h(40), width: r.w(130), alignment: Alignment(-0.5, 0),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(
                     topLeft: const Radius.circular(0), bottomLeft: const Radius.circular(0),
@@ -206,10 +252,10 @@ class TaskTab extends StatelessWidget {
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: r.w(12)),
                           child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: const [
-                            DayTile(label: 'Day 1', w: 71, h: 61, imgH: 35),
-                            DayTile(label: 'Day 2', w: 82, h: 69, imgH: 42),
-                            DayTile(label: 'Day 3', w: 91, h: 67, imgH: 46),
-                          ]),
+                            DayTile(label: 'Day 1', w: 71, h: 61, imgH: 35, img: 'assets/images/Layer 3 (1).png'),
+                            DayTile(label: 'Day 2', w: 82, h: 69, imgH: 42, img: 'assets/images/Layer 4.png'),
+                            DayTile(label: 'Day 3', w: 91, h: 67, imgH: 46, img: 'assets/images/Layer 2.png'),
+                          ],),
                         ),
                         SizedBox(height: r.h(12)),
                         SizedBox(
@@ -264,8 +310,8 @@ class TaskTab extends StatelessWidget {
                     top: r.h(235), left: r.w(8), right: 0,
                     child: CustomContainer(
                       height: r.h(86),
-                      borderRadius: BorderRadius.circular(r.px(20)),
-                      image: const DecorationImage(image: AssetImage('assets/images/Union.png'), fit: BoxFit.cover),
+                      borderRadius: BorderRadius.circular(r.px(2)),
+                      image: const DecorationImage(image: AssetImage('assets/images/u.png'), fit: BoxFit.fill),
                       padding: EdgeInsets.only(left: r.w(10), top: r.h(12)),
                       child: Row(children: [
                         for (final (img, title, wLab) in rewards) ...[
@@ -288,11 +334,11 @@ class TaskTab extends StatelessWidget {
             child: Row(children: [
               CustomText('Day  Task', fontSize: r.sp(12), fontWeight: FontWeight.w600, color: const Color(0xFF1A1A1A)),
               const Spacer(),
-              CustomText('Obtained today:', fontSize: r.sp(8), color: const Color(0xFF8A8A8F), fontWeight: FontWeight.w500),
+              CustomText('Obtained today:', fontSize: r.sp(8), color: Colors.black, fontWeight: FontWeight.w500),
               r.wGap(2),
               Image.asset('assets/icons/diamond_icon 2 1.png', width: r.h(13), height: r.h(13)),
               r.wGap(2),
-              CustomText('x0', fontSize: r.sp(10), color: const Color(0xFF8A8A8F), fontWeight: FontWeight.w600),
+              CustomText('x0', fontSize: r.sp(10), color: Colors.black, fontWeight: FontWeight.w800),
             ]),
           ),
 

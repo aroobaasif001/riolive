@@ -87,17 +87,26 @@ class _HeaderBar extends StatelessWidget {
           flagAsset: 'assets/icons/flagicon.png',
         ),
         const Spacer(),
-        CustomCircleButton(
-          child: const Image(
-            image: AssetImage('assets/icons/multiicon.png'),
-            height: 10,
-            width: 12,
+        InkWell(
+          onTap: () => showCountryDialogTop(context),
+          borderRadius: BorderRadius.circular(999),
+          child: CustomContainer(
+            shape: BoxShape.circle,
+            conColor: Colors.white.withOpacity(0.4), // same frosted look
+            height: 27, // fixed size (no responsiveness)
+            width: 27,  // fixed size (no responsiveness)
+            child: Center(
+              child: Image.asset(
+                'assets/icons/multiicon.png',
+                height: 16,
+                width: 16,
+                fit: BoxFit.contain,
+                filterQuality: FilterQuality.high,
+              ),
+            ),
           ),
-          onPressed: () {
-            showCountryDialogTop(context);
-          },
-          size: 25,
-        ),
+        )
+
       ],
     );
   }
