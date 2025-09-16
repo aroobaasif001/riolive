@@ -8,6 +8,9 @@ class Faceauthenticationscreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ init responsive helper (baseline 375x812)
+    R.init(context);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFFB6F2E3),
@@ -17,9 +20,9 @@ class Faceauthenticationscreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
-        title: const CustomText(
+        title: CustomText(
           "Authentication",
-          fontSize: 20,
+          fontSize: R.sp(20),
           fontWeight: FontWeight.bold,
           color: Colors.black,
         ),
@@ -35,67 +38,65 @@ class Faceauthenticationscreen extends StatelessWidget {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(R.w(16)),
           child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 60),
-
-                /// Profile Placeholder
+                SizedBox(height: R.h(60)),
                 CircleAvatar(
-                  radius: 60,
+                  radius: R.r(60),
                   backgroundColor: Colors.blue.shade100,
                   child: ClipOval(
                     child: Image.asset(
                       'assets/images/face_auth1.png',
-                      width: 153,
-                      height: 153,
+                      width: R.w(153),
+                      height: R.w(153),
                       fit: BoxFit.cover,
                     ),
                   ),
                 ),
-
-                const SizedBox(height: 10),
-                const CustomText(
+                SizedBox(height: R.h(10)),
+                CustomText(
                   "Please upload a clear photo of yourself first",
-                  fontSize: 16,
+                  fontSize: R.sp(13),
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 10),
-
                 Divider(
                   thickness: 1,
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withOpacity(0.08),
                 ),
-
-                const SizedBox(height: 20),
-
-                /// 3 Options Row (Fixed)
+                SizedBox(height: R.h(5)),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildActionButton(
-                      "Upload Picture",
-                      'assets/images/face_auth2.png',
+                    Expanded(
+                      child: _buildActionButton(
+                        "Upload Picture",
+                        'assets/images/face_auth2.png',
+                      ),
                     ),
-                    _buildActionButton(
-                      "Selfie With your ID",
-                      'assets/images/face_auth2.png',
+                    SizedBox(width: R.w(5), height: R.h(20)),
+                    Expanded(
+                      child: _buildActionButton(
+                        "Selfie With your ID",
+                        'assets/images/face_auth2.png',
+                      ),
                     ),
-                    _buildActionButton(
-                      "Upload your\nShort video",
-                      'assets/images/face_auth2.png',
+                    SizedBox(width: R.w(1)),
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: R.h(10)),
+                        child: _buildActionButton(
+                          "Upload your \nShort video",
+                          'assets/images/face_auth2.png',
+                        ),
+                      ),
                     ),
                   ],
                 ),
-
-                const SizedBox(height: 100),
-
-                /// Bottom Buttons
+                SizedBox(height: R.h(100)),
                 Column(
                   children: [
                     ElevatedButton(
@@ -103,30 +104,29 @@ class Faceauthenticationscreen extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
                         shadowColor: Colors.transparent,
-                        minimumSize: const Size(double.infinity, 50),
+                        minimumSize: Size(double.infinity, R.h(50)),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: BorderRadius.circular(R.r(24)),
                           side: const BorderSide(
                             color: Color(0xFF9557F9),
                             width: 1.5,
                           ),
                         ),
                       ),
-                      child: const CustomText(
+                      child: CustomText(
                         "Upload a photo of yourself",
-                        fontSize: 14,
+                        fontSize: R.sp(14),
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF9055FA),
+                        color: const Color(0xFF9055FA),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: R.h(20)),
                     CustomGradientButton(
                       text: "Start to Certificate",
-                      fontSize: 20,
-                      height: 57,
-                      width: 386,
+                      width: R.w(300),
+                      height: R.h(50),
                       fontWeight: FontWeight.bold,
-                      borderRadius: 24,
+                      borderRadius: R.r(24),
                       onPressed: () {},
                     ),
                   ],
@@ -139,21 +139,20 @@ class Faceauthenticationscreen extends StatelessWidget {
     );
   }
 
-  /// 🔹 Reusable Button (Image + Text)
   Widget _buildActionButton(String label, String imagePath) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Image.asset(
           imagePath,
-          width: 60,
-          height: 60,
+          width: R.w(50),
+          height: R.w(50),
           fit: BoxFit.cover,
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: R.h(12)),
         CustomText(
           label,
-          fontSize: 14,
+          fontSize: R.sp(10),
           fontWeight: FontWeight.w400,
           textAlign: TextAlign.center,
           color: Colors.black87,
@@ -163,4 +162,35 @@ class Faceauthenticationscreen extends StatelessWidget {
       ],
     );
   }
+}
+
+/// =================================================================
+///               SUPER LIGHTWEIGHT RESPONSIVE UTILS
+///   Baseline: 375 x 812 (iPhone-ish). No 3rd-party packages.
+/// =================================================================
+class R {
+  static late double _sw; // screen width
+  static late double _sh; // screen height
+  static late double _ws; // width scale vs baseline
+  static late double _hs; // height scale vs baseline
+
+  static void init(BuildContext context, {double designW = 375, double designH = 812}) {
+    final size = MediaQuery.of(context).size;
+    _sw = size.width;
+    _sh = size.height;
+    _ws = _sw / designW;
+    _hs = _sh / designH;
+  }
+
+  /// Width-based scaling (best for horizontal paddings, button widths, icons)
+  static double w(double px) => px * _ws;
+
+  /// Height-based scaling (best for vertical paddings, heights)
+  static double h(double px) => px * _hs;
+
+  /// Font scaling (width-based by default)
+  static double sp(double px) => px * _ws;
+
+  /// Radius scaling (corners, circle sizes)
+  static double r(double px) => px * _ws;
 }

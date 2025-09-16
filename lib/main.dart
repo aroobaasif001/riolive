@@ -112,7 +112,7 @@ class _AppStartupState extends State<AppStartup> {
 
         debugPrint("🔄 Stay login successful - Role: ${AppUrl.user_role}");
 
-        // init socket after token/userId
+
         final socketSvc = SocketService.to;
         socketSvc.disposeSocket();
         socketSvc.initSocket(
