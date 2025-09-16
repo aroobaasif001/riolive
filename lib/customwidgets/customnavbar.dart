@@ -46,7 +46,7 @@ class _CustomNavBarState extends State<CustomNavBar>
 
     return Container(
       color: Colors.transparent, // ✅ No background
-      padding: EdgeInsets.symmetric(horizontal: w * 0.025, vertical: 20),
+      padding: EdgeInsets.symmetric(horizontal: w * 0.025, vertical: 0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Add space evenly between items
         children: [
@@ -54,22 +54,29 @@ class _CustomNavBarState extends State<CustomNavBar>
           _buildNavItem("Live", fontLarge, fontSmall),
           _buildNavItem("Party", fontLarge, fontSmall),
           const Spacer(),
-          Row(children: [
-            InkWell(
-              onTap: () => openTopSearchDialog(context),
-              child: Container(
-                height: 32, width: 36,
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Center(
-                  child: Image.asset('assets/icons/searchiconcolor.png', height: 22, width: 22),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 30),
+            child: Row(children: [
+              InkWell(
+                onTap: () => openTopSearchDialog(context),
+                child: Container(
+                  height: 32, width: 36,
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Center(
+                    child: Image.asset('assets/icons/searchiconcolor.png', height: 22, width: 22),
+                  ),
                 ),
               ),
-            ),
-            Image(image: AssetImage('assets/images/textlogo.png'),height: 40,width: 70,)
-          ],),
+              SizedBox(width: 5,),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Image(image: AssetImage('assets/images/textlogo.png'),height: 40,width: 70,),
+              )
+            ],),
+          ),
         ],
       ),
     );

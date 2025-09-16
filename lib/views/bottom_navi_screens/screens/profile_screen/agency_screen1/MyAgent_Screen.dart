@@ -6,7 +6,6 @@ import 'package:riolive/customwidgets/customtext.dart';
 import 'package:riolive/views/bottom_navi_screens/screens/profile_screen/agency_screen1/agencymanagement_tabs_screens.dart';
 
 import '../../../../../../customwidgets/custom_gradient_button.dart';
-import '../about_riolive_screen/AgencyManagementscreen/Agency_Management_Screen.dart';
 
 class MyAgentScreen extends StatelessWidget {
   const MyAgentScreen({super.key});

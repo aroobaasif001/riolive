@@ -9,7 +9,7 @@ import '../../../../../../customwidgets/custom_gradient_button.dart';
 import '../../agency_screen1/showContactAdminDialog.dart';
 import '../../agency_screen1/showInviteHostSheet.dart';
 import 'Exit_agency_showdialog.dart';
-import 'HostApplicationScreen.dart';
+import '../../agency_screen1/HostApplicationScreen.dart';
 
 class MineScreen extends StatefulWidget {
   const MineScreen({super.key});
